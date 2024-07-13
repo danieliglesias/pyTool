@@ -459,7 +459,8 @@ def file_manage(section_dir = None,action = None,field = None,dictionary = None,
         local = '/Users/danieliglesiasvalenzuela/Library/Preferences/Autodesk/maya/2022/prefs/scripts/pyTool/guide/{}'.format(section_dir)
 
     else:
-        errorMessage('Not setup already for other OS than OSX')
+        local = 'C:/Users/danie/Documents/maya/2022/scripts/pyTool/guide/{}'.format(
+            section_dir)
 
     if action == 'load':
         f = open(local)
