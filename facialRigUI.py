@@ -2,8 +2,8 @@ import maya.cmds as cmds
 import os
 import json
 
-import pyRigging.facialRig as face
-import pyRigging.utilities as utili
+import pyTool.facialRig as face
+import pyTool.utilities as utili
 import importlib
 importlib.reload(face)
 importlib.reload(utili)

@@ -1,6 +1,6 @@
 import maya.cmds as cmds
 import json
-import pyRigging.utilities as utili
+import pyTool.utilities as utili
 import importlib
 import math
 import sys
@@ -51,7 +51,7 @@ def load_plane_position(file_name = None):
 
 
     data = utili.file_manage(section_dir = 'eyebrows/{}'.format(file_name[0]),action = 'load')
-    #f = open('/Users/danieliglesiasvalenzuela/Library/Preferences/Autodesk/maya/2022/prefs/scripts/pyRigging/guide/eyebrows/{}'.format(file_name[0]))
+    #f = open('/Users/danieliglesiasvalenzuela/Library/Preferences/Autodesk/maya/2022/prefs/scripts/pyTool/guide/eyebrows/{}'.format(file_name[0]))
     #data = json.load(f)
 
     for item in data:
@@ -350,7 +350,7 @@ def createEyeLidCurve(name = None,l_eye_guide=None,r_eye_guide=None,side=None):
         cmds.parent(upp_curve,low_curve,loc)
 
 def saveCurveCvPosition(name = None ,side = None):
-    directory = '/Users/danieliglesiasvalenzuela/Library/Preferences/Autodesk/maya/2022/prefs/scripts/pyRigging/guide/eyelid/'
+    directory = '/Users/danieliglesiasvalenzuela/Library/Preferences/Autodesk/maya/2022/prefs/scripts/pyTool/guide/eyelid/'
     if not side:
         utili.errorMessage('No side was selected')
     if len(side) == 2:
@@ -377,7 +377,7 @@ def saveCurveCvPosition(name = None ,side = None):
 def loadCurvePosition(name = None ,file_name = None):
 
     f = open(
-        '/Users/danieliglesiasvalenzuela/Library/Preferences/Autodesk/maya/2022/prefs/scripts/pyRigging/guide/eyelid/{}'.format(file_name[0]))
+        '/Users/danieliglesiasvalenzuela/Library/Preferences/Autodesk/maya/2022/prefs/scripts/pyTool/guide/eyelid/{}'.format(file_name[0]))
 
     data = json.load(f)
 
@@ -796,7 +796,7 @@ def generateMouthGuide(name = None, mouth_edgeloop = None):
 
 def save_mouth_guide_position(name=None, guide_list = None, surface = None):
 
-    directory = '/Users/danieliglesiasvalenzuela/Library/Preferences/Autodesk/maya/2022/prefs/scripts/pyRigging/guide/mouth/'
+    directory = '/Users/danieliglesiasvalenzuela/Library/Preferences/Autodesk/maya/2022/prefs/scripts/pyTool/guide/mouth/'
 
     emptyDict = dict()
     #lets save the surface position first
@@ -815,7 +815,7 @@ def save_mouth_guide_position(name=None, guide_list = None, surface = None):
 
 def load_mouth_guide_position(name = None ,file_name = None):
     f = open(
-        '/Users/danieliglesiasvalenzuela/Library/Preferences/Autodesk/maya/2022/prefs/scripts/pyRigging/guide/mouth/{}'.format(file_name[0]))
+        '/Users/danieliglesiasvalenzuela/Library/Preferences/Autodesk/maya/2022/prefs/scripts/pyTool/guide/mouth/{}'.format(file_name[0]))
 
     data = json.load(f)
 
@@ -1252,7 +1252,7 @@ def save_mouth_jaw_guide_numbers(name = None,object=None):
 def load_mouth_jaw_guide_numbers(name=None, file_name=None):
 
     data = utili.file_manage(section_dir='mouth/guide/{}'.format(file_name[0]), action='load')
-    #f = open('/Users/danieliglesiasvalenzuela/Library/Preferences/Autodesk/maya/2022/prefs/scripts/pyRigging/guide/mouth/guide/{}'.format(file_name[0]))
+    #f = open('/Users/danieliglesiasvalenzuela/Library/Preferences/Autodesk/maya/2022/prefs/scripts/pyTool/guide/mouth/guide/{}'.format(file_name[0]))
     #data = json.load(f)
     all_exist = True
     for item in data:

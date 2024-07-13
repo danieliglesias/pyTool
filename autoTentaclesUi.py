@@ -1,6 +1,6 @@
 import maya.cmds as cmds
 
-import pyRigging.autoTentacles as autoTentacles
+import pyTool.autoTentacles as autoTentacles
 import importlib
 importlib.reload(autoTentacles)
 

@@ -1,5 +1,5 @@
 import maya.cmds as cmds
-import pyRigging.utilities as utili
+import pyTool.utilities as utili
 import importlib
 
 importlib.reload(utili)

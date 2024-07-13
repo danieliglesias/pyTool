@@ -2,7 +2,7 @@
 import maya.cmds as cmds
 import importlib
 
-import pyRigging.utilities as utili
+import pyTool.utilities as utili
 importlib.reload(utili)
 
 def tentacleBuild(name = 'character',mainjoint = 'joint', spacing = 45.0, midpos = 7, lastpos = 14

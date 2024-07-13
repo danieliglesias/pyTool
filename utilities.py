@@ -456,7 +456,7 @@ def objectExist(object = None):
 
 def file_manage(section_dir = None,action = None,field = None,dictionary = None,windows = None):
     if sys.platform == 'darwin':
-        local = '/Users/danieliglesiasvalenzuela/Library/Preferences/Autodesk/maya/2022/prefs/scripts/pyRigging/guide/{}'.format(section_dir)
+        local = '/Users/danieliglesiasvalenzuela/Library/Preferences/Autodesk/maya/2022/prefs/scripts/pyTool/guide/{}'.format(section_dir)
 
     else:
         errorMessage('Not setup already for other OS than OSX')
