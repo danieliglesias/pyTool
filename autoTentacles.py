@@ -22,13 +22,18 @@ def tentacleBuild(name = 'character',mainjoint = 'joint', spacing = 45.0, midpos
             cmds.delete(cmds.parentConstraint(mainjoint, loc))
             curve_list = []
             for i,guide in enumerate(listGuide):
-                jnt = cmds.joint(name = '{}_{}_tentacle{}_{:02d}_joint'.format(name,side,x,(i+1)))
-                cmds.delete(cmds.pointConstraint(guide, jnt))
+                if i <= int(lastpos)-1:
+                    jnt = cmds.joint(name = '{}_{}_tentacle{}_{:02d}_joint'.format(name,side,x,(i+1)))
+                    cmds.delete(cmds.pointConstraint(guide, jnt))
+                if i >= int(lastpos)-1:
+                    jnt_fk = cmds.joint(name='{}_{}_tentacle{}_{:02d}_joint_def'.format(name, side, x, (i + 1)))
+                    cmds.delete(cmds.pointConstraint(guide, jnt_fk))
+
                 if (i+1) <= int(lastpos):
                     curve_list.append(jnt)
 
             cmds.joint('{}_{}_tentacle{}_01_joint'.format(name,side,x), edit=True, zso=True, oj='xyz', secondaryAxisOrient='yup', children=True)
-            cmds.joint('{}_{}_tentacle{}_{}_joint'.format(name,side,x,len(listGuide)), edit=True, oj='none', children=True, zso=True)
+            cmds.joint('{}_{}_tentacle{}_{}_joint_def'.format(name,side,x,len(listGuide)), edit=True, oj='none', children=True, zso=True)
             positions = [cmds.xform(obj, q=True, ws=True, translation=True) for obj in curve_list]
 
             #LETS CREATE A CURVE
@@ -46,7 +51,6 @@ def tentacleBuild(name = 'character',mainjoint = 'joint', spacing = 45.0, midpos
                 cmds.delete(cmds.parentConstraint('{}_joint'.format(item[:-10]) ,jnt_ctrl,maintainOffset = False))
                 cmds.setAttr('{}.radius'.format(jnt_ctrl),2)
                 cmds.parent(jnt_ctrl, loc)
-                print('target: {}_____ name for controller: {}'.format(jnt_ctrl,'{}'.format(item[:-6])))
                 ctrl = utili.createController(name='{}'.format(item[:-6]), shape='square', target=jnt_ctrl, contraint_target=None, facing='x',
                                         offsetnumber=2,
                                         type='fk', size=6-i)
@@ -58,19 +62,19 @@ def tentacleBuild(name = 'character',mainjoint = 'joint', spacing = 45.0, midpos
                           curve = curve , solver= 'ikSplineSolver',createCurve = False, parentCurve = False, numSpans = 3 )[0]
             #cmds.parent(ik_handle, loc)
             #here we create the fk controllers for the tip of the tentacles
-            list_fk = ['{}_{}_tentacle{}_{:02d}_joint'.format(name,side,x,int(i)) for i in range(int(lastpos)+1, len(listGuide))]
+            list_fk = ['{}_{}_tentacle{}_{:02d}_joint_def'.format(name,side,x,int(i)) for i in range(int(lastpos), len(listGuide))]
             for i,item in enumerate(list_fk):
-                ctrl = utili.createController(name='{}'.format(item[:-6]), shape='circle', target=item, contraint_target=None,
+                ctrl = utili.createController(name='{}'.format(item[:-10]), shape='circle', target=item, contraint_target=None,
                                        facing='x',
                                        offsetnumber=2,
-                                       type='fk', size=5-(i*0.5))
+                                       type='fk', size=3-(i*0.5))
                 #here we group the controllers of the fk controller
                 if i >= 1:
-                    cmds.parent('{}_off'.format(ctrl),'{}_ctrl'.format((list_fk[i-1])[:-6]) )
+                    cmds.parent('{}_off'.format(ctrl),'{}_ctrl'.format((list_fk[i-1])[:-10]) )
 
 
-            cmds.parent('{}_{}_tentacle{}_{:02d}_ctrl_off'.format(name,side,x,(int(lastpos)+1)),loc)
-            cmds.parentConstraint(ik_list[2],'{}_{}_tentacle{}_{:02d}_ctrl_off'.format(name,side,x,(int(lastpos)+1)), maintainOffset = True)
+            cmds.parent('{}_{}_tentacle{}_{:02d}_ctrl_off'.format(name,side,x,(int(lastpos))),loc)
+            cmds.parentConstraint(ik_list[2],'{}_{}_tentacle{}_{:02d}_ctrl_off'.format(name,side,x,(int(lastpos))), maintainOffset = True)
 
             arc1 = cmds.arclen(curve)
             cmds.setAttr('{}_ctrl.translateX'.format((ik_list[2])[:-6]), 20)
