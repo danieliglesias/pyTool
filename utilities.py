@@ -1,6 +1,6 @@
 import maya.cmds as cmds
 import maya.mel as mel
-import math as mat
+import math
 import json
 import sys
 import os
@@ -12,7 +12,7 @@ def getdistance(object1, object2):
     obj1 = cmds.xform(object1, q=True, t=True, ws=True)
     obj2 = cmds.xform(object2, q=True, t=True, ws=True)
 
-    distance = mat.sqrt(pow(obj1[0] - obj2[0], 2) + pow(obj1[1] - obj2[1], 2)+pow(obj1[2] - obj2[2], 2))
+    distance = math.sqrt(pow(obj1[0] - obj2[0], 2) + pow(obj1[1] - obj2[1], 2)+pow(obj1[2] - obj2[2], 2))
 
     return distance
 def locOnCenterObject(object = None , name = None , number = 0):
@@ -505,3 +505,63 @@ def check_list_type(list_object=None):
             return True,selected_type[0]
         else:
             return False,'False'
+
+
+def createRibbonSystem (list_object=None,name = None):
+
+    if not list_object:
+        list_object = cmds.ls(sl=True)
+        list_object.sort()
+    if not name:
+        errorMessage('createRibbonSystem function need a name to create ribbon system')
+
+    #we get all joint positions to create a curve
+    positions = [cmds.xform(obj, q=True, ws=True, translation=True) for obj in list_object]
+    # LETS CREATE A CURVE
+    curve = cmds.curve(d=3, p=positions, name='{}_curve'.format(name))
+    ##parenting the curve will multiply transformation
+    # cmds.parent(curve, loc)
+
+    ###creating joint controller and ik handle
+    # lets create 3 join
+    ik_list = ['{}_ribbon'.format( obj) for obj in
+               (list_object[0],list_object[(math.ceil(len(list_object)/2))],list_object[-1])]
+    #
+    print(ik_list)
+    for i, item in enumerate(ik_list):
+        cmds.select(clear=True)
+        jnt_ctrl = cmds.joint(name=item, component=False)
+        cmds.delete(cmds.parentConstraint('{}'.format(item[:-7]), jnt_ctrl, maintainOffset=False))
+        cmds.setAttr('{}.radius'.format(jnt_ctrl), 2)
+
+        ctrl = createController(name='{}_ctrl'.format(item), shape='square', target=jnt_ctrl,
+                                      contraint_target=None, facing='x',
+                                      offsetnumber=2,
+                                      type='fk', size=20)
+
+    # skin controller joints to the curve
+    cmds.skinCluster(ik_list, curve, tsb=True, name='{}_skincluster'.format(name))
+    #ik_handle = cmds.ikHandle(n='{}_ikhandle'.format(name),sj=list_object[0],ee=list_object[-1],curve=curve, solver='ikSplineSolver', createCurve=False, parentCurve=False, numSpans=3)[0]
+    cmds.ikHandle(n='{}_ikhandle'.format(name), sj=list_object[0], ee=list_object[-1], curve=curve,
+                  solver='ikSplineSolver', createCurve=False, parentCurve=False, numSpans=3)[0]
+
+
+""" arc1 = cmds.arclen(curve)
+    cmds.setAttr('{}_ctrl.translateX'.format((ik_list[2])[:-6]), 20)
+    arc2 = cmds.arclen(curve)
+    cmds.setAttr('{}_ctrl.translateX'.format((ik_list[2])[:-6]), 0)
+
+    arc = cmds.arclen(curve, ch=True)
+    set_driven_key_tentacles(curve_list, ('{}_ctrl'.format((ik_list[2])[:-6])), 0, arc, curve, 0)
+    set_driven_key_tentacles(curve_list, ('{}_ctrl'.format((ik_list[2])[:-6])), 20, arc, curve, (arc2 - arc1))
+
+    # NOW WE CREATE THE RIBBON SYSTEM
+    # we may want to customise more this funtion later for other tools
+    listRibbonJnt = ['{}_{}_tentacle{}_{:02d}_joint'.format(name, side, x, int(i)) for i in
+                     range(1, int(lastpos) + 1)]
+    utili.createRibbon(list=listRibbonJnt, name='{}_{}_tentacle{}_ribbon'.format(name, side, x),
+                       target=('{}_ctrl'.format((ik_list[1])[:-6])), ikhandle=ik_handle,
+                       sta_ctrl='{}_ctrl'.format((ik_list[0])[:-6]), mid_ctrl='{}_ctrl'.format((ik_list[1])[:-6]),
+                       end_ctrl='{}_ctrl'.format((ik_list[2])[:-6]),
+                       midpos=midpos)"""
+

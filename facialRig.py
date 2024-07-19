@@ -307,6 +307,7 @@ def generateEyeLitGuide(name = None, side = 'l',eye_guide = 'l_eyeball_cluster')
 
 
 
+
 def createEyeLidCurve(name = None,l_eye_guide=None,r_eye_guide=None,side=None):
 
     cmds.select(clear=True)
@@ -350,7 +351,7 @@ def createEyeLidCurve(name = None,l_eye_guide=None,r_eye_guide=None,side=None):
         cmds.parent(upp_curve,low_curve,loc)
 
 def saveCurveCvPosition(name = None ,side = None):
-    directory = '/Users/danieliglesiasvalenzuela/Library/Preferences/Autodesk/maya/2022/prefs/scripts/pyTool/guide/eyelid/'
+    directory = 'C:/Users/danie/Documents/maya/2022/scripts/pyTool/guide/eyelid/'
     if not side:
         utili.errorMessage('No side was selected')
     if len(side) == 2:
@@ -376,8 +377,7 @@ def saveCurveCvPosition(name = None ,side = None):
 
 def loadCurvePosition(name = None ,file_name = None):
 
-    f = open(
-        '/Users/danieliglesiasvalenzuela/Library/Preferences/Autodesk/maya/2022/prefs/scripts/pyTool/guide/eyelid/{}'.format(file_name[0]))
+    f = open('C:/Users/danie/Documents/maya/2022/scripts/pyTool/guide/eyelid/{}'.format(file_name[0]))
 
     data = json.load(f)
 
@@ -396,7 +396,9 @@ def loadCurvePosition(name = None ,file_name = None):
             if cmds.objExists('{}_l_socket_jnt_def'.format(name)) == False and cmds.objExists(
                     '{}_l_eyeball_jnt_def'.format(name)) == False:
                 l_eye_guide = ['l_socket_cluster', 'l_eyeball_cluster']
+                cmds.select(clear=True)
                 for item in l_eye_guide:
+
                     jnt = cmds.joint(name='{}_{}_jnt_def'.format(name, item[:-8]))
                     cmds.delete(cmds.parentConstraint(item, jnt))
 
@@ -411,6 +413,7 @@ def loadCurvePosition(name = None ,file_name = None):
                 r_eye_guide = ['r_socket_cluster', 'r_eyeball_cluster']
                 cmds.select(clear=True)
                 for item in r_eye_guide:
+
                     jnt = cmds.joint(name='{}_{}_jnt_def'.format(name, item[:-8]))
                     cmds.delete(cmds.parentConstraint(item, jnt))
 
@@ -452,9 +455,12 @@ def loadCurvePosition(name = None ,file_name = None):
                 curve = cmds.curve(d=3, p=r_low_pos, name='{}_eyelit_{}_curve'.format(side, section))
                 cmds.parent(curve, loc)
 
-
-
-
+    cmds.select(clear=True)
+    # lets create eyeball grp and parent it to the socket
+    [cmds.joint(name='{}_{}_eyeball_grp'.format(name, z)) for z in 'lr']
+    [cmds.delete(cmds.parentConstraint('{}_eyeball_cluster'.format(z), '{}_{}_eyeball_grp'.format(name, z))) for z in
+     'lr']
+    [cmds.parent('{}_{}_eyeball_grp'.format(name, z), '{}_{}_socket_jnt_def'.format(name, z)) for z in 'lr']
 
 
 def mirrorEyelid(name = None, mirror_side = None,edgeloop = None):
@@ -719,12 +725,13 @@ def createEyeballController(name=None, sides='l', targetoff=30):
 def createEyeSocketCtrl(name= None, sides='l',size = 5, facing  = 'x',move=[0,0,10], fk_ctrl = 'Max_r_eyelid_fk_ctrl_off'):
 
     for side in sides:
+        fk_ctrl = '{}_{}_eyelid_fk_ctrl_off'.format(name,side)
         #lets calculate the edge loop by using all the conection to the eyelid group
         conn_list = cmds.listConnections('{}_{}_eyelid_grp'.format(name,side), t='aimConstraint', scn=True)
         dist_list = list(set(conn_list))
-        edgeloop = ((len(dist_list)/2)-1)
+        edgeloop = ((len(dist_list)/2))
 
-        ctrl = utili.createController(name='{}_{}_socket'.format(name,side), character_name=None, shape='circle', target='{}_{}_eyeball_jnt_def'.format(name, side), contraint_target=None,
+        ctrl = utili.createController(name='{}_{}_socket'.format(name,side), character_name=None, shape='circle', target='{}_{}_socket_jnt_def'.format(name, side), contraint_target=None,
                                facing=facing, offsetnumber=2, type='fk', size=size, side='l', move= move)
 
         cmds.parentConstraint(ctrl, '{}_{}_socket_jnt_def'.format(name, side))
@@ -796,7 +803,7 @@ def generateMouthGuide(name = None, mouth_edgeloop = None):
 
 def save_mouth_guide_position(name=None, guide_list = None, surface = None):
 
-    directory = '/Users/danieliglesiasvalenzuela/Library/Preferences/Autodesk/maya/2022/prefs/scripts/pyTool/guide/mouth/'
+    directory = 'C:/Users/danie/Documents/maya/2022/scripts/pyTool/guide/mouth/'
 
     emptyDict = dict()
     #lets save the surface position first
@@ -815,7 +822,7 @@ def save_mouth_guide_position(name=None, guide_list = None, surface = None):
 
 def load_mouth_guide_position(name = None ,file_name = None):
     f = open(
-        '/Users/danieliglesiasvalenzuela/Library/Preferences/Autodesk/maya/2022/prefs/scripts/pyTool/guide/mouth/{}'.format(file_name[0]))
+        'C:/Users/danie/Documents/maya/2022/scripts/pyTool/guide/mouth/{}'.format(file_name[0]))
 
     data = json.load(f)
 
