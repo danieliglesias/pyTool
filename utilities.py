@@ -180,7 +180,7 @@ def checkOpositePos():
 def checkMesh():
     #check symmetry, flipped faces or open quads
     return 0
-def createSimpleFk(objectList = None,align = 'x'):
+def createSimpleFkController(objectList = None,align = 'x',ctrlsize = 10):
     #create simple FK rig usually for simple thinks like hair
     #this should work with any type of guide, like nurb cirle or clusters
     #after this delete clusters.
@@ -188,16 +188,25 @@ def createSimpleFk(objectList = None,align = 'x'):
         selected = cmds.ls(sl=True)
         if not selected:
             errorMessage('Nothing is selected')
-        else:
-            renameListObjectsUi(objects=selected)
+        #else:
+            #renameListObjectsUi(objects=selected)
             #for obj in selected:
             # then we send the list of joint to the change name function
+    for i,item in enumerate(selected):
+        ctrl = createController(name='{}'.format(item), shape='circle', target=item, contraint_target=None,
+                                facing='x',
+                                offsetnumber=2,
+                                type='fk', size=ctrlsize)
+        # here we group the controllers of the fk controller
+        if i >= 1:
+            cmds.parent('{}_off'.format(ctrl), '{}_ctrl'.format(selected[i - 1]))
+
 
 
                 #here fist we create the joint chain base on the selected clusters
                 #joint_list = createJntChain(objects = selected)
 
-    return 0
+
 
 def create_fk_system(objects = None,general_name = None,obname = None):
 
@@ -525,8 +534,8 @@ def createRibbonSystem (list_object=None,name = None):
     ###creating joint controller and ik handle
     # lets create 3 join
     ik_list = ['{}_ribbon'.format( obj) for obj in
-               (list_object[0],list_object[(math.ceil(len(list_object)/2))],list_object[-1])]
-    #
+               (list_object[0],list_object[-1])]
+    #,list_object[(math.ceil(len(list_object)/2))]
     print(ik_list)
     for i, item in enumerate(ik_list):
         cmds.select(clear=True)
@@ -534,10 +543,10 @@ def createRibbonSystem (list_object=None,name = None):
         cmds.delete(cmds.parentConstraint('{}'.format(item[:-7]), jnt_ctrl, maintainOffset=False))
         cmds.setAttr('{}.radius'.format(jnt_ctrl), 2)
 
-        ctrl = createController(name='{}_ctrl'.format(item), shape='square', target=jnt_ctrl,
+        ctrl = createController(name='{}'.format(item), shape='square', target=jnt_ctrl,
                                       contraint_target=None, facing='x',
                                       offsetnumber=2,
-                                      type='fk', size=20)
+                                      type='fk', size=15)
 
     # skin controller joints to the curve
     cmds.skinCluster(ik_list, curve, tsb=True, name='{}_skincluster'.format(name))
@@ -546,15 +555,15 @@ def createRibbonSystem (list_object=None,name = None):
                   solver='ikSplineSolver', createCurve=False, parentCurve=False, numSpans=3)[0]
 
 
-""" arc1 = cmds.arclen(curve)
-    cmds.setAttr('{}_ctrl.translateX'.format((ik_list[2])[:-6]), 20)
+    arc1 = cmds.arclen(curve)
+    cmds.setAttr('{}_ctrl.translateX'.format((ik_list[-1])), 20)
     arc2 = cmds.arclen(curve)
-    cmds.setAttr('{}_ctrl.translateX'.format((ik_list[2])[:-6]), 0)
+    cmds.setAttr('{}_ctrl.translateX'.format((ik_list[-1])), 0)
 
     arc = cmds.arclen(curve, ch=True)
-    set_driven_key_tentacles(curve_list, ('{}_ctrl'.format((ik_list[2])[:-6])), 0, arc, curve, 0)
-    set_driven_key_tentacles(curve_list, ('{}_ctrl'.format((ik_list[2])[:-6])), 20, arc, curve, (arc2 - arc1))
-
+    set_driven_key(list = list_object, ctrl = '{}_ctrl'.format((ik_list[-1])),unit = 0,arc =  arc, curve = curve,diff = 0)
+    set_driven_key(list = list_object, ctrl = '{}_ctrl'.format((ik_list[-1])),unit = 20,arc = arc, curve = curve, diff =(arc2 - arc1))
+    """
     # NOW WE CREATE THE RIBBON SYSTEM
     # we may want to customise more this funtion later for other tools
     listRibbonJnt = ['{}_{}_tentacle{}_{:02d}_joint'.format(name, side, x, int(i)) for i in
@@ -565,3 +574,22 @@ def createRibbonSystem (list_object=None,name = None):
                        end_ctrl='{}_ctrl'.format((ik_list[2])[:-6]),
                        midpos=midpos)"""
 
+def set_driven_key(list=None, ctrl=None, unit=None, arc=None, curve = None,diff = None):
+    if not list:
+        cmds.error('Must provide list of joints.')
+    if not ctrl:
+        cmds.error('Must provide main controller.')
+
+    # move controller
+
+    cmds.setAttr('{}.translateX'.format(ctrl), unit)
+
+    for i, item in enumerate(list):
+        value = cmds.getAttr('{}.translateX'.format(item))
+        cmds.setAttr('{}.translateX'.format(item), value + (diff / (len(list)-1)))
+        #arc = cmds.arclen(curve, ch=True)
+        cmds.setDrivenKeyframe('{}.translateX'.format(item),cd = '{}.arcLength'.format(arc) )
+        cmds.selectKey('{}.translateX'.format(item) ,addTo = True,keyframe = True )
+    cmds.keyTangent( inTangentType='spline' , outTangentType='spline')
+    cmds.setInfinity(pri='linear', poi='linear')
+    cmds.setAttr('{}.translateX'.format(ctrl) ,0)

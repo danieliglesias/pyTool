@@ -43,6 +43,20 @@ def build_data_frame(window, main_layout):
     cmds.text(align='center', height=30, label='character name ***', parent=data_row_general)
     general_name = cmds.textField(height=30, text='Max', parent=data_row_general)
 
+    ###########################################################
+    baseobject = cmds.rowColumnLayout(numberOfColumns=3,
+                                     columnWidth=[(1, 100), (2, 250), (3, 150)],
+                                     columnOffset=[(1, 'both', 5), (2, 'both', 0),
+                                                   (3, 'both', 5)],
+                                     columnAlign=[(1, 'left'), (2, 'center'), (3, 'right')],
+                                     parent=data_frame_general, rowSpacing=[1, 5])
+    # mouth edgeloops
+    cmds.text(align='left', height=30, label='Base object', parent=baseobject)
+    base_objectname = cmds.textField(height=20, text='center_jnt', parent=baseobject)
+    cmds.button(label='load object', parent=baseobject,
+                command=lambda x: controller_create_mouth_plane_btn(general_name=general_name))
+
+    ###########################################################
     #General face guides
     grid_layoutgeneral = cmds.gridLayout(numberOfColumns=1, cellWidthHeight=(500, 25), parent=data_frame_general)
     cmds.button(label='create outliner structure (TBA)', height=25, parent=grid_layoutgeneral,

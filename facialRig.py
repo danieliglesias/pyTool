@@ -1319,3 +1319,37 @@ def load_eyelit_guide_numbers(name=None, file_name=None):
             for y in obj:
                 cmds.setAttr('{}.{}'.format(x, y), obj[y])
             utili.errorMessage('Successfully loaded guide')
+
+
+def build_face_guide(name = None,base_object = 'center_jnt',guide_list = None,eye_guide_list = None):
+    if not guide_list and not eye_guide_list:
+        guide_list = ['head01_sta','loww01_low','topp01_mid','topp01_upp','head02_end']
+        eye_guide_list = [ 'eye01_ball','eye02_soc']
+    guidePos = cmds.xform(base_object, t=True, ws=True, q=True)
+    for i,item in enumerate(guide_list):
+        guide = cmds.sphere(radius= 0.2, name = '{}_guide'.format(item))[0]
+        cmds.setAttr('{}Shape.overrideEnabled'.format(guide), 1)
+        cmds.setAttr('{}Shape.overrideColor'.format(guide), 4)
+
+        if  guide_list in (guide_list[0],guide_list[-1]):
+            cmds.xform(guide, t=(guidePos[0], guidePos[1] + (5 * i), guidePos[2]))
+        else:
+            cmds.xform(guide, t=(guidePos[0], guidePos[1] + (5 * i), guidePos[2]+5))
+
+    guidePos = cmds.xform('topp01_mid_guide', t=True, ws=True, q=True)
+    for side in ('l', 'r'):
+        for i,eye_item in enumerate(eye_guide_list):
+            guide = cmds.sphere(radius=0.2, name='{}{}_guide'.format(side,eye_item))[0]
+            cmds.setAttr('{}Shape.overrideEnabled'.format(guide), 1)
+            cmds.setAttr('{}Shape.overrideColor'.format(guide), 4)
+            if side == 'l':
+                cmds.xform(guide, t=(guidePos[0]+5, guidePos[1] , guidePos[2] + (5*(i+1))))
+            else:
+                cmds.xform(guide, t=(guidePos[0]-5, guidePos[1], guidePos[2] + (5 * (i + 1))))
+
+def build_face_structure(name = None,guide_list = None,eye_guide_list = None):
+    return 0
+    #print(cmds.listRelatives('topp01_upp_guide', parent = True))
+
+
+
