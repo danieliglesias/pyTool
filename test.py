@@ -44,4 +44,21 @@ def load_save_mainstructure_guide(name=None, file_name=None):
                 cmds.xform(guide, t=obj[y])
                 if y == 'parent' and obj[y] != 'none'
                 	cmds.parent(obj[y], guide_name)	
-                
+def build_face_structure(name = None,guide_list = None,eye_guide_list = None):
+  f = open(
+          'C:/Users/danie/Documents/maya/2022/scripts/pyTool/guide/base/{}'.format(file_name[0]))
+
+      data = json.load(f)
+
+      all_exist = True
+      for item in data:
+          if not utili.objectExist(item):
+              all_exist = False
+
+      if all_exist:
+          for item in data:
+              cmds.xform(item, t=data[item])
+      else:
+          utili.errorMessage('Not all object listed in the this file exist')
+                      cmds.parent(obj[y], guide_name)	
+                                
