@@ -22,8 +22,26 @@ def save_mainstructure_guide(name=None, objectList=None):
             emptyDict.update({'xform': xform})
             
             final_dict.update({item: emptyDict})
-
-        
-
+    
     directory = 'base/guide/'
     utili.nameInputWindow(section_dir=directory, dictionary=final_dict)
+    
+def load_save_mainstructure_guide(name=None, file_name=None):
+    data = utili.file_manage(section_dir='eyelid/guide/{}'.format(file_name[0]), action='load')
+
+    for guide_name, obj in data.items():
+        if not utili.objectExist(guide_name):
+            utili.errorMessage('Guide with the name of {} does not exist')
+        else:
+        	guide = cmds.sphere(radius=0.2, name=guide_name)[0]
+            	
+	 for guide_name, obj in data.items():
+        if not utili.objectExist(guide_name):
+            utili.errorMessage('Guide with the name of {} does not exist')
+        else:
+            for y in obj:
+            	
+                cmds.xform(guide, t=obj[y])
+                if y == 'parent' and obj[y] != 'none'
+                	cmds.parent(obj[y], guide_name)	
+                
