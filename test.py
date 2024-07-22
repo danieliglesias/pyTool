@@ -26,7 +26,7 @@ def save_mainstructure_guide(name=None, objectList=None):
     directory = 'base/guide/'
     utili.nameInputWindow(section_dir=directory, dictionary=final_dict)
     
-def load_save_mainstructure_guide(name=None, file_name=None):
+def load_mainstructure_guide(name=None, file_name=None):
     data = utili.file_manage(section_dir='eyelid/guide/{}'.format(file_name[0]), action='load')
 
     for guide_name, obj in data.items():

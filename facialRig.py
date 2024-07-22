@@ -1323,8 +1323,8 @@ def load_eyelit_guide_numbers(name=None, file_name=None):
 
 def build_face_guide(name = None,base_object = 'center_jnt',guide_list = None,eye_guide_list = None):
     if not guide_list and not eye_guide_list:
-        guide_list = ['head01_sta','loww01_low','topp01_mid','topp01_upp','head02_end']
-        eye_guide_list = [ 'eye01_ball','eye02_soc']
+        guide_list = ['head01_sta','facelow','facemid','faceupp','head02_end']
+        eye_guide_list = [ 'eyeball','eyesocket']
     guidePos = cmds.xform(base_object, t=True, ws=True, q=True)
     for i,item in enumerate(guide_list):
         guide = cmds.sphere(radius= 0.2, name = '{}_guide'.format(item))[0]
@@ -1336,10 +1336,10 @@ def build_face_guide(name = None,base_object = 'center_jnt',guide_list = None,ey
         else:
             cmds.xform(guide, t=(guidePos[0], guidePos[1] + (5 * i), guidePos[2]+5))
 
-    guidePos = cmds.xform('topp01_mid_guide', t=True, ws=True, q=True)
+    guidePos = cmds.xform('facemid_guide', t=True, ws=True, q=True)
     for side in ('l', 'r'):
         for i,eye_item in enumerate(eye_guide_list):
-            guide = cmds.sphere(radius=0.2, name='{}{}_guide'.format(side,eye_item))[0]
+            guide = cmds.sphere(radius=0.2, name='{}_{}_guide'.format(side,eye_item))[0]
             cmds.setAttr('{}Shape.overrideEnabled'.format(guide), 1)
             cmds.setAttr('{}Shape.overrideColor'.format(guide), 4)
             if side == 'l':
@@ -1347,9 +1347,59 @@ def build_face_guide(name = None,base_object = 'center_jnt',guide_list = None,ey
             else:
                 cmds.xform(guide, t=(guidePos[0]-5, guidePos[1], guidePos[2] + (5 * (i + 1))))
 
-def build_face_structure(name = None,guide_list = None,eye_guide_list = None):
-    return 0
-    #print(cmds.listRelatives('topp01_upp_guide', parent = True))
+
+def build_face_structure(name=None, guide_list=None, eye_guide_list=None):
+    f = open(
+        'C:/Users/danie/Documents/maya/2022/scripts/pyTool/guide/base/basic_face_structure_21072024.json')
+    data = json.load(f)
+
+    all_exist = True
+    for item in data:
+
+        if not utili.objectExist(item):
+            all_exist = False
+
+    if all_exist:
+        for item in data:
+            cmds.select(clear=True)
+            jnt = cmds.joint(name='{}_{}_jnt'.format(name, item))
+
+            guidePos = cmds.xform(item, t=True, ws=True, q=True)
+            cmds.xform(jnt, t=(guidePos[0], guidePos[1], guidePos[2]))
+        for item in data:
+            if data[item] != 'none':
+                print('{}--{}'.format(jnt, '{}_{}_jnt'.format(name, data[item])))
+                cmds.parent('{}_{}_jnt'.format(name, item), '{}_{}_jnt'.format(name, data[item]))
+    else:
+        utili.errorMessage('Not all object listed in the this file exist')
 
 
+def save_mainstructure_guide(name=None, objectList=None):
+    final_dict = dict()
+    if not objectList:
+        selected = cmds.ls(sl=True)
+        if not selected:
+            utili.errorMessage('Nothing is selected')
+
+    if len(objectList) >= 2:
+
+        for item in objectList:
+            emptyDict = dict()
+            # lets get the parent name
+            if (cmds.listRelatives(item, parent=True)) != None:
+                parent = cmds.listRelatives(item, parent=True)[0]
+
+            if not parent:
+                parent = 'none'
+                # position
+                xform = cmds.xform(item, t=True, ws=True, q=True)
+
+            emptyDict.update({'parent': parent})
+            emptyDict.update({'xform': xform})
+
+            final_dict.update({item: emptyDict})
+
+
+    directory = 'base/guide/'
+    utili.nameInputWindow(section_dir=directory, dictionary=final_dict)
 
