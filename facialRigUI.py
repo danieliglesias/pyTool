@@ -45,18 +45,59 @@ def build_data_frame(window, main_layout):
 
     ###########################################################
     baseobject = cmds.rowColumnLayout(numberOfColumns=3,
-                                     columnWidth=[(1, 100), (2, 250), (3, 150)],
-                                     columnOffset=[(1, 'both', 5), (2, 'both', 0),
-                                                   (3, 'both', 5)],
-                                     columnAlign=[(1, 'left'), (2, 'center'), (3, 'right')],
-                                     parent=data_frame_general, rowSpacing=[1, 5])
-    # mouth edgeloops
+                                      columnWidth=[(1, 100), (2, 250), (3, 150)],
+                                      columnOffset=[(1, 'both', 5), (2, 'both', 0),
+                                                    (3, 'both', 5)],
+                                      columnAlign=[(1, 'left'), (2, 'center'), (3, 'right')],
+                                      parent=data_frame_general, rowSpacing=[1, 5])
+    # This is the main object from the face rig will be build.
     cmds.text(align='left', height=30, label='Base object', parent=baseobject)
     base_objectname = cmds.textField(height=20, text='center_jnt', parent=baseobject)
     cmds.button(label='load object', parent=baseobject,
                 command=lambda x: controller_create_mouth_plane_btn(general_name=general_name))
 
     ###########################################################
+    # here we want to specify the if guides are save base on guide or joints
+
+    guide_level = cmds.rowColumnLayout(numberOfColumns=2,
+                                       columnWidth=[(1, 150), (2, 350)],
+                                       columnOffset=[(1, 'left', 5), (2, 'left', 0)],
+                                       columnAlign=[(1, 'left'), (2, 'center')],
+                                       parent=data_frame_general, rowSpacing=[1, 5])
+
+    cmds.text(align='center', height=30, label='save level', parent=guide_level)
+    cmds.checkBoxGrp('row_checkbox', numberOfCheckBoxes=3, columnAlign3=['right', 'right', 'right'],
+                     labelArray3=['guides', 'joint', 'selected'],
+                     parent=guide_level)
+    ###########################################################
+    guide_load = cmds.rowColumnLayout(numberOfColumns=3,
+                                      columnWidth=[(1, 100), (2, 250), (3, 150)],
+                                      columnOffset=[(1, 'both', 5), (2, 'both', 0),
+                                                    (3, 'both', 5)],
+                                      columnAlign=[(1, 'left'), (2, 'center'), (3, 'right')],
+                                      parent=data_frame_general, rowSpacing=[1, 5])
+    # guide load
+
+    # load save position
+    cmds.text(align='left', height=30, label='Plane Pos', parent=guide_load)
+    listPos_faceguides = cmds.textScrollList(numberOfRows=5, allowMultiSelection=False
+                                             , showIndexedItem=4, parent=guide_load)
+    utili.file_manage(section_dir='base/', action='show', field=listPos_faceguides)
+
+    listPos_faceguides_btn = cmds.gridLayout(numberOfColumns=1, cellWidthHeight=(150, 25), parent=guide_load)
+    cmds.button(label='load selected', parent=listPos_faceguides_btn,
+                command=lambda x: controllerLoadPositionBtn(listPos=listPos_eyebrow))
+    char_name = cmds.textField(general_name, query=True, text=True)
+    cmds.button(label='Save', parent=listPos_faceguides_btn,
+                command=lambda x: controller_save_to_json(general_name=general_name, checkbox='side_checkbox'))
+    cmds.button(label='delete', parent=listPos_faceguides_btn,
+                command=lambda x: controller_delete_eyebrow_save(listPos=listPos_eyebrow))
+    cmds.button(label='Refresh list', parent=listPos_faceguides_btn,
+                command=lambda x: utili.file_manage(section_dir='base/', action='show', field=listPos_eyebrow))
+
+
+
+    ##########################################################################
     #General face guides
     grid_layoutgeneral = cmds.gridLayout(numberOfColumns=1, cellWidthHeight=(500, 25), parent=data_frame_general)
     cmds.button(label='create outliner structure (TBA)', height=25, parent=grid_layoutgeneral,

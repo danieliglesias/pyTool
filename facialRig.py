@@ -1349,14 +1349,15 @@ def build_face_guide(name = None,base_object = 'center_jnt',guide_list = None,ey
 
 
 def build_face_structure(name=None, guide_list=None, eye_guide_list=None):
+
     f = open(
-        'C:/Users/danie/Documents/maya/2022/scripts/pyTool/guide/base/basic_face_structure_21072024.json')
+        'C:/Users/danie/Documents/maya/2022/scripts/pyTool/guide/base/hierarchy/basic_face_structure_21072024.json')
     data = json.load(f)
 
     all_exist = True
     for item in data:
 
-        if not utili.objectExist(item):
+        if not utili.objectExist('{}_guide'.format(item)):
             all_exist = False
 
     if all_exist:
@@ -1364,19 +1365,42 @@ def build_face_structure(name=None, guide_list=None, eye_guide_list=None):
             cmds.select(clear=True)
             jnt = cmds.joint(name='{}_{}_jnt'.format(name, item))
 
-            guidePos = cmds.xform(item, t=True, ws=True, q=True)
+            guidePos = cmds.xform('{}_guide'.format(item), t=True, ws=True, q=True)
             cmds.xform(jnt, t=(guidePos[0], guidePos[1], guidePos[2]))
         for item in data:
             if data[item] != 'none':
                 print('{}--{}'.format(jnt, '{}_{}_jnt'.format(name, data[item])))
                 cmds.parent('{}_{}_jnt'.format(name, item), '{}_{}_jnt'.format(name, data[item]))
     else:
-        utili.errorMessage('Not all object listed in the this file exist')
+        utili.errorMessage('Not all object listed  in the this file exist')
 
 
-def save_mainstructure_guide(name=None, objectList=None):
+def save_mainstructure_guide(name=None,guide_type = 'guide'):
     final_dict = dict()
-    if not objectList:
+    parent = None
+    objectList = []
+    guide_list = ['head01_sta', 'facelow', 'facemid', 'faceupp', 'head02_end']
+    eye_guide_list = ['eyeball', 'eyesocket']
+
+
+    if guide_type == 'guide':
+        for item in guide_list:
+            if cmds.objExists('{}_guide'.format(item)):
+                objectList.append('{}_guide'.format(item))
+        for item in eye_guide_list:
+            for side in ('l', 'r'):
+                if cmds.objExists('{}_{}_guide'.format(side, item)):
+                    objectList.append('{}_{}_guide'.format(side, item))
+
+    elif guide_type == 'joint':
+        for item in guide_list:
+            if cmds.objExists('{}_{}_jnt'.format(name, item)):
+                objectList.append('{}_{}_jnt'.format(name, item))
+        for item in eye_guide_list:
+            for side in ('l', 'r'):
+                if cmds.objExists('{}_{}_{}_jnt'.format(name, side, item)):
+                    objectList.append('{}_{}_{}_jnt'.format(name, side, item))
+    elif guide_type == 'selected': #for xfor we still need to know if this is
         selected = cmds.ls(sl=True)
         if not selected:
             utili.errorMessage('Nothing is selected')
@@ -1392,6 +1416,9 @@ def save_mainstructure_guide(name=None, objectList=None):
             if not parent:
                 parent = 'none'
                 # position
+            if guide_type == 'joint':
+                xform = cmds.xform(item, t=True, os=True, q=True)
+            else:
                 xform = cmds.xform(item, t=True, ws=True, q=True)
 
             emptyDict.update({'parent': parent})
@@ -1399,7 +1426,23 @@ def save_mainstructure_guide(name=None, objectList=None):
 
             final_dict.update({item: emptyDict})
 
-
-    directory = 'base/guide/'
+    directory = 'base/'
     utili.nameInputWindow(section_dir=directory, dictionary=final_dict)
 
+
+def load_mainstructure_guide(name=None, file_name=None):
+    data = utili.file_manage(section_dir='base/{}'.format(file_name[0]), action='load')
+
+    for guide_name, obj in data.items():
+        if cmds.objExists(guide_name):
+            continue
+        else:
+            cmds.select(clear=True)
+            jnt = cmds.joint(name=guide_name)
+            # guide = cmds.sphere(radius=0.2, name=guide_name)[0]
+
+    for guide_name, obj in data.items():
+
+        if obj.get('parent') != 'none':
+            cmds.parent(guide_name, obj.get('parent'))
+        cmds.xform(guide_name, t=obj.get('xform'))
