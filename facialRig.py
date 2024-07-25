@@ -1349,7 +1349,7 @@ def build_face_guide(name = None,base_object = 'center_jnt',guide_list = None,ey
 
 
 def build_face_structure(name=None, guide_list=None, eye_guide_list=None):
-
+    ### basic naming and parenting on a json file
     f = open(
         'C:/Users/danie/Documents/maya/2022/scripts/pyTool/guide/base/hierarchy/basic_face_structure_21072024.json')
     data = json.load(f)
@@ -1369,13 +1369,17 @@ def build_face_structure(name=None, guide_list=None, eye_guide_list=None):
             cmds.xform(jnt, t=(guidePos[0], guidePos[1], guidePos[2]))
         for item in data:
             if data[item] != 'none':
-                print('{}--{}'.format(jnt, '{}_{}_jnt'.format(name, data[item])))
                 cmds.parent('{}_{}_jnt'.format(name, item), '{}_{}_jnt'.format(name, data[item]))
+        for item in data:
+            #lets get rid of guides after creating joints
+            cmds.delete('{}_guide'.format(item))
     else:
         utili.errorMessage('Not all object listed  in the this file exist')
 
 
 def save_mainstructure_guide(name=None,guide_type = 'guide'):
+    print(guide_type)
+    print(name)
     final_dict = dict()
     parent = None
     objectList = []
@@ -1406,7 +1410,7 @@ def save_mainstructure_guide(name=None,guide_type = 'guide'):
             utili.errorMessage('Nothing is selected')
 
     if len(objectList) >= 2:
-
+        print(objectList)
         for item in objectList:
             emptyDict = dict()
             # lets get the parent name
@@ -1417,12 +1421,27 @@ def save_mainstructure_guide(name=None,guide_type = 'guide'):
                 parent = 'none'
                 # position
             if guide_type == 'joint':
-                xform = cmds.xform(item, t=True, os=True, q=True)
+                #xform = cmds.xform(item, t=True, os=True, q=True)
+                pos = []
+                posX = cmds.getAttr('{}.translateX'.format(item))
+                posY = cmds.getAttr('{}.translateY'.format(item))
+                posZ = cmds.getAttr('{}.translateZ'.format(item))
+                pos.append(posX)
+                pos.append(posY)
+                pos.append(posZ)
+
+                oriY = cmds.getAttr('{}.jointOrientY'.format(item))
+                oriX = cmds.getAttr('{}.jointOrientX'.format(item))
+                oriZ = cmds.getAttr('{}.jointOrientZ'.format(item))
+
             else:
                 xform = cmds.xform(item, t=True, ws=True, q=True)
 
             emptyDict.update({'parent': parent})
-            emptyDict.update({'xform': xform})
+            emptyDict.update({'pos': pos})
+            emptyDict.update({'oriX': oriX})
+            emptyDict.update({'oriY': oriY})
+            emptyDict.update({'oriZ': oriZ})
 
             final_dict.update({item: emptyDict})
 
@@ -1430,7 +1449,7 @@ def save_mainstructure_guide(name=None,guide_type = 'guide'):
     utili.nameInputWindow(section_dir=directory, dictionary=final_dict)
 
 
-def load_mainstructure_guide(name=None, file_name=None):
+def load_mainstructure_guide( file_name=None):
     data = utili.file_manage(section_dir='base/{}'.format(file_name[0]), action='load')
 
     for guide_name, obj in data.items():
@@ -1445,4 +1464,7 @@ def load_mainstructure_guide(name=None, file_name=None):
 
         if obj.get('parent') != 'none':
             cmds.parent(guide_name, obj.get('parent'))
-        cmds.xform(guide_name, t=obj.get('xform'))
+        cmds.xform(guide_name, t=obj.get('pos'))
+        cmds.setAttr('{}.jointOrientX'.format(guide_name), obj.get('oriX'))
+        cmds.setAttr('{}.jointOrientY'.format(guide_name), obj.get('oriY'))
+        cmds.setAttr('{}.jointOrientZ'.format(guide_name), obj.get('oriZ'))

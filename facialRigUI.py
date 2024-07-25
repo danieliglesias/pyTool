@@ -66,7 +66,7 @@ def build_data_frame(window, main_layout):
                                        parent=data_frame_general, rowSpacing=[1, 5])
 
     cmds.text(align='center', height=30, label='save level', parent=guide_level)
-    cmds.checkBoxGrp('row_checkbox', numberOfCheckBoxes=3, columnAlign3=['right', 'right', 'right'],
+    cmds.checkBoxGrp('row_checkbox_guide_level', numberOfCheckBoxes=3, columnAlign3=['right', 'right', 'right'],
                      labelArray3=['guides', 'joint', 'selected'],
                      parent=guide_level)
     ###########################################################
@@ -77,6 +77,8 @@ def build_data_frame(window, main_layout):
                                       columnAlign=[(1, 'left'), (2, 'center'), (3, 'right')],
                                       parent=data_frame_general, rowSpacing=[1, 5])
     # guide load
+    char_name = cmds.textField(general_name, query=True, text=True)
+    base_obj = cmds.textField(base_objectname, query=True, text=True)
 
     # load save position
     cmds.text(align='left', height=30, label='Plane Pos', parent=guide_load)
@@ -86,10 +88,10 @@ def build_data_frame(window, main_layout):
 
     listPos_faceguides_btn = cmds.gridLayout(numberOfColumns=1, cellWidthHeight=(150, 25), parent=guide_load)
     cmds.button(label='load selected', parent=listPos_faceguides_btn,
-                command=lambda x: controllerLoadPositionBtn(listPos=listPos_eyebrow))
-    char_name = cmds.textField(general_name, query=True, text=True)
+                command=lambda x: controller_load_guides(listPos=listPos_faceguides))
+
     cmds.button(label='Save', parent=listPos_faceguides_btn,
-                command=lambda x: controller_save_to_json(general_name=general_name, checkbox='side_checkbox'))
+                command=lambda x: controller_save_to_json_faceguides(general_name=char_name, checkbox='row_checkbox_guide_level'))
     cmds.button(label='delete', parent=listPos_faceguides_btn,
                 command=lambda x: controller_delete_eyebrow_save(listPos=listPos_eyebrow))
     cmds.button(label='Refresh list', parent=listPos_faceguides_btn,
@@ -102,10 +104,10 @@ def build_data_frame(window, main_layout):
     grid_layoutgeneral = cmds.gridLayout(numberOfColumns=1, cellWidthHeight=(500, 25), parent=data_frame_general)
     cmds.button(label='create outliner structure (TBA)', height=25, parent=grid_layoutgeneral,
                 command=lambda x: controller_build_eyebrow())
-    cmds.button(label='create basic face guide (TBA)', height=25, parent=grid_layoutgeneral,
-                command=lambda x: controller_build_eyebrow())
-    cmds.button(label='Build basic structure (TBA)', height=25, parent=grid_layoutgeneral,
-                command=lambda x: controller_build_eyebrow())
+    cmds.button(label='create basic face guide', height=25, parent=grid_layoutgeneral,
+                command=lambda x: controller_build_faceguide(general_name = char_name, base_obj = base_obj))
+    cmds.button(label='Build basic structure', height=25, parent=grid_layoutgeneral,
+                command=lambda x: controller_build_facebasic(general_name = char_name))
 
     ##############################################################################################################################
     data_frame_eyebrows = cmds.frameLayout(label='Build Eyebrows', width=500,
@@ -787,3 +789,48 @@ def controller_save_to_json_eyelidguides(general_name=None):
         utili.errorMessage('No guides exist to save')
 
 
+def controller_build_faceguide(general_name = None, base_obj = None):
+    #name = cmds.textField(general_name, query=True, text=True)
+    #obj = cmds.textField(base_obj, query=True, text=True)
+    if not cmds.objExists(base_obj):
+        utili.errorMessage('base object does not exist')
+    else:
+        face.build_face_guide(name = general_name,base_object = base_obj)
+def controller_build_facebasic(general_name = None):
+    #name = cmds.textField(general_name, query=True, text=True)
+    face.build_face_structure(name=general_name)
+
+def controller_save_to_json_faceguides(general_name=None, checkbox=None):
+    if (cmds.checkBoxGrp(checkbox, q=True, value1=True) == False and
+            cmds.checkBoxGrp(checkbox, q=True, value2=True) == False and
+            cmds.checkBoxGrp(checkbox, q=True, value3=True) == False):
+
+        utili.errorMessage('Nothing was selected')
+    else:
+        if (cmds.checkBoxGrp(checkbox, q=True, value1=True) == True and
+            cmds.checkBoxGrp(checkbox, q=True, value2=True) == False and
+            cmds.checkBoxGrp(checkbox, q=True, value3=True) == False):
+            face.save_mainstructure_guide(name=general_name, guide_type='guide')
+        elif (cmds.checkBoxGrp(checkbox, q=True, value2=True) == True and
+            cmds.checkBoxGrp(checkbox, q=True, value1=True) == False and
+            cmds.checkBoxGrp(checkbox, q=True, value3=True) == False):
+            face.save_mainstructure_guide(name=general_name, guide_type='joint')
+        elif (cmds.checkBoxGrp(checkbox, q=True, value3=True) == True and
+            cmds.checkBoxGrp(checkbox, q=True, value1=True) == False and
+            cmds.checkBoxGrp(checkbox, q=True, value2=True) == False):
+            face.save_mainstructure_guide(name=general_name, guide_type='selected')
+        else:
+            utili.errorMessage('More than one level of save is  selected')
+
+
+def controller_load_guides(listPos=None):
+    file_name = cmds.textScrollList(listPos, q=1, si=1)
+    if not file_name:
+        utili.errorMessage('nothing was selected')
+        cmds.error('nothing was selected')
+
+    elif len(file_name) > 1:
+        utili.errorMessage('More than one object selected')
+        cmds.error('More than one object selected')
+    else:
+        face.load_mainstructure_guide( file_name=file_name)
