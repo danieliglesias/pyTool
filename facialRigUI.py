@@ -93,9 +93,9 @@ def build_data_frame(window, main_layout):
     cmds.button(label='Save', parent=listPos_faceguides_btn,
                 command=lambda x: controller_save_to_json_faceguides(general_name=char_name, checkbox='row_checkbox_guide_level'))
     cmds.button(label='delete', parent=listPos_faceguides_btn,
-                command=lambda x: controller_delete_eyebrow_save(listPos=listPos_eyebrow))
+                command=lambda x: controller_delete_eyebrow_save(listPos=listPos_faceguides))
     cmds.button(label='Refresh list', parent=listPos_faceguides_btn,
-                command=lambda x: utili.file_manage(section_dir='base/', action='show', field=listPos_eyebrow))
+                command=lambda x: utili.file_manage(section_dir='base/', action='show', field=listPos_faceguides))
 
 
 

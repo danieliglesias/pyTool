@@ -1323,8 +1323,8 @@ def load_eyelit_guide_numbers(name=None, file_name=None):
 
 def build_face_guide(name = None,base_object = 'center_jnt',guide_list = None,eye_guide_list = None):
     if not guide_list and not eye_guide_list:
-        guide_list = ['head01_sta','facelow','facemid','faceupp','head02_end']
-        eye_guide_list = [ 'eyeball','eyesocket']
+        guide_list = ['head01','facelow','facemid','faceupp','head02_end']
+        eye_guide_list = [ 'eyeball','eyesock']
     guidePos = cmds.xform(base_object, t=True, ws=True, q=True)
     for i,item in enumerate(guide_list):
         guide = cmds.sphere(radius= 0.2, name = '{}_guide'.format(item))[0]
@@ -1383,8 +1383,8 @@ def save_mainstructure_guide(name=None,guide_type = 'guide'):
     final_dict = dict()
     parent = None
     objectList = []
-    guide_list = ['head01_sta', 'facelow', 'facemid', 'faceupp', 'head02_end']
-    eye_guide_list = ['eyeball', 'eyesocket']
+    guide_list = ['head01', 'facelow', 'facemid', 'faceupp', 'head02_end']
+    eye_guide_list = ['eyeball', 'eyesock']
 
 
     if guide_type == 'guide':
@@ -1405,8 +1405,8 @@ def save_mainstructure_guide(name=None,guide_type = 'guide'):
                 if cmds.objExists('{}_{}_{}_jnt'.format(name, side, item)):
                     objectList.append('{}_{}_{}_jnt'.format(name, side, item))
     elif guide_type == 'selected': #for xfor we still need to know if this is
-        selected = cmds.ls(sl=True)
-        if not selected:
+        objectList = cmds.ls(sl=True)
+        if not objectList:
             utili.errorMessage('Nothing is selected')
 
     if len(objectList) >= 2:
@@ -1420,33 +1420,38 @@ def save_mainstructure_guide(name=None,guide_type = 'guide'):
             if not parent:
                 parent = 'none'
                 # position
-            if guide_type == 'joint':
-                #xform = cmds.xform(item, t=True, os=True, q=True)
-                pos = []
+            if guide_type == 'joint' or guide_type == 'selected':
+                pos = cmds.xform(item, t=True, ws=True, q=True)
+                #pos = cmds.xform(item, t=True, os=True, q=True)
+                """pos = []
                 posX = cmds.getAttr('{}.translateX'.format(item))
                 posY = cmds.getAttr('{}.translateY'.format(item))
                 posZ = cmds.getAttr('{}.translateZ'.format(item))
                 pos.append(posX)
                 pos.append(posY)
-                pos.append(posZ)
+                pos.append(posZ)"""
 
                 oriY = cmds.getAttr('{}.jointOrientY'.format(item))
                 oriX = cmds.getAttr('{}.jointOrientX'.format(item))
                 oriZ = cmds.getAttr('{}.jointOrientZ'.format(item))
 
+
+
             else:
-                xform = cmds.xform(item, t=True, ws=True, q=True)
+                pos = cmds.xform(item, t=True, ws=True, q=True)
 
             emptyDict.update({'parent': parent})
             emptyDict.update({'pos': pos})
             emptyDict.update({'oriX': oriX})
             emptyDict.update({'oriY': oriY})
             emptyDict.update({'oriZ': oriZ})
+            print('{}<<<<<<{}'.format(item,parent))
 
             final_dict.update({item: emptyDict})
 
     directory = 'base/'
     utili.nameInputWindow(section_dir=directory, dictionary=final_dict)
+    utili.errorMessage('Make sure that the selection is in hierarchy order from parent to children')
 
 
 def load_mainstructure_guide( file_name=None):
@@ -1459,12 +1464,23 @@ def load_mainstructure_guide( file_name=None):
             cmds.select(clear=True)
             jnt = cmds.joint(name=guide_name)
             # guide = cmds.sphere(radius=0.2, name=guide_name)[0]
-
+    print(data)
     for guide_name, obj in data.items():
+        cmds.select(clear=True)
+        # print('{}  <<<< {}'.format(guide_name,obj.get('parent')))
+
+        cmds.xform(guide_name, t=obj.get('pos'))
+
+
 
         if obj.get('parent') != 'none':
+            print(guide_name)
             cmds.parent(guide_name, obj.get('parent'))
-        cmds.xform(guide_name, t=obj.get('pos'))
+
         cmds.setAttr('{}.jointOrientX'.format(guide_name), obj.get('oriX'))
         cmds.setAttr('{}.jointOrientY'.format(guide_name), obj.get('oriY'))
         cmds.setAttr('{}.jointOrientZ'.format(guide_name), obj.get('oriZ'))
+
+
+
+
