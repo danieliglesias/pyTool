@@ -103,7 +103,7 @@ def build_data_frame(window, main_layout):
     #General face guides
     grid_layoutgeneral = cmds.gridLayout(numberOfColumns=1, cellWidthHeight=(500, 25), parent=data_frame_general)
     cmds.button(label='create outliner structure (TBA)', height=25, parent=grid_layoutgeneral,
-                command=lambda x: controller_build_eyebrow())
+                command=lambda x: controller_build_struct_outliner(general_name = general_name))
     cmds.button(label='create basic face guide', height=25, parent=grid_layoutgeneral,
                 command=lambda x: controller_build_faceguide(general_name = char_name, base_obj = base_obj))
     cmds.button(label='Build basic structure', height=25, parent=grid_layoutgeneral,
@@ -452,39 +452,40 @@ def controller_eyebrow_mirror(general_name = None,sidecheckbox = None ):
 ##############################################################################################################################
 
 def controllerLoadEyelidGuideBtn(general_name = None,edgeloop = None,side_checkbox = None):
-
+    name = cmds.textField(general_name, query=True, text=True)
     if cmds.checkBoxGrp(side_checkbox, q=True, value1=True) == False and cmds.checkBoxGrp(side_checkbox, q=True, value2=True) == False:
         utili.errorMessage('Nothing was selected from the side checkbox of load eyelid guide')
-    if cmds.checkBoxGrp(side_checkbox, q=True, value1=True) == True and cmds.objExists('l_eyeball_cluster') == False:
-        utili.errorMessage('There is no cluster in the center of the eye named l_eyeball_cluster')
-    if cmds.checkBoxGrp(side_checkbox, q=True, value2=True) == True and cmds.objExists('r_eyeball_cluster') == False:
-        utili.errorMessage('There is no cluster in the center of the eye named r_eyeball_cluster')
+    if cmds.checkBoxGrp(side_checkbox, q=True, value1=True) == True and cmds.objExists('{}_l_eyeball_jnt'.format(name)) == False:
+        utili.errorMessage('There is no eyeball jnt in the center of the eye named {}'.format('{}_l_eyeball_jnt'.format(name)))
+    if cmds.checkBoxGrp(side_checkbox, q=True, value2=True) == True and cmds.objExists('{}_r_eyeball_jnt'.format(name)) == False:
+        utili.errorMessage('There is no eyeball jnt in the center of the eye named {}'.format('{}_r_eyeball_jnt'.format(name)))
 
     testlist = cmds.checkBoxGrp(side_checkbox, q=True, valueArray2=True)
 
     if testlist.count(True) >= 2:
         sides = ['l', 'r']
-        cluster = ['l_eyeball_cluster','r_eyeball_cluster']
+        cluster = ['{}_l_eyeball_jnt'.format(name),'{}_r_eyeball_jnt'.format(name)]
     elif cmds.checkBoxGrp(side_checkbox, q=True, value1=True) == True:
         sides = 'l'
-        cluster = 'l_eyeball_cluster'
+        cluster = '{}_l_eyeball_jnt'.format(name)
     else:
         sides = 'r'
-        cluster = 'r_eyeball_cluster'
+        cluster = '{}_r_eyeball_jnt'.format(name)
 
-    name = cmds.textField(general_name, query=True, text=True)
+
     face.generateEyeLitGuide(name = name, side = sides,eye_guide = cluster)
 
 def controllerCreateCurveBtn(general_name=None, edgeloop=None,side_checkbox=None):
+    name = cmds.textField(general_name, query=True, text=True)
     if cmds.checkBoxGrp(side_checkbox, q=True, value1=True) == False and cmds.checkBoxGrp(side_checkbox, q=True, value2=True) == False:
         utili.errorMessage('Nothing was selected from the side checkbox of load eyelid guide')
-    if cmds.objExists('l_socket_cluster') == False or cmds.objExists('l_eyeball_cluster') == False:
+    if cmds.checkBoxGrp(side_checkbox, q=True, value1=True) == True and (cmds.objExists('{}_l_eyesock_jnt'.format(name)) == False or cmds.objExists('{}_l_eyeball_jnt'.format(name)) == False):
         cmds.error('Must create a left cluster in the center of the eyes and in the socket')
-    if cmds.objExists('r_socket_cluster') == False or cmds.objExists('r_eyeball_cluster') == False:
+    if cmds.checkBoxGrp(side_checkbox, q=True, value2=True) == True and (cmds.objExists('{}_r_eyesock_jnt'.format(name)) == False or cmds.objExists('{}_r_eyeball_jnt'.format(name)) == False):
         cmds.error('Must create a right cluster in the center of the eyes and in the socket')
 
-    l_eye_guide = ['l_socket_cluster', 'l_eyeball_cluster']
-    r_eye_guide = ['r_socket_cluster', 'r_eyeball_cluster']
+    l_eye_guide = ['{}_l_eyesock_jnt'.format(name), '{}_l_eyeball_jnt'.format(name)]
+    r_eye_guide = ['{}_r_eyesock_jnt'.format(name), '{}_r_eyeball_jnt'.format(name)]
 
     testlist = cmds.checkBoxGrp(side_checkbox, q=True, valueArray2=True)
 
@@ -497,7 +498,7 @@ def controllerCreateCurveBtn(general_name=None, edgeloop=None,side_checkbox=None
     else:
         sides = 'r'
 
-    name = cmds.textField(general_name, query=True, text=True)
+
     face.createEyeLidCurve(name = name,l_eye_guide=l_eye_guide,r_eye_guide=r_eye_guide,side=sides)
 
 def controller_save_to_json_eyelid(general_name=None, checkbox=None):
@@ -513,9 +514,19 @@ def controller_save_to_json_eyelid(general_name=None, checkbox=None):
         else:
             sides = 'r'
 
-        print(sides)
+
         name = cmds.textField(general_name, query=True, text=True)
         face.saveCurveCvPosition(name=name, side=sides)
+        #post warning
+        if cmds.objExists('{}_l_eyesock_jnt'.format(name)) == False or cmds.objExists('{}_l_eyeball_jnt'.format(name)) == False:
+            cmds.error('Warning left eyesocket and eyeball does not exist')
+        if cmds.objExists('{}_r_eyesock_jnt'.format(name)) == False or cmds.objExists('{}_r_eyeball_jnt'.format(name)) == False:
+            cmds.error('Warning Right eyesocket and eyeball does not exist')
+        if cmds.objExists('{}_l_eyeball_grp'.format(name)) == False or cmds.objExists('{}_l_eyeball_grp'.format(name)) == False:
+            cmds.error('Warning eyeball_grp does not exist')
+
+
+
 
 def controller_load_from_json_eyelid(general_name = None, listPos= None):
 
@@ -589,6 +600,16 @@ def controllerMirrorEyeLidBtn(general_name=None, edgeloop=None,checkbox=None):
     else:
         name = cmds.textField(general_name, query=True, text=True)
         face.mirrorEyelid(name=name, mirror_side=side_selected, edgeloop=edgeloops)
+        # post warning
+        if cmds.objExists('{}_l_eyesock_jnt'.format(name)) == False or cmds.objExists(
+                '{}_l_eyeball_jnt'.format(name)) == False:
+            cmds.error('Warning left eyesocket and eyeball does not exist')
+        if cmds.objExists('{}_r_eyesock_jnt'.format(name)) == False or cmds.objExists(
+                '{}_r_eyeball_jnt'.format(name)) == False:
+            cmds.error('Warning Right eyesocket and eyeball does not exist')
+        if cmds.objExists('{}_l_eyeball_grp'.format(name)) == False or cmds.objExists(
+                '{}_l_eyeball_grp'.format(name)) == False:
+            cmds.error('Warning eyeball_grp does not exist')
 
 def controllerBuildEyeBallSysBtn(general_name=None, checkbox= None):
     if cmds.checkBoxGrp(checkbox, q=True, value1=True) == False and cmds.checkBoxGrp(checkbox, q=True, value2=True) == False:
@@ -834,3 +855,8 @@ def controller_load_guides(listPos=None):
         cmds.error('More than one object selected')
     else:
         face.load_mainstructure_guide( file_name=file_name)
+
+
+def controller_build_struct_outliner(general_name=None):
+    char_name = cmds.textField(general_name, query=True, text=True)
+    utili.build_struct_outliner(name=char_name)

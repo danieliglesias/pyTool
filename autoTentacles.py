@@ -67,7 +67,7 @@ def tentacleBuild(name = 'character',mainjoint = 'joint', spacing = 45.0, midpos
                 ctrl = utili.createController(name='{}'.format(item[:-10]), shape='circle', target=item, contraint_target=None,
                                        facing='x',
                                        offsetnumber=2,
-                                       type='fk', size=3-(i*0.5))
+                                       type='fk', size=4.5-(i*0.4))
                 #here we group the controllers of the fk controller
                 if i >= 1:
                     cmds.parent('{}_off'.format(ctrl),'{}_ctrl'.format((list_fk[i-1])[:-10]) )

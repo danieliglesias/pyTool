@@ -18,7 +18,7 @@ def createEyebrowsPlane(name = None, sides = None,u= 1,v = 1):
     #end validations
     planes = []
     #position reference base on the head joint
-    cvPos = cmds.xform('{}_c_head01_jnt'.format(name), t=True, ws=True, q=True)
+    cvPos = cmds.xform('{}_head01_jnt'.format(name), t=True, ws=True, q=True)
     if side == 'l':
         planes = cmds.nurbsPlane(u=u, v=v, w=10, d=3 , name = '{}_l_eyebrows_surface'.format(name) ,axis= [0,0,1])[0]
         cmds.xform(planes, t=(cvPos[0]+3, cvPos[1], cvPos[2] + 20))
@@ -285,7 +285,7 @@ def generateEyeLitGuide(name = None, side = 'l',eye_guide = 'l_eyeball_cluster')
         guideList = []
         # using locator to get cluster position
         loc = cmds.spaceLocator(absolute=True, name='guide_loc')[0]
-        cmds.delete(cmds.pointConstraint('{}_eyeball_cluster'.format(sides), loc))
+        cmds.delete(cmds.pointConstraint('{}_{}_eyeball_jnt'.format(name,sides), loc))
         for y in ('upp', 'low'):
             for i,x in enumerate(('inn_corner','inn','mid','out','out_corner')):
                 if x in ('inn_corner','out_corner') and y == 'low':
@@ -310,7 +310,7 @@ def generateEyeLitGuide(name = None, side = 'l',eye_guide = 'l_eyeball_cluster')
 
 def createEyeLidCurve(name = None,l_eye_guide=None,r_eye_guide=None,side=None):
 
-    cmds.select(clear=True)
+    """cmds.select(clear=True)
     for item in l_eye_guide:
         jnt = cmds.joint(name='{}_{}_jnt_def'.format(name, item[:-8] ))
         cmds.delete(cmds.parentConstraint(item, jnt))
@@ -318,15 +318,16 @@ def createEyeLidCurve(name = None,l_eye_guide=None,r_eye_guide=None,side=None):
     cmds.select(clear=True)
     for item in r_eye_guide:
         jnt = cmds.joint(name='{}_{}_jnt_def'.format(name,item[:-8]))
-        cmds.delete(cmds.parentConstraint(item, jnt))
+        cmds.delete(cmds.parentConstraint(item, jnt))"""
 
 
-    cmds.select(clear=True)
+
     #lets create eyeball grp and parent it to the socket
+    """cmds.select(clear=True)
     [cmds.joint(name='{}_{}_eyeball_grp'.format(name, z)) for z in 'lr']
     [cmds.delete(cmds.parentConstraint('{}_eyeball_cluster'.format(z), '{}_{}_eyeball_grp'.format(name, z))) for z in 'lr']
     [cmds.parent('{}_{}_eyeball_grp'.format(name, z),'{}_{}_socket_jnt_def'.format(name,z) ) for z in 'lr']
-
+    """
 
     #CREATE TOP AND LOW CURVE
 
@@ -347,7 +348,7 @@ def createEyeLidCurve(name = None,l_eye_guide=None,r_eye_guide=None,side=None):
         loc = cmds.spaceLocator(absolute=True, name='{}_{}_eyelid_grp'.format(name,sides))[0]
         cmds.delete('{}Shape'.format(loc))
 
-        cmds.delete(cmds.pointConstraint('{}_{}_eyeball_jnt_def'.format(name,sides), loc))
+        cmds.delete(cmds.pointConstraint('{}_{}_eyeball_jnt'.format(name,sides), loc))
         cmds.parent(upp_curve,low_curve,loc)
 
 def saveCurveCvPosition(name = None ,side = None):
@@ -375,17 +376,16 @@ def saveCurveCvPosition(name = None ,side = None):
 
     utili.nameInputWindow( directory=directory, dictionary = emptyDict )
 
-def loadCurvePosition(name = None ,file_name = None):
+def loadCurvePosition(name = None ,file_name = None ,l_eye_guide = None,r_eye_guide = None):
 
     f = open('C:/Users/danie/Documents/maya/2022/scripts/pyTool/guide/eyelid/{}'.format(file_name[0]))
 
     data = json.load(f)
-
+    side_flag = []
     l_side_flag = False
     r_side_flag = False
-    side_flag = []
 
-
+    """
     for item in data:
         if 'l_' in item and l_side_flag == False:
             side_flag.append('l')
@@ -415,7 +415,15 @@ def loadCurvePosition(name = None ,file_name = None):
                 for item in r_eye_guide:
 
                     jnt = cmds.joint(name='{}_{}_jnt_def'.format(name, item[:-8]))
-                    cmds.delete(cmds.parentConstraint(item, jnt))
+                    cmds.delete(cmds.parentConstraint(item, jnt))"""
+    for item in data:
+        if 'l_' in item and l_side_flag == False:
+            side_flag.append('l')
+            l_side_flag = True
+        elif 'r_' in item and r_side_flag == False:
+            side_flag.append('r')
+            r_side_flag = True
+
 
     l_low_pos = []
     l_upp_pos = []
@@ -437,7 +445,7 @@ def loadCurvePosition(name = None ,file_name = None):
         if cmds.objExists('{}_{}_eyelid_grp'.format(name, side)) == False:
             loc = cmds.spaceLocator(absolute=True, name='{}_{}_eyelid_grp'.format(name, side))[0]
             cmds.delete('{}Shape'.format(loc))
-            cmds.delete(cmds.pointConstraint('{}_{}_eyeball_jnt_def'.format(name, side), loc))
+            cmds.delete(cmds.pointConstraint('{}_{}_eyeball_jnt'.format(name, side), loc))
 
         for section in ('upp', 'low'):
             if cmds.objExists('{}_eyelit_{}_curve'.format(side, section)):
@@ -455,44 +463,44 @@ def loadCurvePosition(name = None ,file_name = None):
                 curve = cmds.curve(d=3, p=r_low_pos, name='{}_eyelit_{}_curve'.format(side, section))
                 cmds.parent(curve, loc)
 
-    cmds.select(clear=True)
+    """cmds.select(clear=True)
     # lets create eyeball grp and parent it to the socket
     [cmds.joint(name='{}_{}_eyeball_grp'.format(name, z)) for z in 'lr']
     [cmds.delete(cmds.parentConstraint('{}_eyeball_cluster'.format(z), '{}_{}_eyeball_grp'.format(name, z))) for z in
      'lr']
     [cmds.parent('{}_{}_eyeball_grp'.format(name, z), '{}_{}_socket_jnt_def'.format(name, z)) for z in 'lr']
-
+    """
 
 def mirrorEyelid(name = None, mirror_side = None,edgeloop = None):
 
     if mirror_side == 'l':
         side = 'r'
-        if cmds.objExists('r_socket_cluster') == False or cmds.objExists('r_eyeball_cluster') == False:
+        """if cmds.objExists('r_socket_cluster') == False or cmds.objExists('r_eyeball_cluster') == False:
             utili.errorMessage('Must create a right cluster in the center of the eyes and in the socket')
         if cmds.objExists('{}_r_socket_jnt_def'.format(name)) == False and cmds.objExists('{}_r_eyeball_jnt_def'.format(name)) == False:
             r_eye_guide = ['r_socket_cluster', 'r_eyeball_cluster']
             cmds.select(clear=True)
             for item in r_eye_guide:
                 jnt = cmds.joint(name='{}_{}_jnt_def'.format(name, item[:-8]))
-                cmds.delete(cmds.parentConstraint(item, jnt))
+                cmds.delete(cmds.parentConstraint(item, jnt))"""
     else:
         side = 'l'
-        if cmds.objExists('l_socket_cluster') == False or cmds.objExists('l_eyeball_cluster') == False:
+        """if cmds.objExists('l_socket_cluster') == False or cmds.objExists('l_eyeball_cluster') == False:
             utili.errorMessage('Must create a left cluster in the center of the eyes and in the socket')
         if cmds.objExists('{}_l_socket_jnt_def'.format(name)) == False and cmds.objExists('{}_l_eyeball_jnt_def'.format(name)) == False:
             l_eye_guide = ['l_socket_cluster', 'l_eyeball_cluster']
             print(l_eye_guide)
             for item in l_eye_guide:
                 jnt = cmds.joint(name='{}_{}_jnt_def'.format(name, item[:-8]))
-                cmds.delete(cmds.parentConstraint(item, jnt))
+                cmds.delete(cmds.parentConstraint(item, jnt))"""
 
     if not '{}_eyelit_upp_curve'.format(side) or not '{}_eyelit_low_curve'.format(side):
         utili.errorMessage('No curve for the {} side'.format(mirror_side))
 
-    if cmds.objExists('{}_{}_eyelid_grp'.format(name, side)) == False:
+    """if cmds.objExists('{}_{}_eyelid_grp'.format(name, side)) == False:
         loc = cmds.spaceLocator(absolute=True, name='{}_{}_eyelid_grp'.format(name, side))[0]
         cmds.delete('{}Shape'.format(loc))
-        cmds.delete(cmds.pointConstraint('{}_{}_eyeball_jnt_def'.format(name, side), loc))
+        cmds.delete(cmds.pointConstraint('{}_{}_eyeball_jnt'.format(name, side), loc))"""
     # create curve
     # for each
     for portion in ('low','upp'):
@@ -501,7 +509,7 @@ def mirrorEyelid(name = None, mirror_side = None,edgeloop = None):
             pos = cmds.xform('{}_eyelit_{}_curve.cv[{}]'.format(mirror_side,portion,i), q=True, ws=True, translation=True)
             list.append([pos[0] * -1, pos[1], pos[2]])
         curve = cmds.curve(d=3, p=list, name='{}_eyelit_{}_curve'.format(side,portion))
-        cmds.parent(curve, loc)
+        cmds.parent(curve, '{}_{}_eyelid_grp'.format(name, side))
 
     createEyeLid(name = name,side=side,edgeloop = edgeloop)
 
@@ -667,7 +675,13 @@ def createEyeLid(name = None,portion='upp',side='l',curve= None,edgeloop = None,
                                aimVector=[0, 0, -1], upVector=[0, 1, 0],
                                worldUpType='objectrotation', worldUpVector=[0, 1, 0],
                                worldUpObject='{}_{}_eyelid_grp'.format(name, sides))"""
-            cmds.orientConstraint('{}_{}_eyelid_{}_{}_jnt_def'.format(name, sides, portion, int((edgeloop-1)/2)), '{}_off_constrain'.format(ctrl))
+            #cmds.orientConstraint('{}_{}_eyelid_{}_{}_jnt_def'.format(name, sides, portion, int((edgeloop-1)/2)), '{}_off_constrain'.format(ctrl))
+
+            ### here we aim the controller back to the center off the eye
+            cmds.aimConstraint('{}_{}_eyeball_jnt'.format(name, sides), '{}_off_constrain'.format(ctrl), aimVector=[0, 0, -1],
+                               upVector=[0, 1, 0], worldUpType='objectrotation', worldUpVector=[0, 1, 0],
+                               worldUpObject='{}_{}_eyeball_jnt'.format(name, sides))
+
             #cmds.aimConstraint('{}_{}_eyelid_grp'.format(name, sides), ctrl, aimVector=[0, 0, -1], upVector=[0, 1, 0], worldUpType='objectrotation',worldUpVector=[0, 1, 0], worldUpObject=jnt)
 
 
@@ -675,6 +689,13 @@ def createEyeLid(name = None,portion='upp',side='l',curve= None,edgeloop = None,
             # lets delete all locators
             for cv in range(0, 5):
                 cmds.delete('{}_{}_{}_{}_eyelid_loc'.format(name, sides, portion, cv))
+
+            # this was move from the createEyeSocketCtrl() function
+            for i in range(0, int(edgeloop)):
+                [cmds.parent('{}_{}_eyelid_{}_{}_jnt_def'.format(name, side, position, i),
+                             '{}_{}_eyeball_grp'.format(name, side)) for position in ('upp', 'low')]
+            cmds.setAttr('{}_{}_eyeball_jnt.segmentScaleCompensate'.format(name, side), 0)
+            cmds.setAttr('{}_{}_eyeball_grp.segmentScaleCompensate'.format(name, side), 0)
 
 ########################################################################################################################
 ########################################################################################################################
@@ -687,9 +708,9 @@ def createEyeballController(name=None, sides='l', targetoff=30):
         utili.clearObject(fkcurve)
         off = utili.groupObject(object=fkcurve)
 
-        jntPos = cmds.xform('{}_{}_eyeball_jnt_def'.format(name, side), t=True, ws=True, q=True)
+        jntPos = cmds.xform('{}_{}_eyeball_jnt'.format(name, side), t=True, ws=True, q=True)
         cmds.xform(off, t=(jntPos[0], jntPos[1], jntPos[2]))
-        cmds.parentConstraint(fkcurve, '{}_{}_eyeball_jnt_def'.format(name, side))
+        cmds.parentConstraint(fkcurve, '{}_{}_eyeball_jnt'.format(name, side))
 
         cmds.select(clear=True)
 
@@ -731,19 +752,20 @@ def createEyeSocketCtrl(name= None, sides='l',size = 5, facing  = 'x',move=[0,0,
         dist_list = list(set(conn_list))
         edgeloop = ((len(dist_list)/2))
 
-        ctrl = utili.createController(name='{}_{}_socket'.format(name,side), character_name=None, shape='circle', target='{}_{}_socket_jnt_def'.format(name, side), contraint_target=None,
+        ctrl = utili.createController(name='{}_{}_socket'.format(name,side), character_name=None, shape='circle', target='{}_{}_eyesock_jnt'.format(name, side), contraint_target=None,
                                facing=facing, offsetnumber=2, type='fk', size=size, side='l', move= move)
 
-        cmds.parentConstraint(ctrl, '{}_{}_socket_jnt_def'.format(name, side))
-        cmds.scaleConstraint(ctrl, '{}_{}_socket_jnt_def'.format(name, side))
+        cmds.parentConstraint(ctrl, '{}_{}_eyesock_jnt'.format(name, side))
+        cmds.scaleConstraint(ctrl, '{}_{}_eyesock_jnt'.format(name, side))
 
         #keep controller separed from the main rig for unreal
         cmds.parent(fk_ctrl,ctrl)
 
+        """ 
         for i in range(0,int(edgeloop)):
-            [cmds.parent('{}_{}_eyelid_{}_{}_jnt_def'.format(name, side,position,i),'{}_{}_eyeball_grp'.format(name, side)) for position in ('upp','low')]
-        cmds.setAttr('{}_{}_eyeball_jnt_def.segmentScaleCompensate'.format(name,side),0)
-        cmds.setAttr('{}_{}_eyeball_grp.segmentScaleCompensate'.format(name,side), 0)
+                [cmds.parent('{}_{}_eyelid_{}_{}_jnt_def'.format(name, side,position,i),'{}_{}_eyeball_grp'.format(name, side)) for position in ('upp','low')]
+        cmds.setAttr('{}_{}_eyeball_jnt.segmentScaleCompensate'.format(name,side),0)
+        cmds.setAttr('{}_{}_eyeball_grp.segmentScaleCompensate'.format(name,side), 0)"""
 
 
 

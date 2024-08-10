@@ -140,10 +140,10 @@ def createController(name='controller',character_name = None, shape='circle', ta
             cmds.setAttr('{}.outputMin'.format(remapNode), 0)
 
             if '_r_' in emptyGrp:
-                rjntPos = cmds.xform('{}_r_socket_jnt_def'.format(character_name), t=True, ws=True, q=True)
+                rjntPos = cmds.xform('{}_r_eyesock_jnt'.format(character_name), t=True, ws=True, q=True)
                 cmds.setAttr('{}.outputMax'.format(remapNode), rjntPos[0])
             if '_l_' in emptyGrp:
-                ljntPos = cmds.xform('{}_l_socket_jnt_def'.format(character_name), t=True, ws=True, q=True)
+                ljntPos = cmds.xform('{}_l_eyesock_jnt'.format(character_name), t=True, ws=True, q=True)
                 cmds.setAttr('{}.outputMax'.format(remapNode), ljntPos[0])
 
             cmds.connectAttr('{}.converge'.format(ctrl), '{}.inputValue'.format(remapNode))
@@ -593,3 +593,19 @@ def set_driven_key(list=None, ctrl=None, unit=None, arc=None, curve = None,diff 
     cmds.keyTangent( inTangentType='spline' , outTangentType='spline')
     cmds.setInfinity(pri='linear', poi='linear')
     cmds.setAttr('{}.translateX'.format(ctrl) ,0)
+
+def build_struct_outliner(name=None):
+    if not name:
+        errorMessage('No Character name provided.')
+    else:
+        grp_list =  ['{}_all'.format(name),'{}_trs'.format(name),'{}_other'.format(name),'{}_geo'.format(name)]
+
+        grpTRS_list = ['{}_ik'.format(name),'{}_loc'.format(name),'{}_ctrl'.format(name),'{}_jnt'.format(name)]
+
+        for i,group in enumerate(grp_list):
+            createEmptyGroup(name = group)
+            if i>0:
+                cmds.parent( group,grp_list[0])
+        for group in grpTRS_list:
+            createEmptyGroup(name=group)
+            cmds.parent( group,'{}_trs'.format(name))
