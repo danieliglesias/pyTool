@@ -176,7 +176,7 @@ def createEyebrows(name=None,side = None, joint_row = None):
         for u in ('inn', 'mid', 'out'):
             for v in rows:
 
-                ctrl = utili.createController(name='{}_{}{}_ctrl'.format( nurbplane.replace('_surface',''), u, v),
+                ctrl = utili.createController(name='{}_{}{}'.format( nurbplane.replace('_surface',''), u, v),
                                                    character_name=None, shape='circle', target=None, contraint_target=None,
                                                    facing='z', offsetnumber=3,
                                                    type='face', size=1, move=[0, 0, 1])
@@ -203,7 +203,8 @@ def createEyebrows(name=None,side = None, joint_row = None):
                 #descompose matrix
                 decomposeMatrix = cmds.createNode('decomposeMatrix', n='{}_{}{}_inputMatrix'.format(nurbplane.replace('_surface',''), u, v))
                 cmds.connectAttr('{}.output'.format(fourByFourMatrix), '{}.inputMatrix'.format(decomposeMatrix), force=True)
-                cmds.connectAttr('{}.outputRotate'.format(decomposeMatrix), '{}.rotate'.format(jnt), force=True)
+                #we comment this part because we add the rotation base on the controller
+                #cmds.connectAttr('{}.outputRotate'.format(decomposeMatrix), '{}.rotate'.format(jnt), force=True)
                 cmds.connectAttr('{}.outputScale'.format(decomposeMatrix), '{}.scale'.format(jnt), force=True)
                 cmds.connectAttr('{}.outputTranslate'.format(decomposeMatrix), '{}.translate'.format(jnt), force=True)
                 # multi double linear
@@ -266,6 +267,15 @@ def createEyebrows(name=None,side = None, joint_row = None):
                 [cmds.setAttr('{}.input2{}'.format(multiplyDivideOff,axis), -1) for axis in 'XYZ']
                 cmds.connectAttr('{}.translate'.format(ctrl), '{}.input1'.format(multiplyDivideOff), force=True)
                 cmds.connectAttr('{}.output'.format(multiplyDivideOff), '{}.translate'.format('{}_off'.format(ctrl)), force=True)
+
+                #lets add the feature that allow this controller to rotate
+                animBlendNodeAdditiveRotation = cmds.createNode('animBlendNodeAdditiveRotation',
+                                                                n='{}_{}{}_animBlendNodeAdditiveRotation'.format( nurbplane.replace('_surface',''), u, v))
+                if((nurbplane[len(name)+1:])[:1] == 'r'):
+                    cmds.setAttr('{}.weightA'.format(animBlendNodeAdditiveRotation), -1)
+                cmds.connectAttr('{}.rotate'.format(ctrl),'{}.inputA'.format(animBlendNodeAdditiveRotation))
+                cmds.connectAttr('{}.outputRotate'.format(decomposeMatrix), '{}.inputB'.format(animBlendNodeAdditiveRotation), force=True)
+                cmds.connectAttr('{}.output'.format(animBlendNodeAdditiveRotation), '{}.rotate'.format(jnt), force=True)
 
         cmds.parentConstraint('{}_{}{}_jnt'.format(nurbplane.replace('_surface',''), 'mid', 'low'), '{}_off_constrain'.format(main_ctrl))
 
@@ -1340,6 +1350,7 @@ def load_eyelit_guide_numbers(name=None, file_name=None):
         else:
             for y in obj:
                 cmds.setAttr('{}.{}'.format(x, y), obj[y])
+                #cmds.setAttr('{}.{}'.format('Max_eyelid_guide1', y), obj[y])
             utili.errorMessage('Successfully loaded guide')
 
 
