@@ -82,7 +82,7 @@ def tentacleBuild(name = 'character',mainjoint = 'joint', spacing = 45.0, midpos
             cmds.setAttr('{}_ctrl.translateX'.format((ik_list[2])[:-6]), 0)
 
 
-            arc = cmds.arclen(curve, ch=True)
+            arc = cmds.arclen(curve, ch=True,n = '{}_{}_tentacle{}_curveinfo'.format(name,side,x))
             set_driven_key_tentacles(curve_list, ('{}_ctrl'.format((ik_list[2])[:-6])), 0, arc,curve,0)
             set_driven_key_tentacles(curve_list, ('{}_ctrl'.format((ik_list[2])[:-6])), 20, arc,curve,(arc2-arc1))
 
@@ -93,7 +93,27 @@ def tentacleBuild(name = 'character',mainjoint = 'joint', spacing = 45.0, midpos
             utili.createRibbon(list=listRibbonJnt,name='{}_{}_tentacle{}_ribbon'.format(name,side,x),target = ('{}_ctrl'.format((ik_list[1])[:-6])),ikhandle = ik_handle,
                                sta_ctrl = '{}_ctrl'.format((ik_list[0])[:-6]), mid_ctrl = '{}_ctrl'.format((ik_list[1])[:-6]) , end_ctrl = '{}_ctrl'.format((ik_list[2])[:-6]),
                                midpos = midpos)
+            ### here we connect the scale of the main controller to the follicle, THIS WILL FAIL we need to set up the ribbon follicle names!
+            for item in range(1, 233):
+                [cmds.connectAttr('Octopus_trs_ctrl_multiplydividefollicle_trs.output{}'.format(axis),
+                              'follicle{}.scale{}'.format(item, axis), force=True) for axis in 'XYZ']
 
+            ### here we want to connect the scale of the main controller with the tentacles
+            for item in range(1, lastpos + 1):
+                multiplyDivideTRS = cmds.createNode('multiplyDivide',
+                                                    n='{}_{}_tentacle{}_{:02d}_joint_multiplydivide_trs'.format(name,
+                                                                                                                side, x,
+                                                                                                                item))
+                cmds.setAttr('{}.operation'.format(multiplyDivideTRS), 2)
+                cmds.connectAttr('Octopus_trs_ctrl.scaleX',
+                                 '{}_{}_tentacle{}_{:02d}_joint_multiplydivide_trs.input2X'.format(name, side, x, item),
+                                 force=True)
+                cmds.connectAttr('{}_{}_tentacle{}_curveinfo.arcLength'.format(name, side, x),
+                                 '{}_{}_tentacle{}_{:02d}_joint_multiplydivide_trs.input1X'.format(name, side, x, item),
+                                 force=True)
+                cmds.connectAttr('{}_{}_tentacle{}_{:02d}_joint_multiplydivide_trs.outputX'.format(name, side, x, item),
+                                 '{}_{}_tentacle{}_{:02d}_joint_translateX.input'.format(name, side, x, item),
+                                 force=True)
 
     ###Finally we rotate loc to place everything in place.
     for x in range(1, 5):

@@ -688,9 +688,10 @@ def createEyeLid(name = None,portion='upp',side='l',curve= None,edgeloop = None,
             #cmds.orientConstraint('{}_{}_eyelid_{}_{}_jnt_def'.format(name, sides, portion, int((edgeloop-1)/2)), '{}_off_constrain'.format(ctrl))
 
             ### here we aim the controller back to the center off the eye
-            cmds.aimConstraint('{}_{}_eyeball_jnt'.format(name, sides), '{}_off_constrain'.format(ctrl), aimVector=[0, 0, -1],
+            #### We change the jnt from eyeball_jnt to eyeball_grp, this way moving the eyes does not affect the eyelit controller
+            cmds.aimConstraint('{}_{}_eyeball_grp'.format(name, sides), '{}_off_constrain'.format(ctrl), aimVector=[0, 0, -1],
                                upVector=[0, 1, 0], worldUpType='objectrotation', worldUpVector=[0, 1, 0],
-                               worldUpObject='{}_{}_eyeball_jnt'.format(name, sides))
+                               worldUpObject='{}_{}_eyeball_grp'.format(name, sides))
 
             #cmds.aimConstraint('{}_{}_eyelid_grp'.format(name, sides), ctrl, aimVector=[0, 0, -1], upVector=[0, 1, 0], worldUpType='objectrotation',worldUpVector=[0, 1, 0], worldUpObject=jnt)
 

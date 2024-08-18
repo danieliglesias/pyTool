@@ -162,11 +162,11 @@ def colorObject(objectList = None, color = None):
         selected = cmds.ls(sl=True)
         if not selected:
           	errorMessage('Nothing is selected')
-		else:             
+        else:
             for item in objectList:
             #guide = cmds.sphere(radius= 0.2, name = '{}_guide'.format(item))[0]
-            cmds.setAttr('{}Shape.overrideEnabled'.format(item), 1)
-            cmds.setAttr('{}Shape.overrideColor'.format(item), color)
+                cmds.setAttr('{}Shape.overrideEnabled'.format(item), 1)
+                cmds.setAttr('{}Shape.overrideColor'.format(item), color)
 
 def closedObject(object):
     #will be interesting to create a type of collision system
