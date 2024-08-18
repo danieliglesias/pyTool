@@ -718,7 +718,7 @@ def createEyeballController(name=None, sides='l', targetoff=30):
         fkcurve = cmds.curve(d=3, p=[(0,0,0),(0,0,20)], name='{}_{}_eyelid_fk_ctrl'.format(name, side))
         utili.clearObject(fkcurve)
         off = utili.groupObject(object=fkcurve)
-        #joint creation
+        #joint creatio
         jntPos = cmds.xform('{}_{}_eyeball_jnt'.format(name, side), t=True, ws=True, q=True)
         cmds.xform(off, t=(jntPos[0], jntPos[1], jntPos[2]))
         cmds.parentConstraint(fkcurve, '{}_{}_eyeball_jnt'.format(name, side))
