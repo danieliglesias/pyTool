@@ -56,9 +56,28 @@ def createController(name='controller',character_name = None, shape='circle', ta
         ctrl = cmds.circle(nr=nr_value, c=(0, 0, 0), r=size, sections=4, degree=1, name='{}_ctrl'.format(name))[0]
     elif shape == 'sphere':
         ctrl = cmds.circle(nr=(0, 0, 1), c=(0, 0, 0), r=size, name='{}_ctrl'.format(name))[0]
-        shape02 = cmds.listHistory(cmds.circle(nr=(0, 1, 1), c=(0, 0, 0), r=size, name='Cicle_02_shape')[0])[0]
-        shape03 = cmds.listHistory(cmds.circle(nr=(1, 0,), c=(0, 0, 0), r=size, name='Cicle_03_shape')[0])[0]
+        shape02 = cmds.listHistory(cmds.circle(nr=(0, 1, 0), c=(0, 0, 0), r=size, name='Cicle_02_shape')[0])[0]
+        shape03 = cmds.listHistory(cmds.circle(nr=(1, 0, 0), c=(0, 0, 0), r=size, name='Cicle_03_shape')[0])[0]
         list = (ctrl, shape02, shape03)
+        cmds.parent(list[1:], list[0], relative=True, shape=True)
+        cmds.delete('Cicle_*_shape')
+    elif shape == 'eyefk':
+        size = 0.5
+        ctrl = cmds.curve(p=[(0, 0, 0), (0, 0, 5), (0, 0, 10), (0, 0, 15), (0, 0, 20)], k=[0, 0, 0, 1, 2, 2, 2],
+                          name='{}_ctrl'.format(name))
+        # ctrl = cmds.circle(nr=(0, 0, 1), c=(0, 0, 0), r=size, name='{}_ctrl'.format(name))[0]
+        circle01 = cmds.circle(nr=(0, 0, 1), c=(0, 0, 0), r=size, name='Cicle_01_shape')[0]
+        circle02 = cmds.circle(nr=(0, 1, 0), c=(0, 0, 0), r=size, name='Cicle_02_shape')[0]
+        circle03 = cmds.circle(nr=(1, 0, 0), c=(0, 0, 0), r=size, name='Cicle_03_shape')[0]
+        shape01 = cmds.listHistory(circle01)[0]
+        shape02 = cmds.listHistory(circle02)[0]
+        shape03 = cmds.listHistory(circle03)[0]
+
+        cmds.setAttr('{}.centerZ'.format(cmds.listHistory(circle01)[1]), 20)
+        cmds.setAttr('{}.centerZ'.format(cmds.listHistory(circle02)[1]), 20)
+        cmds.setAttr('{}.centerZ'.format(cmds.listHistory(circle03)[1]), 20)
+
+        list = (ctrl, shape01, shape02, shape03)
         cmds.parent(list[1:], list[0], relative=True, shape=True)
         cmds.delete('Cicle_*_shape')
     else:
@@ -159,14 +178,14 @@ def colorObject(objectList = None, color = None):
     if not color:
     	color = 4
     if not objectList:
-        selected = cmds.ls(sl=True)
-        if not selected:
+        objectList = cmds.ls(sl=True)
+        if not objectList:
           	errorMessage('Nothing is selected')
         else:
             for item in objectList:
             #guide = cmds.sphere(radius= 0.2, name = '{}_guide'.format(item))[0]
-                cmds.setAttr('{}Shape.overrideEnabled'.format(item), 1)
-                cmds.setAttr('{}Shape.overrideColor'.format(item), color)
+                cmds.setAttr('{}.overrideEnabled'.format(item), 1)
+                cmds.setAttr('{}.overrideColor'.format(item), color)
 
 def closedObject(object):
     #will be interesting to create a type of collision system
@@ -619,3 +638,28 @@ def build_struct_outliner(name=None):
         for group in grpTRS_list:
             createEmptyGroup(name=group)
             cmds.parent( group,'{}_trs'.format(name))
+
+
+def visibilitySwitch(objectList=None, targetCtrl=None, targetVariable=None, direct=None,
+                     reverse=None):
+    if not objectList:
+        objectList = cmds.ls(sl=True)
+        if not objectList:
+            errorMessage('Nothing is selected')
+        else:
+            if not targetVariable and not targetCtrl:
+                errorMessage('You must define a variable and target controller')
+            else:
+                if not direct and not reverse:
+                    for item in objectList:
+                        cmds.connectAttr('{}.{}'.format(targetCtrl, targetVariable), '{}.visibility'.format(item))
+                else:
+                    for item in objectList:
+                        if item.find(direct) != -1:
+                            print('Entramos a direct con la variable {}'.format(item))
+                            cmds.connectAttr('{}.{}'.format(targetCtrl, targetVariable), '{}.visibility'.format(item))
+                        elif item.find(reverse) != -1:
+                            print('Entramos a reverse con la variable {}'.format(item))
+                            reverse = cmds.listConnections('Max_c_pelvis01_jnt_fk_ctrl', type='reverse')[0]
+                            cmds.connectAttr('{}.output.outputX'.format(reverse), '{}.visibility'.format(item))
+

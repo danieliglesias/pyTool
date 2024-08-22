@@ -1412,8 +1412,6 @@ def build_face_structure(name=None, guide_list=None, eye_guide_list=None):
 
 
 def save_mainstructure_guide(name=None,guide_type = 'guide'):
-    print(guide_type)
-    print(name)
     final_dict = dict()
     parent = None
     objectList = []
