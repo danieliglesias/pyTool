@@ -5,7 +5,7 @@ import json
 import sys
 import os
 
-
+#distance between 2 points
 def getdistance(object1, object2):
     if not object1 or not object2:
         cmds.error('Make sure to send 2 object into get distance function')
@@ -15,13 +15,31 @@ def getdistance(object1, object2):
     distance = math.sqrt(pow(obj1[0] - obj2[0], 2) + pow(obj1[1] - obj2[1], 2)+pow(obj1[2] - obj2[2], 2))
 
     return distance
+
+#this function will create a rect line between 2 points, normally used for controller curve like the shoulders
+def create_curve_line(position1=None, position2=None):
+    positions = []
+    positions.append(cmds.xform(position1, q=True, ws=True, translation=True))
+    positions.append(cmds.xform(position2, q=True, ws=True, translation=True))
+    positions.append(get_midpoint(position1='locator1', position2='locator2'))
+    loc = cmds.spaceLocator(absolute=True, name='loc')[0]
+    cmds.xform(loc, t=(positions[2]))
+    positions.append(get_midpoint(position1='locator1', position2=loc))
+    positions.append(get_midpoint(position1=loc, position2='locator2'))
+    cmds.curve(d=3, p=[positions[0], positions[3], positions[2], positions[4], positions[1]])
+
+#this function will return the mid point between 2 vectors
+def get_midpoint(position1=None, position2=None):
+
+    Xaxis = (cmds.getAttr('{}.translateX'.format(position1)) + cmds.getAttr('{}.translateX'.format(position2))) / 2
+    Yaxis = (cmds.getAttr('{}.translateY'.format(position1)) + cmds.getAttr('{}.translateY'.format(position2))) / 2
+    Zaxis = (cmds.getAttr('{}.translateZ'.format(position1)) + cmds.getAttr('{}.translateZ'.format(position2))) / 2
+    return [Xaxis, Yaxis, Zaxis]
+
 def locOnCenterObject(object = None , name = None , number = 0):
     loc = cmds.spaceLocator(absolute=True, name='{}_{}_loc'.format(name, number))
     cmds.delete(cmds.parentConstraint(object, loc))
     return loc
-
-def dist(object1 , object2):
-    return 0
 
 def clearObject(object,scope = None):
     print('Call to clearObject function usin object: {} and scope is set to: {}'.format(object,scope))
@@ -652,14 +670,26 @@ def visibilitySwitch(objectList=None, targetCtrl=None, targetVariable=None, dire
             else:
                 if not direct and not reverse:
                     for item in objectList:
-                        cmds.connectAttr('{}.{}'.format(targetCtrl, targetVariable), '{}.visibility'.format(item))
+                        cmds.connectAttr('{}.{}'.format(targetCtrl, targetVariable), '{}.visibility'.format(item), force = True)
                 else:
                     for item in objectList:
+                        print(direct)
+                        print(item.find(direct))
                         if item.find(direct) != -1:
                             print('Entramos a direct con la variable {}'.format(item))
-                            cmds.connectAttr('{}.{}'.format(targetCtrl, targetVariable), '{}.visibility'.format(item))
-                        elif item.find(reverse) != -1:
+                            cmds.connectAttr('{}.{}'.format(targetCtrl, targetVariable), '{}.visibility'.format(item), force = True)
+                        print(reverse)
+                        print(item.find(reverse))
+                        if item.find(reverse) != -1:
                             print('Entramos a reverse con la variable {}'.format(item))
-                            reverse = cmds.listConnections('Max_c_pelvis01_jnt_fk_ctrl', type='reverse')[0]
-                            cmds.connectAttr('{}.output.outputX'.format(reverse), '{}.visibility'.format(item))
+                            reversenode = cmds.listConnections(targetCtrl, type='reverse')[0]
+                            cmds.connectAttr('{}.output.outputX'.format(reversenode), '{}.visibility'.format(item), force = True)
 
+def displayLocalAxis(display = True,objectList = None):
+    if not objectList:
+        objectList = cmds.ls(sl=True)
+
+    for item in objectList:
+        print(cmds.getAttr(item + ".displayLocalAxis"))
+        if cmds.getAttr(item + ".displayLocalAxis") == True:
+            cmds.setAttr(item + ".displayLocalAxis", False)

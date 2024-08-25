@@ -47,3 +47,31 @@ utili.colorObject(color=17) #center
 utili.visibilitySwitch(targetCtrl = 'Max_c_pelvis01_jnt_fk_ctrl',targetVariable = 'FreeSpineControls')
 utili.visibilitySwitch(targetCtrl = 'Max_c_pelvis01_jnt_fk_ctrl',targetVariable = 'ikblend',direct= 'ik',reverse='fk')
 
+selection = cmds.ls(sl=True)
+
+print(selection)
+
+for item in selection:
+    cmds.setAttr('{}.visibility'.format(item), lock=0)
+
+utili.visibilitySwitch(targetCtrl = 'Max_l_arm_main_ctrl',targetVariable = 'FreeArmControls')
+utili.visibilitySwitch(targetCtrl = 'Max_r_arm_main_ctrl',targetVariable = 'FreeArmControls')
+
+
+utili.visibilitySwitch(targetCtrl = 'Max_l_arm_main_ctrl',targetVariable = 'ikblend',direct= 'ik',reverse='fk')
+utili.visibilitySwitch(targetCtrl = 'Max_r_arm_main_ctrl',targetVariable = 'ikblend',direct= 'ik',reverse='fk')
+
+utili.visibilitySwitch(targetCtrl = 'Max_l_arm_main_ctrl',targetVariable = 'FreeElbo')
+utili.visibilitySwitch(targetCtrl = 'Max_r_arm_main_ctrl',targetVariable = 'FreeElbo')
+
+###LEG
+
+utili.visibilitySwitch(targetCtrl = 'Max_l_leg_main_ctrl',targetVariable = 'FreeLegControls')
+utili.visibilitySwitch(targetCtrl = 'Max_r_leg_main_ctrl',targetVariable = 'FreeLegControls')
+
+
+utili.visibilitySwitch(targetCtrl = 'Max_l_leg_main_ctrl',targetVariable = 'ikblend',direct= 'ik',reverse='fk')
+utili.visibilitySwitch(targetCtrl = 'Max_r_leg_main_ctrl',targetVariable = 'ikblend',direct= 'ik',reverse='fk')
+
+utili.visibilitySwitch(targetCtrl = 'Max_l_leg_main_ctrl',targetVariable = 'LockKnee')
+utili.visibilitySwitch(targetCtrl = 'Max_r_leg_main_ctrl',targetVariable = 'LockKnee')
