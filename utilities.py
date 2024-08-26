@@ -17,7 +17,7 @@ def getdistance(object1, object2):
     return distance
 
 #this function will create a rect line between 2 points, normally used for controller curve like the shoulders
-def create_curve_line(position1=None, position2=None):
+def create_curve_line(position1=None, position2=None, name=None, squaresize=3):
     positions = []
     positions.append(cmds.xform(position1, q=True, ws=True, translation=True))
     positions.append(cmds.xform(position2, q=True, ws=True, translation=True))
@@ -26,7 +26,24 @@ def create_curve_line(position1=None, position2=None):
     cmds.xform(loc, t=(positions[2]))
     positions.append(get_midpoint(position1='locator1', position2=loc))
     positions.append(get_midpoint(position1=loc, position2='locator2'))
-    cmds.curve(d=3, p=[positions[0], positions[3], positions[2], positions[4], positions[1]])
+    cmds.curve(d=3, name=name, p=[positions[0], positions[3], positions[2], positions[4], positions[1]])
+    print(positions[0])
+    cmds.xform(name, objectSpace=True, pivots=positions[0])
+    square_ctrl(position='locator2', name='shoulder', line=name, size=squaresize)
+
+
+def square_ctrl(position=None, name=None, line=None, size=None):
+    cmds.nurbsSquare(name=name, nr=(0, 0, 1), d=1, c=((size / 2), (size / 2), 0), sl1=size, sl2=size)
+    list = (name, 'top{}Shape'.format(name), 'left{}Shape'.format(name), 'bottom{}Shape'.format(name),
+            'right{}Shape'.format(name))
+    cmds.parent(list[1:], list[0], relative=True, shape=True)
+    [cmds.delete('{}{}'.format(sides, name)) for sides in ['top', 'left', 'bottom', 'right']]
+    pos = cmds.xform(position, q=True, ws=True, translation=True)
+    cmds.xform(name, t=(pos), ws=True)
+    cmds.makeIdentity(name, apply=True)
+    cmds.DeleteHistory(name)
+    cmds.parent(list[1:], line, relative=True, shape=True)
+    cmds.delete(name)
 
 #this function will return the mid point between 2 vectors
 def get_midpoint(position1=None, position2=None):
