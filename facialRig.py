@@ -168,7 +168,7 @@ def createEyebrows(name=None,side = None, joint_row = None):
         # CREATE MAIN CONTROLLER
         main_ctrl=utili.createController(name='{}_main'.format(nurbplane.replace('_surface','')), character_name=None, shape='circle', target=None, contraint_target=None,
                          facing='z', offsetnumber=3,
-                         type='face', size=2, move=[0,0,0.8])
+                         type='face', size=1, move=[0,0,0.8])
         # lets keep controller in the same space with the plane
         cmds.parent('{}_off_constrain'.format(main_ctrl), nurbplane)
 
@@ -179,7 +179,7 @@ def createEyebrows(name=None,side = None, joint_row = None):
                 ctrl = utili.createController(name='{}_{}{}'.format( nurbplane.replace('_surface',''), u, v),
                                                    character_name=None, shape='circle', target=None, contraint_target=None,
                                                    facing='z', offsetnumber=3,
-                                                   type='face', size=1, move=[0, 0, 1])
+                                                   type='face', size=0.5, move=[0, 0, 1])
                 #lets keep controller in the same space with the plane
                 cmds.parent('{}_off_constrain'.format(ctrl), nurbplane)
                 # double linear
@@ -338,6 +338,7 @@ def createEyeLidCurve(name = None,l_eye_guide=None,r_eye_guide=None,side=None):
     [cmds.delete(cmds.parentConstraint('{}_eyeball_cluster'.format(z), '{}_{}_eyeball_grp'.format(name, z))) for z in 'lr']
     [cmds.parent('{}_{}_eyeball_grp'.format(name, z),'{}_{}_socket_jnt_def'.format(name,z) ) for z in 'lr']
     """
+
 
     #CREATE TOP AND LOW CURVE
 
@@ -513,6 +514,14 @@ def mirrorEyelid(name = None, mirror_side = None,edgeloop = None):
         cmds.delete(cmds.pointConstraint('{}_{}_eyeball_jnt'.format(name, side), loc))"""
     # create curve
     # for each
+    loc = cmds.spaceLocator(absolute=True, name='{}_{}_eyelid_grp'.format(name, side))[0]
+    cmds.delete('{}Shape'.format(loc))
+    cmds.delete(cmds.pointConstraint('{}_{}_eyeball_jnt'.format(name, side), loc))
+
+
+
+
+
     for portion in ('low','upp'):
         list = []
         for i in range(0, 5):
@@ -528,11 +537,16 @@ def mirrorEyelid(name = None, mirror_side = None,edgeloop = None):
 
 def createEyeLid(name = None,portion='upp',side='l',curve= None,edgeloop = None,spread_control = 'normal'):
     if spread_control == 'normal':
+        ##let check if the guide folder exist,
+        if not cmds.objExists('{}_eyelid_guide'.format(name)):
+            spread_guide = cmds.group(em=True, name='{}_eyelid_guide'.format(name))
+            for edges in range(0, edgeloop):
+                cmds.addAttr(spread_guide, longName='guide{}'.format(edges),
+                             defaultValue=(edges * (1.0 / (edgeloop - 1))),
+                             keyable=1)
+        else:
+            spread_guide = '{}_eyelid_guide'.format(name)
 
-        spread_guide = cmds.group(em=True, name='{}_eyelid_guide'.format(name))
-        for edges in range(0, edgeloop):
-            cmds.addAttr(spread_guide, longName='guide{}'.format(edges), defaultValue=(edges * (1.0 / (21 - 1))),
-                         keyable=1)
 
     elif spread_control == 'side':
 
@@ -540,9 +554,9 @@ def createEyeLid(name = None,portion='upp',side='l',curve= None,edgeloop = None,
         r_spread_guide = cmds.group(em=True, name='{}_r_eyelid_guide'.format(name))
 
         for edges in range(0, edgeloop):
-            cmds.addAttr(l_spread_guide, longName='guide{}'.format(edges), defaultValue=(edges * (1.0 / (21 - 1))),
+            cmds.addAttr(l_spread_guide, longName='guide{}'.format(edges), defaultValue=(edges * (1.0 / (edgeloop - 1))),
                          keyable=1)
-            cmds.addAttr(r_spread_guide, longName='guide{}'.format(edges), defaultValue=(edges * (1.0 / (21 - 1))),
+            cmds.addAttr(r_spread_guide, longName='guide{}'.format(edges), defaultValue=(edges * (1.0 / (edgeloop - 1))),
                          keyable=1)
 
 
@@ -550,16 +564,16 @@ def createEyeLid(name = None,portion='upp',side='l',curve= None,edgeloop = None,
         for portion in ('low','upp'):
             if sides == 'l':
                 if portion == 'upp':
-                    move = [0,1,0.5]
+                    move = [0,0.5,0.25]
                 else:
-                    move = [0,-1,0.5]
+                    move = [0,-0.5,0.25]
             else:
                 if portion == 'upp':
-                    move = [0,1,-0.5]
+                    move = [0,0.5,-0.25]
                 else:
-                    move = [0,-1,-0.5]
+                    move = [0,-0.5,-0.25]
             ctrl = utili.createController(name='{}_{}_global_eyelit_{}'.format(name,sides,portion), shape='circle', target=None, contraint_target=None, facing='z',
-                                          offsetnumber=3, type='face', size=1 , move =move)
+                                          offsetnumber=3, type='face', size=0.5 , move =move)
 
             #cmds.delete(cmds.aimConstraint('{}_{}_eyelid_grp'.format(name, side), '{}_off_constrain'.format(ctrl), aimVector=[0, 0, -1], upVector=[0, 1, 0],worldUpType='objectrotation', worldUpVector=[0, 1, 0],worldUpObject='{}_{}_eyelid_grp'.format(name, side)))
 
@@ -594,7 +608,7 @@ def createEyeLid(name = None,portion='upp',side='l',curve= None,edgeloop = None,
                     cmds.setAttr('{}.inputMax'.format(remapNode), 10)
                     cmds.setAttr('{}.outputMin'.format(remapNode), -10)
                     cmds.setAttr('{}.outputMax'.format(remapNode), 10)
-                    cmds.setAttr('{}.value[2].value_FloatValue'.format(remapNode), 0.45)
+                    cmds.setAttr('{}.value[2].value_FloatValue'.format(remapNode), 0.46)
                     cmds.setAttr('{}.value[2].value_Position'.format(remapNode), 0.5)
                     cmds.setAttr('{}.value[2].value_Interp'.format(remapNode), 1)
                 else:
@@ -602,7 +616,7 @@ def createEyeLid(name = None,portion='upp',side='l',curve= None,edgeloop = None,
                     cmds.setAttr('{}.inputMax'.format(remapNode), 10)
                     cmds.setAttr('{}.outputMin'.format(remapNode), -5)
                     cmds.setAttr('{}.outputMax'.format(remapNode), 5)
-                    cmds.setAttr('{}.value[2].value_FloatValue'.format(remapNode), 0.40)
+                    cmds.setAttr('{}.value[2].value_FloatValue'.format(remapNode), 0.42)
                     cmds.setAttr('{}.value[2].value_Position'.format(remapNode), 0.5)
                     cmds.setAttr('{}.value[2].value_Interp'.format(remapNode), 1)
 
@@ -702,11 +716,11 @@ def createEyeLid(name = None,portion='upp',side='l',curve= None,edgeloop = None,
                 cmds.delete('{}_{}_{}_{}_eyelid_loc'.format(name, sides, portion, cv))
 
             # this was move from the createEyeSocketCtrl() function
-            for i in range(0, int(edgeloop)):
-                [cmds.parent('{}_{}_eyelid_{}_{}_jnt_def'.format(name, side, position, i),
-                             '{}_{}_eyeball_grp'.format(name, side)) for position in ('upp', 'low')]
-            cmds.setAttr('{}_{}_eyeball_jnt.segmentScaleCompensate'.format(name, side), 0)
-            cmds.setAttr('{}_{}_eyeball_grp.segmentScaleCompensate'.format(name, side), 0)
+        for i in range(0, int(edgeloop)):
+            [cmds.parent('{}_{}_eyelid_{}_{}_jnt_def'.format(name, side, position, i),
+                         '{}_{}_eyeball_grp'.format(name, side)) for position in ('upp', 'low')]
+        cmds.setAttr('{}_{}_eyeball_jnt.segmentScaleCompensate'.format(name, side), 0)
+        cmds.setAttr('{}_{}_eyeball_grp.segmentScaleCompensate'.format(name, side), 0)
 
 ########################################################################################################################
 ########################################################################################################################
@@ -1357,7 +1371,7 @@ def load_eyelit_guide_numbers(name=None, file_name=None):
 
 def build_face_guide(name = None,base_object = 'center_jnt',guide_list = None,eye_guide_list = None):
     if not guide_list and not eye_guide_list:
-        guide_list = ['head01','facelow','facemid','faceupp','head02_end']
+        guide_list = ['neck01','head02','head01','facelow','facemid','faceupp','facejaw','head02_end']
         eye_guide_list = [ 'eyeball','eyesock']
     guidePos = cmds.xform(base_object, t=True, ws=True, q=True)
     for i,item in enumerate(guide_list):
@@ -1384,6 +1398,7 @@ def build_face_guide(name = None,base_object = 'center_jnt',guide_list = None,ey
 
 def build_face_structure(name=None, guide_list=None, eye_guide_list=None):
     ### basic naming and parenting on a json file
+    ### add more to the json if is necesary, also their parent is required
     f = open(
         'C:/Users/danie/Documents/maya/2022/scripts/pyTool/guide/base/hierarchy/basic_face_structure_21072024.json')
     data = json.load(f)
@@ -1391,22 +1406,22 @@ def build_face_structure(name=None, guide_list=None, eye_guide_list=None):
     all_exist = True
     for item in data:
 
-        if not utili.objectExist('{}_guide'.format(item)):
+        if not utili.objectExist('{}'.format(item)):
             all_exist = False
 
     if all_exist:
         for item in data:
             cmds.select(clear=True)
-            jnt = cmds.joint(name='{}_{}_jnt'.format(name, item))
+            jnt = cmds.joint(name='{}_{}_jnt'.format(name, item[:-6]))
 
-            guidePos = cmds.xform('{}_guide'.format(item), t=True, ws=True, q=True)
+            guidePos = cmds.xform('{}'.format(item), t=True, ws=True, q=True)
             cmds.xform(jnt, t=(guidePos[0], guidePos[1], guidePos[2]))
         for item in data:
             if data[item] != 'none':
-                cmds.parent('{}_{}_jnt'.format(name, item), '{}_{}_jnt'.format(name, data[item]))
+                cmds.parent('{}_{}_jnt'.format(name, item[:-6]), '{}_{}_jnt'.format(name, data[item][:-6]))
         for item in data:
             #lets get rid of guides after creating joints
-            cmds.delete('{}_guide'.format(item))
+            cmds.delete('{}'.format(item))
     else:
         utili.errorMessage('Not all object listed  in the this file exist')
 

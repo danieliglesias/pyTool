@@ -37,6 +37,8 @@ utili.build_struct_outliner(name='octopus')
 utili.createSimpleFkController()
 
 
+## get the point in between 2 objects
+utili.get_midpoint(position1='head01_guide', position2='neck01_guide')
 	
 ### controller color
 utili.colorObject(color=6) #left

@@ -1,1 +1,10 @@
-{"head01_sta": "none", "head02_end": "head01_sta", "facelow": "head01_sta", "facemid": "head01_sta", "l_eyesocket": "facemid", "l_eyeball": "l_eyesocket", "r_eyesocket": "facemid", "r_eyeball": "r_eyesocket", "faceupp": "facemid"}
+{"head01_guide": "neck02_guide", 
+"head02_end_guide": "head01_guide",
+"facelow_guide": "head01_guide", 
+"facemid_guide": "head01_guide", "l_eyesock_guide": "facemid_guide",
+"l_eyeball_guide": "l_eyesock_guide", "r_eyesock_guide": "facemid_guide", 
+"r_eyeball_guide": "r_eyesock_guide", 
+"faceupp_guide": "facemid_guide",
+"facejaw_guide": "facelow_guide",
+"neck01_guide": "none",
+"neck02_guide": "neck01_guide"}

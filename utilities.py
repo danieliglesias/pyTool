@@ -17,23 +17,28 @@ def getdistance(object1, object2):
     return distance
 
 #this function will create a rect line between 2 points, normally used for controller curve like the shoulders
-def create_curve_line(position1=None, position2=None, name=None, squaresize=3):
+#utili.create_curve_line(position1='locator1', position2='locator2',name = 'l_shouldercurve',side = 'l')
+#utili.create_curve_line(position1='locator1', position2='locator3',name = 'r_shouldercurve',side = 'r')
+def create_curve_line(position1=None, position2=None, name=None, squaresize=3, side=None):
     positions = []
     positions.append(cmds.xform(position1, q=True, ws=True, translation=True))
     positions.append(cmds.xform(position2, q=True, ws=True, translation=True))
-    positions.append(get_midpoint(position1='locator1', position2='locator2'))
+    positions.append(get_midpoint(position1=position1, position2=position2))
     loc = cmds.spaceLocator(absolute=True, name='loc')[0]
     cmds.xform(loc, t=(positions[2]))
-    positions.append(get_midpoint(position1='locator1', position2=loc))
-    positions.append(get_midpoint(position1=loc, position2='locator2'))
+    positions.append(get_midpoint(position1=position1, position2=loc))
+    positions.append(get_midpoint(position1=loc, position2=position2))
     cmds.curve(d=3, name=name, p=[positions[0], positions[3], positions[2], positions[4], positions[1]])
     print(positions[0])
     cmds.xform(name, objectSpace=True, pivots=positions[0])
-    square_ctrl(position='locator2', name='shoulder', line=name, size=squaresize)
+    square_ctrl(position=position2, name='{}_shoulder'.format(side), line=name, size=squaresize, side=side)
 
 
-def square_ctrl(position=None, name=None, line=None, size=None):
-    cmds.nurbsSquare(name=name, nr=(0, 0, 1), d=1, c=((size / 2), (size / 2), 0), sl1=size, sl2=size)
+def square_ctrl(position=None, name=None, line=None, size=None, side=None):
+    if side == 'l':
+        cmds.nurbsSquare(name=name, nr=(0, 0, 1), d=1, c=((size / 2), (size / 2), 0), sl1=size, sl2=size)
+    else:
+        cmds.nurbsSquare(name=name, nr=(0, 0, 1), d=1, c=((size / 2) * -1, (size / 2), 0), sl1=size, sl2=size)
     list = (name, 'top{}Shape'.format(name), 'left{}Shape'.format(name), 'bottom{}Shape'.format(name),
             'right{}Shape'.format(name))
     cmds.parent(list[1:], list[0], relative=True, shape=True)
@@ -44,6 +49,7 @@ def square_ctrl(position=None, name=None, line=None, size=None):
     cmds.DeleteHistory(name)
     cmds.parent(list[1:], line, relative=True, shape=True)
     cmds.delete(name)
+
 
 #this function will return the mid point between 2 vectors
 def get_midpoint(position1=None, position2=None):

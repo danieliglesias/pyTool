@@ -78,7 +78,6 @@ def build_data_frame(window, main_layout):
                                       parent=data_frame_general, rowSpacing=[1, 5])
     # guide load
     char_name = cmds.textField(general_name, query=True, text=True)
-    base_obj = cmds.textField(base_objectname, query=True, text=True)
 
     # load save position
     cmds.text(align='left', height=30, label='Plane Pos', parent=guide_load)
@@ -105,7 +104,7 @@ def build_data_frame(window, main_layout):
     cmds.button(label='create outliner structure (TBA)', height=25, parent=grid_layoutgeneral,
                 command=lambda x: controller_build_struct_outliner(general_name = general_name))
     cmds.button(label='create basic face guide', height=25, parent=grid_layoutgeneral,
-                command=lambda x: controller_build_faceguide(general_name = char_name, base_obj = base_obj))
+                command=lambda x: controller_build_faceguide(general_name = char_name, base_obj = base_objectname))
     cmds.button(label='Build basic structure', height=25, parent=grid_layoutgeneral,
                 command=lambda x: controller_build_facebasic(general_name = char_name))
 
@@ -813,10 +812,13 @@ def controller_save_to_json_eyelidguides(general_name=None):
 def controller_build_faceguide(general_name = None, base_obj = None):
     #name = cmds.textField(general_name, query=True, text=True)
     #obj = cmds.textField(base_obj, query=True, text=True)
-    if not cmds.objExists(base_obj):
+
+    base_obj_name = cmds.textField(base_obj, query=True, text=True)
+    print(base_obj_name)
+    if not cmds.objExists(base_obj_name):
         utili.errorMessage('base object does not exist')
     else:
-        face.build_face_guide(name = general_name,base_object = base_obj)
+        face.build_face_guide(name = general_name ,base_object = base_obj_name)
 def controller_build_facebasic(general_name = None):
     #name = cmds.textField(general_name, query=True, text=True)
     face.build_face_structure(name=general_name)
