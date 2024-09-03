@@ -129,7 +129,9 @@ def createController(name='controller',character_name = None, shape='circle', ta
         off = cmds.group(ctrl, name='{}_off'.format(ctrl))
         constrain = cmds.group(off, name='{}_constrain'.format(off))
     else:
-        off = cmds.group(ctrl, name='{}_off'.format(ctrl))
+        #changed to our own function to keep center pivot on the group
+        #off = cmds.group(ctrl, name='{}_off'.format(ctrl))
+        off = groupObject(object='{}'.format(ctrl), offset=2)
 
 
     ###MOVE
@@ -264,7 +266,7 @@ def createSimpleFkController(objectList = None,align = 'x',ctrlsize = 10):
             # then we send the list of joint to the change name function
     for i,item in enumerate(selected):
         ctrl = createController(name='{}'.format(item), shape='circle', target=item, contraint_target=None,
-                                facing='x',
+                                facing=align,
                                 offsetnumber=2,
                                 type='fk', size=ctrlsize)
         # here we group the controllers of the fk controller
@@ -493,6 +495,8 @@ def errorMessage(message = None):
     cmds.showWindow(window_error)
 
 def nameInputWindow(section_dir = None, dictionary = None):
+
+    print('We ge into nameInputWindow() function')
 
     if cmds.window('InputName', exists=True):
         cmds.deleteUI('InputName')

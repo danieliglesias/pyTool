@@ -7,4 +7,16 @@
 "faceupp_guide": "facemid_guide",
 "facejaw_guide": "facelow_guide",
 "neck01_guide": "none",
-"neck02_guide": "neck01_guide"}
+"neck02_guide": "neck01_guide",
+"l_ears01_guide": "facemid_guide",
+"l_ears02_guide": "l_ears01_guide",
+"r_ears01_guide": "facemid_guide",
+"r_ears02_guide": "r_ears01_guide",
+"ears01_guide": "facemid_guide",
+"ears02_guide": "ears01_guide",
+"nosemas_guide": "facemid_guide",
+"nosetip_guide": "nosemas_guide",
+"l_cheek1_guide": "facelow_guide",
+"l_cheek2_guide": "facelow_guide",
+"r_cheek1_guide": "facelow_guide",
+"r_cheek2_guide": "facelow_guide"}

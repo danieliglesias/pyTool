@@ -726,17 +726,51 @@ def createEyeLid(name = None,portion='upp',side='l',curve= None,edgeloop = None,
 ########################################################################################################################
 ########################################################################################################################
 def createEyeballController(name=None, sides='l', targetoff=30):
-    if not name:
+    ## this function is not prepare for a single eye
+    for side in sides:
+        ctrl = utili.createController(name='{}_{}_eyelid_fk'.format(name, side), character_name='Max', shape='eyefk',
+                                      target='{}_{}_eyeball_jnt'.format(name, side),
+                                      contraint_target=None, facing='z', offsetnumber=2, type='fk', size=5)
+        jntPos = cmds.xform('{}_{}_eyeball_jnt'.format(name, side), t=True, ws=True, q=True)
+        cmds.xform('{}_off'.format(ctrl), t=(jntPos[0], jntPos[1], jntPos[2]))
+        cmds.select(clear=True)
+        # create empty group
+        emptyGrp = utili.createEmptyGroup(name='{}_{}_eyetarget'.format(name, side))
+        cmds.xform(emptyGrp, t=(jntPos[0], jntPos[1], jntPos[2] + targetoff))
+
+    ## joint between 2 eyes
+    if cmds.objExists('{}_l_eyeball_jnt'.format(name)):
+        jntPos = cmds.xform('{}_l_eyeball_jnt'.format(name), t=True, ws=True, q=True)
+        cmds.select(clear=True)
+        jnt = cmds.joint(name='{}_eyelid_center_jnt'.format(name))
+        cmds.xform(jnt, t=(0, jntPos[1], jntPos[2]))
+    else:
+        jntPos = cmds.xform('{}_r_eyeball_jnt'.format(name), t=True, ws=True, q=True)
+        cmds.select(clear=True)
+        jnt = cmds.joint(name='{}_eyelid_center_jnt'.format(name))
+        cmds.xform(jnt, t=(0, jntPos[1], jntPos[2]))
+    # create controller
+    eyetarget_ctrl = utili.createController(name='{}_eyetarget'.format(name), character_name='Max', shape='circle',
+                                            target=['{}_l_eyetarget'.format(name), '{}_r_eyetarget'.format(name)],
+                                            contraint_target=None, facing='z', offsetnumber=2, type='eye_target',
+                                            size=5)
+    cmds.parent('{}_off'.format(eyetarget_ctrl), jnt)
+    [cmds.parent('{}_{}_eyetarget'.format(name, side), eyetarget_ctrl) for side in ('l', 'r')]
+    [cmds.aimConstraint('{}_{}_eyetarget'.format(name, side), '{}_{}_eyelid_fk_ctrl_off'.format(name, side),
+                        aimVector=[0, 0, 1], upVector=[0, 1, 0], worldUpType='objectrotation', worldUpVector=[0, 1, 0],
+                        worldUpObject=jnt) for side in ('l', 'r')]
+
+    """if not name:
         cmds.error('createEyeballController must get a name prefix')
     for side in sides:
         fkcurve = cmds.curve(d=3, p=[(0,0,0),(0,0,20)], name='{}_{}_eyelid_fk_ctrl'.format(name, side))
         utili.clearObject(fkcurve)
         off = utili.groupObject(object=fkcurve)
         #joint creatio
-        jntPos = cmds.xform('{}_{}_eyeball_jnt'.format(name, side), t=True, ws=True, q=True)
-        cmds.xform(off, t=(jntPos[0], jntPos[1], jntPos[2]))
+        
         cmds.parentConstraint(fkcurve, '{}_{}_eyeball_jnt'.format(name, side))
-
+        jntPos = cmds.xform('{}_{}_eyeball_jnt'.format(name, side), t=True, ws=True, q=True)
+        cmds.xform('{}_off'.format(ctrl), t=(jntPos[0], jntPos[1], jntPos[2]))
         cmds.select(clear=True)
 
         if cmds.objExists('{}_eyetarget_ctrl'.format(name)):
@@ -762,7 +796,7 @@ def createEyeballController(name=None, sides='l', targetoff=30):
             cmds.parent( '{}_off'.format(ctrl),jnt)
 
         cmds.parent(emptyGrp, ctrl)
-        cmds.aimConstraint(emptyGrp,off, aimVector=[0, 0, 1], upVector=[0, 1, 0],worldUpType='objectrotation', worldUpVector=[0, 1, 0], worldUpObject=jnt)
+        cmds.aimConstraint(emptyGrp,'{}_off'.format(ctrl), aimVector=[0, 0, 1], upVector=[0, 1, 0],worldUpType='objectrotation', worldUpVector=[0, 1, 0], worldUpObject=jnt)"""
 
 ########################################################################################################################
 ########################################################################################################################
@@ -799,13 +833,13 @@ def createEyeSocketCtrl(name= None, sides='l',size = 5, facing  = 'x',move=[0,0,
 ########################################################################################################################
 def createMouthPlane(name = None,u= 1,v = 1):
     #validations
-    if not cmds.objExists('{}_c_head01_jnt'.format(name)):
+    if not cmds.objExists('{}_head01_jnt'.format(name)):
         utili.errorMessage('Head join does not exist')
 
     #end validations
 
     #position reference base on the head joint
-    cvPos = cmds.xform('{}_c_head01_jnt'.format(name), t=True, ws=True, q=True)
+    cvPos = cmds.xform('{}_head01_jnt'.format(name), t=True, ws=True, q=True)
     plane = cmds.nurbsPlane(u=u, v=v, w=10, d=3, name='{}_mouth_surface'.format(name), axis=[0, 0, 1])[0]
     cmds.xform(plane, t=(cvPos[0], cvPos[1], cvPos[2] + 20))
     utili.clearObject(plane, scope='freeze')
@@ -814,7 +848,7 @@ def createMouthPlane(name = None,u= 1,v = 1):
     return plane
 def generateMouthGuide(name = None, mouth_edgeloop = None):
 
-    if not cmds.objExists('{}_c_head01_jnt'.format(name)) :
+    if not cmds.objExists('{}_head01_jnt'.format(name)) :
         utili.errorMessage('Head join does not exist')
 
     for sides in ('l','r'):
@@ -839,7 +873,7 @@ def generateMouthGuide(name = None, mouth_edgeloop = None):
                     else:
                         guide = cmds.sphere(radius= 0.1, name = '{}_{}_{:02d}_mouth_guide'.format(sides,y,x))
                     #guideList.append(guide)
-                guidePos = cmds.xform('{}_c_head01_jnt'.format(name), t=True, ws=True, q=True)
+                guidePos = cmds.xform('{}_head01_jnt'.format(name), t=True, ws=True, q=True)
                 if y=='upp':
                     cmds.xform(guide, t=(guidePos[0]+(x*multi), guidePos[1], guidePos[2] + 20))
                 else:
@@ -850,7 +884,7 @@ def generateMouthGuide(name = None, mouth_edgeloop = None):
 
 def save_mouth_guide_position(name=None, guide_list = None, surface = None):
 
-    directory = 'C:/Users/danie/Documents/maya/2022/scripts/pyTool/guide/mouth/'
+    directory = '/mouth/'
 
     emptyDict = dict()
     #lets save the surface position first
@@ -861,13 +895,15 @@ def save_mouth_guide_position(name=None, guide_list = None, surface = None):
                 emptyDict.update({'{}.cv[{}][{}]'.format(surface, u, v): cvPos})
     if len(guide_list) > 0:
         for item in guide_list:
+            print('este es la guia que estamos guardando: {}'.format(item))
             cvPos = cmds.xform(item, t=True, ws=True, q=True)
             emptyDict.update({item: cvPos})
 
-    utili.nameInputWindow(directory=directory, dictionary=emptyDict)
+    utili.nameInputWindow(section_dir=directory, dictionary=emptyDict)
 
 
 def load_mouth_guide_position(name = None ,file_name = None):
+
     f = open(
         'C:/Users/danie/Documents/maya/2022/scripts/pyTool/guide/mouth/{}'.format(file_name[0]))
 
@@ -917,7 +953,7 @@ def build_mouth_system(name = None ,guide_list = None,edgeloop = None,detail = 1
         add_join_lip_structure(name, lip_jnt, loc, loc_closestPointOnSurface)
 
         #parent constrain to split weight between lowface joint and jaw joint using are guide
-        jaw_constrain = cmds.parentConstraint(('{}_c_lowface_jnt'.format(name),'{}_c_jaw_jnt'.format(name)),jaw_jnt, maintainOffset=True)[0]
+        jaw_constrain = cmds.parentConstraint(('{}_facelow_jnt'.format(name),'{}_facejaw_jnt'.format(name)),jaw_jnt, maintainOffset=True)[0]
 
         #connect this constrain to the weight guides
         assign_jaw_weight_guide(name = name,jaw_constrain=jaw_constrain,jaw_jnt = jaw_jnt,guide = guide[:-12],num_guides =edgeloop)
@@ -990,27 +1026,27 @@ def add_join_lip_structure(name = None,lip_jnt = None,loc = None, loc_closestPoi
 def assign_jaw_weight_guide(name = None,jaw_constrain=None, jaw_jnt= None,guide= None,num_guides= None):
     if guide[6:] == '00':
         if  guide[2:-3] == 'upp':
-            cmds.setAttr('{}.{}_c_lowface_jntW0'.format(jaw_constrain,name),1)
-            cmds.setAttr('{}.{}_c_jaw_jntW1'.format(jaw_constrain, name), 0)
+            cmds.setAttr('{}.{}_facelow_jntW0'.format(jaw_constrain,name),1)
+            cmds.setAttr('{}.{}_facejaw_jntW1'.format(jaw_constrain, name), 0)
         elif guide[2:-3] == 'low':
-            cmds.setAttr('{}.{}_c_lowface_jntW0'.format(jaw_constrain, name), 0)
-            cmds.setAttr('{}.{}_c_jaw_jntW1'.format(jaw_constrain, name), 1)
+            cmds.setAttr('{}.{}_facelow_jntW0'.format(jaw_constrain, name), 0)
+            cmds.setAttr('{}.{}_facejaw_jntW1'.format(jaw_constrain, name), 1)
     elif guide[:1] == 'c':
-        cmds.setAttr('{}.{}_c_lowface_jntW0'.format(jaw_constrain, name), 0.5)
-        cmds.setAttr('{}.{}_c_jaw_jntW1'.format(jaw_constrain, name), 0.5)
+        cmds.setAttr('{}.{}_facelow_jntW0'.format(jaw_constrain, name), 0.5)
+        cmds.setAttr('{}.{}_facejaw_jntW1'.format(jaw_constrain, name), 0.5)
     else:
         reverse_input = cmds.listConnections('{}_jaw_guide.weight_{:02d}'.format(name,int(guide[6:])), p=True,t='reverse')
         axis_output = reverse_input[0][-1:]
         reverse_node = reverse_input[0][:-7]
         if  guide[2:-3] == 'upp':
             # upp
-            cmds.connectAttr('{}.output{}'.format(reverse_node,axis_output), '{}.{}_c_jaw_jntW1'.format(jaw_constrain,name))
-            cmds.connectAttr('{}_jaw_guide.weight_{:02d}'.format(name,int(guide[6:])), '{}.{}_c_lowface_jntW0'.format(jaw_constrain, name))
+            cmds.connectAttr('{}.output{}'.format(reverse_node,axis_output), '{}.{}_facejaw_jntW1'.format(jaw_constrain,name))
+            cmds.connectAttr('{}_jaw_guide.weight_{:02d}'.format(name,int(guide[6:])), '{}.{}_facelow_jntW0'.format(jaw_constrain, name))
         if  guide[2:-3] == 'low':
             # low
             print(reverse_node)
-            cmds.connectAttr('{}.output{}'.format(reverse_node,axis_output), '{}.{}_c_lowface_jntW0'.format(jaw_constrain, name))
-            cmds.connectAttr('{}_jaw_guide.weight_{:02d}'.format(name,int(guide[6:])),'{}.{}_c_jaw_jntW1'.format(jaw_constrain, name))
+            cmds.connectAttr('{}.output{}'.format(reverse_node,axis_output), '{}.{}_facelow_jntW0'.format(jaw_constrain, name))
+            cmds.connectAttr('{}_jaw_guide.weight_{:02d}'.format(name,int(guide[6:])),'{}.{}_facejaw_jntW1'.format(jaw_constrain, name))
 
 
 def build_jaw_guide(name = None,edgeloop = None):
@@ -1371,8 +1407,9 @@ def load_eyelit_guide_numbers(name=None, file_name=None):
 
 def build_face_guide(name = None,base_object = 'center_jnt',guide_list = None,eye_guide_list = None):
     if not guide_list and not eye_guide_list:
-        guide_list = ['neck01','head02','head01','facelow','facemid','faceupp','facejaw','head02_end']
+        guide_list = ['neck01','head02','head01','facelow','facemid','faceupp','facejaw','head02_end','nosemas','nosetip']
         eye_guide_list = [ 'eyeball','eyesock']
+        extra_guide_list = ['cheek1','cheek2','snees','ears01','ears02',]
     guidePos = cmds.xform(base_object, t=True, ws=True, q=True)
     for i,item in enumerate(guide_list):
         guide = cmds.sphere(radius= 0.2, name = '{}_guide'.format(item))[0]
@@ -1394,6 +1431,14 @@ def build_face_guide(name = None,base_object = 'center_jnt',guide_list = None,ey
                 cmds.xform(guide, t=(guidePos[0]+5, guidePos[1] , guidePos[2] + (5*(i+1))))
             else:
                 cmds.xform(guide, t=(guidePos[0]-5, guidePos[1], guidePos[2] + (5 * (i + 1))))
+        for i,item in enumerate(extra_guide_list):
+            guide = cmds.sphere(radius=0.2, name='{}_{}_guide'.format(side, item))[0]
+            cmds.setAttr('{}Shape.overrideEnabled'.format(guide), 1)
+            cmds.setAttr('{}Shape.overrideColor'.format(guide), 4)
+            if side == 'l':
+                cmds.xform(guide, t=(guidePos[0] + (5 * (i + 1)), guidePos[1] -5, guidePos[2] ))
+            else:
+                cmds.xform(guide, t=(guidePos[0] - (5 * (i + 1)), guidePos[1] -5, guidePos[2] ))
 
 
 def build_face_structure(name=None, guide_list=None, eye_guide_list=None):

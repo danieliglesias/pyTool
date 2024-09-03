@@ -676,6 +676,7 @@ def controller_save_to_json_mouth(general_name=None,edgeloop=None):
     name = cmds.textField(general_name, query=True, text=True)
     edgeloops = cmds.intField(edgeloop, query=True, v=1)
 
+    print('la cantidad edgeloop es: {}'.format(edgeloops))
     #check for edgeloops number
     if edgeloops == 0:
         utili.errorMessage('You must introduce a number of edge loops for the mouth, to save their position')
@@ -730,7 +731,7 @@ def controller_build_mouth_system_btn(general_name=None,edgeloop=None):
     name = cmds.textField(general_name, query=True, text=True)
     edgeloops = cmds.intField(edgeloop, query=True, v=1)
 
-    if not utili.objectExist('{}_c_lowface_jnt'.format(name)) or not utili.objectExist('{}_c_jaw_jnt'.format(name)):
+    if not utili.objectExist('{}_facelow_jnt'.format(name)) or not utili.objectExist('{}_facejaw_jnt'.format(name)):
         utili.errorMessage('low_face_jnt or jaw_jnt does not exist, check basic structure on general parameters')
     if not utili.objectExist('{}_mouth_surface'.format(name)):
         utili.errorMessage('No nurb plane was created for the face')
