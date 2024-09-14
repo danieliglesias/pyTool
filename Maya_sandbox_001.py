@@ -34,7 +34,7 @@ utili.createRibbonSystem(name = 'test')
 utili.build_struct_outliner(name='octopus')
 
 
-utili.createSimpleFkController()
+utili.createSimpleFkController(align = 'z')
 
 
 ## get the point in between 2 objects
@@ -44,6 +44,10 @@ utili.get_midpoint(position1='head01_guide', position2='neck01_guide')
 utili.colorObject(color=6) #left
 utili.colorObject(color=4) #right
 utili.colorObject(color=17) #center
+utili.colorObject(color=18) #face general controller
+utili.colorObject(color=16) #face second controller
+utili.colorObject(color=13) #chest ik controller
+
 
 ### control visibility
 utili.visibilitySwitch(targetCtrl = 'Max_c_pelvis01_jnt_fk_ctrl',targetVariable = 'FreeSpineControls')
@@ -77,3 +81,13 @@ utili.visibilitySwitch(targetCtrl = 'Max_r_leg_main_ctrl',targetVariable = 'ikbl
 
 utili.visibilitySwitch(targetCtrl = 'Max_l_leg_main_ctrl',targetVariable = 'LockKnee')
 utili.visibilitySwitch(targetCtrl = 'Max_r_leg_main_ctrl',targetVariable = 'LockKnee')
+
+
+### aim join back (for cheek for example)
+cmds.delete(cmds.aimConstraint('Max_facelow_jnt', 'Max_r_cheek2_jnt' , aimVector = [0 ,0,-1], upVector = [0,1,0],worldUpType = 'objectrotation',worldUpVector = [0,1,0],worldUpObject = 'Max_facelow_jnt'))
+
+### adding mesh to a mesh retaining the smooth skinning
+
+cmds.polyUniteSkinned( 'Body', 'L_Shoes', ch=0 )
+
+

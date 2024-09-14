@@ -961,13 +961,14 @@ def build_mouth_system(name = None ,guide_list = None,edgeloop = None,detail = 1
 
 
     if detail == 1:
-        controller_list = ['c_glo_00', 'l_cor_{:02d}'.format(edgeloop-1), 'r_cor_{:02d}'.format(edgeloop-1), 'c_upp_00', 'c_low_00', 'l_upp_{:02d}'.format(math.ceil(edgeloop/2)), 'l_low_{:02d}'.format(math.ceil(edgeloop/2)),
-                           'r_upp_{:02d}'.format(math.ceil(edgeloop/2)), 'r_low_{:02d}'.format(math.ceil(edgeloop/2))]
+        controller_list = ['c_glo_00', 'l_cor_{:02d}'.format(edgeloop-1), 'r_cor_{:02d}'.format(edgeloop-1), 'c_upp_00', 'c_low_00', 'l_upp_{:02d}'.format(math.ceil((edgeloop-1)/2)), 'l_low_{:02d}'.format(math.ceil((edgeloop-1)/2)),
+                           'r_upp_{:02d}'.format(math.ceil((edgeloop-1)/2)), 'r_low_{:02d}'.format(math.ceil((edgeloop-1)/2))]
 
 
     #controller_list = ['c_glo_00','l_cor_09','r_cor_09','c_upp_00','c_low_00','l_upp_05','l_low_05','r_upp_05','r_low_05']
     #controller_list = ['c_glo_00','l_cor_09','r_cor_09','c_upp_00','c_low_00','l_upp_05','l_low_05','r_upp_05','r_low_05']
     # create basic controller structure
+    print(controller_list)
     build_mouth_controller(name  = name,controller_list = controller_list, lip_joint_list = lip_joint_list, edgeloop = edgeloop)
 
 
@@ -1007,7 +1008,6 @@ def add_join_lip_structure(name = None,lip_jnt = None,loc = None, loc_closestPoi
 
     #from here lets add the offset for the joints base on the surface using this locator as a dummy guide
     cmds.delete(cmds.pointConstraint(lip_jnt,loc))
-
     u_value = cmds.getAttr('{}.parameterU'.format(loc_closestPointOnSurface))
     v_value = cmds.getAttr('{}.parameterV'.format(loc_closestPointOnSurface))
 
@@ -1054,6 +1054,7 @@ def build_jaw_guide(name = None,edgeloop = None):
     empty_jaw_grp = utili.createEmptyGroup(name='{}_jaw_guide'.format(name))
     # this value will define how many reverse node we need for this guide values
     num_reverse_node = math.floor((edgeloop - 1 / 3) + 0.9)
+    print(num_reverse_node)
     for i in range(0, num_reverse_node):
         reverse = cmds.createNode('reverse', n='{}_{:02d}_reverse'.format(empty_jaw_grp, i))
         [cmds.addAttr(empty_jaw_grp, longName='weight_{:02d}'.format((i * 3) + y),
@@ -1337,7 +1338,7 @@ def save_mouth_jaw_guide_numbers(name = None,object=None):
             emptyDict.update({att: value})
 
     directory = '/mouth/guide/'
-    utili.nameInputWindow(directory=directory, dictionary=emptyDict)
+    utili.nameInputWindow(section_dir=directory, dictionary=emptyDict)
 
 def load_mouth_jaw_guide_numbers(name=None, file_name=None):
 
