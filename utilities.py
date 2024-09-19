@@ -252,7 +252,7 @@ def checkOpositePos():
 def checkMesh():
     #check symmetry, flipped faces or open quads
     return 0
-def createSimpleFkController(objectList = None,align = 'x',ctrlsize = 10):
+def createSimpleFkController(objectList = None,align = 'x',size = 1):
     #create simple FK rig usually for simple thinks like hair
     #this should work with any type of guide, like nurb cirle or clusters
     #after this delete clusters.
@@ -268,7 +268,7 @@ def createSimpleFkController(objectList = None,align = 'x',ctrlsize = 10):
         ctrl = createController(name='{}'.format(item), shape='circle', target=item, contraint_target=None,
                                 facing=align,
                                 offsetnumber=2,
-                                type='fk', size=ctrlsize)
+                                type='fk', size=size)
         # here we group the controllers of the fk controller
         if i >= 1:
             cmds.parent('{}_off'.format(ctrl), '{}_ctrl'.format(selected[i - 1]))
