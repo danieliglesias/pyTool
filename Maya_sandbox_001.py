@@ -34,7 +34,7 @@ utili.createRibbonSystem(name = 'test')
 utili.build_struct_outliner(name='octopus')
 
 
-utili.createSimpleFkController(align = 'z')
+utili.createSimpleFkController(align = 'y',size = 5,shape = 'circle')
 
 
 ## get the point in between 2 objects
