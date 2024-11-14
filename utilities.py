@@ -382,12 +382,13 @@ def renameListObjects(objects = None, general_name = None, obname = None):
 
 def createRibbon(list = None, name = None , width = 70, length = (0.05), surface_degree = 3,u_parches = 28,v_patches = 1,
                  ribbon_section = 2,target = None,ikhandle = None,sta_ctrl = None,mid_ctrl=None,end_ctrl = None,midpos = None):
-    lattice , plane = createNurbPlane(name = name, add_rot=22.5, lattice=True,target = target)
+    lattice , plane = createNurbPlane(name = name,u=(u_parches+1), add_rot=22.5, lattice=True,target = target)
 
     #### HAIR SYSTEM FOR THE THE RIBBON
-    val = 1.0 / u_parches
+    val = 1.0 / (u_parches-1)
     grp=cmds.group(em=True, n='{}_follicle_grp'.format(name))
-    for i in range(0, (u_parches+1)):
+    for i in range(0, (u_parches)):
+        #if (i+1) % 2 != 0:
         foll = cmds.createNode('follicle')
         cmds.parent(foll.replace('Shape', ''), grp, s=True)
         cmds.setAttr('{}.simulationMethod'.format(foll), 0)
@@ -400,18 +401,30 @@ def createRibbon(list = None, name = None , width = 70, length = (0.05), surface
 
         jnt = cmds.joint(name='{}_ribbon_{:02d}_joint_def'.format(name, (i + 1)))
 
-        cmds.delete(cmds.parentConstraint(foll.replace('Shape', ''), jnt))
+
+        #adjusting controller for each joint
+        nombre = createController(name='{}_ribbon_{:02d}_joint_def'.format(name, (i + 1)), size=3, target=foll.replace('Shape', ''), type='simple')
+        cmds.parent( '{}_off'.format(nombre),foll.replace('Shape', '') )
+        cmds.delete(cmds.parentConstraint(nombre, jnt))
+        cmds.parent(jnt, nombre)
 
 
-    #HERE WE ARE SNAPING THE LATTICE TO THE JOINTS
-    for i in range(0,int(u_parches/2)):
+        #HERE WE ARE SNAPING THE LATTICE TO THE JOINTS
+    for i in range(0,int(u_parches)):
+        #if i % 2 != 0:
+
         #create cluster each 2 pair of lattice pt
         cluster =cmds.cluster('{}.pt[{}][0:1][1]'.format(lattice,i), '{}.pt[{}][0:1][0]'.format(lattice,i), rel=True,name='{}_cluster{}'.format(lattice,i))
+
         #we create 2 locator as a guide to snap and get local position
         loc1 = cmds.spaceLocator(absolute=True, name='loc1')[0]
         loc2 = cmds.spaceLocator(absolute=True, name='loc2')[0]
         cmds.delete(cmds.pointConstraint(cluster, loc1))
+        #if i == 0:
         cvPos = cmds.xform(list[i], t=True, ws=True, q=True)
+
+        #else:
+        #    cvPos = cmds.xform(list[(i + i + 1)], t=True, ws=True, q=True)
         cmds.xform(loc2, t=(cvPos[0], cvPos[1], cvPos[2]))
         cmds.parent(loc2, loc1)
         locPos = [cmds.getAttr('{}.translate{}'.format(loc2, i)) for i in 'XYZ']
@@ -420,15 +433,24 @@ def createRibbon(list = None, name = None , width = 70, length = (0.05), surface
         [cmds.move(locPos[0], locPos[1], locPos[2], '{}.pt[{}][0:1][{}]'.format(lattice,i,x), r=True) for x in
          range(0, 2)]
     clearObject(object = plane,scope = 'hist')
-    cmds.skinCluster(list, plane, tsb=True)
+
+
+    if not ikhandle:
+        errorMessage('no ikhandle this time, so add rotation manually')
     # ROTATIONS
-    cmds.setAttr('{}.dTwistControlEnable'.format(ikhandle), 1)
-    cmds.setAttr('{}.dWorldUpType'.format(ikhandle), 4)
-    cmds.connectAttr('{}.worldMatrix[0]'.format(sta_ctrl),
-                     '{}.dWorldUpMatrix'.format(ikhandle))
-    cmds.connectAttr('{}.worldMatrix[0]'.format(end_ctrl),
-                     '{}.dWorldUpMatrixEnd'.format(ikhandle))
-    #MID ROTATION
+    else:
+        cmds.skinCluster(list, plane, tsb=True)
+
+        ### this code make the ribbon flip drasticlly
+        cmds.setAttr('{}.dTwistControlEnable'.format(ikhandle), 1)
+        cmds.setAttr('{}.dWorldUpType'.format(ikhandle), 4)
+        cmds.connectAttr('{}.worldMatrix[0]'.format(sta_ctrl),
+                         '{}.dWorldUpMatrix'.format(ikhandle))
+        cmds.connectAttr('{}.worldMatrix[0]'.format(end_ctrl),
+                         '{}.dWorldUpMatrixEnd'.format(ikhandle))
+    return plane
+    """
+    ##MID ROTATION
     midmultiplyDivide = cmds.createNode('multiplyDivide', n='{}_multiplyDivide'.format(mid_ctrl))
     cmds.setAttr('{}.input2X'.format(midmultiplyDivide), -1)
     cmds.connectAttr('{}.outputX'.format(midmultiplyDivide),
@@ -442,7 +464,7 @@ def createRibbon(list = None, name = None , width = 70, length = (0.05), surface
         cmds.connectAttr('{}.rotateX'.format(mid_ctrl),'{}.input1{}'.format(elsemultiplyDivide,x))
         cmds.connectAttr('{}.output{}'.format(elsemultiplyDivide,x),'{}.rotateX'.format('{}_ribbon_{:02d}_joint_def'.format(name, (int(u_parches/2)+i))))
         cmds.connectAttr('{}.output{}'.format(elsemultiplyDivide,x),'{}.rotateX'.format('{}_ribbon_{:02d}_joint_def'.format(name, (int(u_parches/2)-i))))
-
+    """
 
 
 
@@ -451,14 +473,14 @@ def createNurbPlane(name=None, degree=3, axis=(0, 1, 0), width=70, length=0.05, 
     if not name:
         name = 'nurbplane'
 
-    plane = cmds.nurbsPlane(d=degree, u=u, v=v, ax=axis, w=width, lr=length, n=name)[0]
+    plane = cmds.nurbsPlane(d=degree, u=u-2, v=v, ax=axis, w=width, lr=length, n=name)[0]
     #THE BASIC ROTATION MAY NEED TO BE POSITIVE
     cmds.rotate(0, -90 + add_rot, 0, plane)
     if target:
         cvPos = cmds.xform(target, t=True, ws=True, q=True)
         cmds.xform(name, t=(cvPos[0], cvPos[1], cvPos[2]))
     if lattice:
-       lattice = cmds.lattice(plane, dv=((u+2)/2, 2, 2),ldv=((u+2)/2, 2, 2),ol=1, oc=True , n = plane )[1]
+       lattice = cmds.lattice(plane, dv=((u-1), 2, 2),ldv=((u-1), 2, 2),ol=1, oc=True , n = plane )[1]
 
     return lattice , plane
 
@@ -687,30 +709,34 @@ def build_struct_outliner(name=None):
 
 def visibilitySwitch(objectList=None, targetCtrl=None, targetVariable=None, direct=None,
                      reverse=None):
+
+    print('Entramos visibilitySwitch funcion')
+    print(objectList)
     if not objectList:
         objectList = cmds.ls(sl=True)
-        if not objectList:
-            errorMessage('Nothing is selected')
+    if not objectList:
+        errorMessage('Nothing is selected')
+    else:
+
+        if not targetVariable and not targetCtrl:
+            errorMessage('You must define a variable and target controller')
         else:
-            if not targetVariable and not targetCtrl:
-                errorMessage('You must define a variable and target controller')
+            if not direct and not reverse:
+                for item in objectList:
+                    cmds.connectAttr('{}.{}'.format(targetCtrl, targetVariable), '{}.visibility'.format(item), force = True)
             else:
-                if not direct and not reverse:
-                    for item in objectList:
+                for item in objectList:
+                    print(direct)
+                    print(item.find(direct))
+                    if item.find(direct) != -1:
+                        print('Entramos a direct con la variable {}'.format(item))
                         cmds.connectAttr('{}.{}'.format(targetCtrl, targetVariable), '{}.visibility'.format(item), force = True)
-                else:
-                    for item in objectList:
-                        print(direct)
-                        print(item.find(direct))
-                        if item.find(direct) != -1:
-                            print('Entramos a direct con la variable {}'.format(item))
-                            cmds.connectAttr('{}.{}'.format(targetCtrl, targetVariable), '{}.visibility'.format(item), force = True)
-                        print(reverse)
-                        print(item.find(reverse))
-                        if item.find(reverse) != -1:
-                            print('Entramos a reverse con la variable {}'.format(item))
-                            reversenode = cmds.listConnections(targetCtrl, type='reverse')[0]
-                            cmds.connectAttr('{}.output.outputX'.format(reversenode), '{}.visibility'.format(item), force = True)
+                    print(reverse)
+                    print(item.find(reverse))
+                    if item.find(reverse) != -1:
+                        print('Entramos a reverse con la variable {}'.format(item))
+                        reversenode = cmds.listConnections(targetCtrl, type='reverse')[0]
+                        cmds.connectAttr('{}.output.outputX'.format(reversenode), '{}.visibility'.format(item), force = True)
 
 def displayLocalAxis(display = True,objectList = None):
     if not objectList:

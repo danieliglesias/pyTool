@@ -49,11 +49,11 @@ def build_data_frame(window, main_layout):
     cmds.button(label='load selected', height=30, parent=data_row)
 # mid ik %
     cmds.text(align='center', height=30, label='mid ik pos', parent=data_row)
-    midpos = cmds.textField(height=30,text = '7' , parent=data_row)
+    midpos = cmds.textField(height=30,text = '13' , parent=data_row)
     cmds.button(label='load selected', height=30, parent=data_row)
 # end ik %
     cmds.text(align='center', height=30, label='end ik pos', parent=data_row)
-    lastpos = cmds.textField(height=30,text = '14' , parent=data_row)
+    lastpos = cmds.textField(height=30,text = '27' , parent=data_row)
     cmds.button(label='load selected', height=30, parent=data_row)
 
     #cmds.separator( height=40, style='out' , parent=data_row)
@@ -71,28 +71,43 @@ def build_data_frame(window, main_layout):
 
     cmds.text(align='center', height=30, label='Guides List', parent=data_rowlist)
     listGuide = cmds.textScrollList(numberOfRows=5, allowMultiSelection=True,
-                        selectItem='six', showIndexedItem=4 , parent=data_rowlist, append=['cluster_handle_1'
-,'cluster_handle_2'
-,'cluster_handle_3'
-,'cluster_handle_4'
-,'cluster_handle_5'
-,'cluster_handle_6'
-,'cluster_handle_7'
-,'cluster_handle_8'
-,'cluster_handle_9'
-,'cluster_handle_10'
-,'cluster_handle_11'
-,'cluster_handle_12'
-,'cluster_handle_13'
-,'cluster_handle_14'
-,'cluster_handle_15'
-,'cluster_handle_16'
-,'cluster_handle_17'
-,'cluster_handle_18'
-,'cluster_handle_19'
-,'cluster_handle_20'
-,'cluster_handle_21'
-,'cluster_handle_22'])
+                        selectItem='six', showIndexedItem=4 , parent=data_rowlist, append=[
+'locator1',
+'locator2',
+'locator3',
+'locator4',
+'locator5',
+'locator6',
+'locator7',
+'locator8',
+'locator9',
+'locator10',
+'locator11',
+'locator12',
+'locator13',
+'locator14',
+'locator15',
+'locator16',
+'locator17',
+'locator18',
+'locator19',
+'locator20',
+'locator21',
+'locator22',
+'locator23',
+'locator24',
+'locator25',
+'locator26',
+'locator27',
+'locator28',
+'locator29',
+'locator30',
+'locator31',
+'locator32',
+'locator33',
+'locator34',
+'locator35'
+])
     cmds.button(label='load selected', height=30, parent=data_rowlist,command=lambda x: load_sel(listGuide))
 
 

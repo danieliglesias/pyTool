@@ -879,7 +879,6 @@ def generateMouthGuide(name = None, mouth_edgeloop = None):
                 else:
                     cmds.xform(guide, t=(guidePos[0] + (x*multi), guidePos[1]-1, guidePos[2] + 20))
 
-
         #return guideList
 
 def save_mouth_guide_position(name=None, guide_list = None, surface = None):
@@ -996,12 +995,19 @@ def add_join_lip_structure(name = None,lip_jnt = None,loc = None, loc_closestPoi
 
     # animBlendNodeAdditiveRotation
     animBlendNodeAdditiveRotation = cmds.createNode('animBlendNodeAdditiveRotation', n='{}_animBlendNodeAdditiveRotation'.format(lip_jnt))
+    #20241113
+    plusMinusAverageAnimBlend = cmds.createNode('plusMinusAverage', n='{}_plusMinusAverageEnd_animBlend'.format(lip_jnt))
+    cmds.connectAttr('{}.output3D'.format(plusMinusAverageAnimBlend), '{}.inputB'.format(animBlendNodeAdditiveRotation))
+    #20241113 /end
     plusMinusAverageEnd = cmds.createNode('plusMinusAverage',n='{}_plusMinusAverageEnd'.format(lip_jnt))
     cmds.setAttr('{}.operation'.format(plusMinusAverageEnd),2)
     ### connections
     cmds.connectAttr('{}.outputRotateX'.format(decomposeMatrix),'{}.inputAX'.format(animBlendNodeAdditiveRotation))
     cmds.connectAttr('{}.outputTranslate'.format(decomposeMatrix), '{}.input3D[0]'.format(plusMinusAverageEnd))
-    cmds.connectAttr('{}.inputAX'.format(animBlendNodeAdditiveRotation), '{}.rotateX'.format(lip_jnt))
+    #20241113
+    #cmds.connectAttr('{}.inputAX'.format(animBlendNodeAdditiveRotation), '{}.rotateX'.format(lip_jnt))
+    cmds.connectAttr('{}.outputX'.format(animBlendNodeAdditiveRotation), '{}.rotateX'.format(lip_jnt))
+    # 20241113 /end
     cmds.connectAttr('{}.outputRotateY'.format(decomposeMatrix), '{}.rotateY'.format(lip_jnt))
     cmds.connectAttr('{}.outputRotateZ'.format(decomposeMatrix), '{}.rotateZ'.format(lip_jnt))
     cmds.connectAttr('{}.output3D'.format(plusMinusAverageEnd), '{}.translate'.format(lip_jnt))
@@ -1119,7 +1125,10 @@ def build_jaw_guide(name = None,edgeloop = None):
         cmds.connectAttr('{}.vFallOff_ctrl_opposite_{:02d}'.format(empty_jaw_grp, i), '{}.input1'.format(multDoubleLinear_ctrl_opposite))
         cmds.connectAttr('{}.output'.format(multDoubleLinear_ctrl_opposite),'{}.vFallOff_ctrl_opposite_Rearange_{:02d}'.format(empty_jaw_grp, i))
 
-
+    for i in range(0, edgeloop -1):
+        #reverse = cmds.createNode('reverse', n='{}_{:02d}_reverse'.format(empty_jaw_grp, i))
+        [cmds.addAttr(empty_jaw_grp, longName='rotation_weight_{:02d}'.format((i * 3) + y),
+                      defaultValue=(((i * 3) + y) * 0.03), at='double', keyable=1) for y in range(1, 4)]
 
 
     return empty_jaw_grp
@@ -1155,23 +1164,32 @@ def build_mouth_controller(name  = None,controller_list= None, lip_joint_list = 
                                       offsetnumber=3, type='face', size=ctrl_size, move = move)
 
         constrain = cmds.parentConstraint( joint_target,'{}_off_constrain'.format(ctrl),maintainOffset=False)[0]
-
+        #direct conection for controllers and joint in the same positions
         multDoubleLinearU = cmds.createNode('multDoubleLinear', n='{}_multDoubleLinearU'.format(joint_target))
         multDoubleLinearV = cmds.createNode('multDoubleLinear', n='{}_multDoubleLinearV'.format(joint_target))
-
         cmds.connectAttr('{}.translateY'.format(ctrl),'{}.input1'.format(multDoubleLinearV))
         cmds.connectAttr('{}.output'.format(multDoubleLinearV),'{}_plusMinusAverageStart.input2D[{}].input2Dy'.format(joint_target,plusMinusAverage_start_POS))
         cmds.connectAttr('{}.translateX'.format(ctrl), '{}.input1'.format(multDoubleLinearU))
         cmds.connectAttr('{}.output'.format(multDoubleLinearU),'{}_plusMinusAverageStart.input2D[{}].input2Dx'.format(joint_target,plusMinusAverage_start_POS))
+        #20241113 adding direct conection for rotation
+        multDoubleLinearBlendNode = cmds.createNode('multDoubleLinear', n='{}_multDoubleLinear_BlendNode'.format(joint_target))
+        cmds.connectAttr('{}.rotateX'.format(ctrl),'{}.input1'.format(multDoubleLinearBlendNode))
+        cmds.connectAttr('{}.output'.format(multDoubleLinearBlendNode),
+                         '{}_plusMinusAverageEnd_animBlend.input3D[{}].input3Dx'.format(joint_target,plusMinusAverage_start_POS))
 
+        # 20241113 adding direct conection for rotation /END
 
         if ctrl[:1] == 'r':
             cmds.setAttr('{}.input2'.format(multDoubleLinearV),0.05)
             cmds.setAttr('{}.input2'.format(multDoubleLinearU), -0.025)
             cmds.setAttr('{}.target[0].targetOffsetRotateY'.format(constrain), 180)
+
+            cmds.setAttr('{}.input2'.format(multDoubleLinearBlendNode), 0.5)
         else:
             cmds.setAttr('{}.input2'.format(multDoubleLinearV),0.05)
             cmds.setAttr('{}.input2'.format(multDoubleLinearU), 0.025)
+
+            cmds.setAttr('{}.input2'.format(multDoubleLinearBlendNode), 0.5)
 
         for joint_lip in lip_joint_list:
             if joint_lip != joint_target:
@@ -1184,7 +1202,7 @@ def build_mouth_controller(name  = None,controller_list= None, lip_joint_list = 
 
                 # corner controller
                 if ctrl_prefix[2:-3] == 'cor'  and ctrl_prefix[:1] == (joint_lip[:(len(name) + 2)])[-1:]:
-
+                    print(joint_lip)
                     multDoubleLinearU = cmds.createNode('multDoubleLinear',n='{}_{}_multDoubleLinearU'.format(joint_lip, ctrl_prefix))
                     multDoubleLinearV = cmds.createNode('multDoubleLinear',n='{}_{}_multDoubleLinearV'.format(joint_lip, ctrl_prefix))
                     cmds.connectAttr('{}.translateX'.format(ctrl), '{}.input1'.format(multDoubleLinearU))
@@ -1195,6 +1213,30 @@ def build_mouth_controller(name  = None,controller_list= None, lip_joint_list = 
                     cmds.setAttr('{}.input2'.format(multDoubleLinearU), u_val)
                     ### v value
                     cmds.connectAttr('{}.vFallOffRearange_{}'.format('{}_jaw_guide'.format(name),(joint_lip[10:])[:2]),'{}.input2'.format(multDoubleLinearV))
+
+                    # 20241113 adding conection for rotation
+                    multDoubleLinearBlendNode = cmds.createNode('multDoubleLinear',
+                                                          n='{}_multDoubleLinear_BlendNode'.format(joint_lip))
+                    cmds.connectAttr('{}.rotateX'.format(ctrl), '{}.input1'.format(multDoubleLinearBlendNode))
+                    cmds.connectAttr('{}.output'.format(multDoubleLinearBlendNode),
+                                     '{}_plusMinusAverageEnd_animBlend.input3D[{}].input3Dx'.format(joint_lip,
+                                                                                           plusMinusAverage_start_POS))
+                    cmds.connectAttr('{}.rotation_weight_{}'.format('{}_jaw_guide'.format(name), (joint_lip[10:])[:2]),
+                                     '{}.input2'.format(multDoubleLinearBlendNode))
+
+                    """[cmds.connectAttr('{}.vFallOffRearange_{}'.format('{}_jaw_guide'.format(name), (joint_lip[10:])[:2]),
+                                     '{}.input2{}'.format(multDivideBlendNode,axis)) for axis in 'XYZ']"""
+
+                    """"
+                    connectAttr -f Max_jaw_guide.weight_05 multiplyDivide4.input2X;
+                    // Result: Connected Max_jaw_guide.weight_05 to multiplyDivide4.input2.input2X. // 
+                    connectAttr -f Max_jaw_guide.weight_05 multiplyDivide4.input2Y;
+                    // Result: Connected Max_jaw_guide.weight_05 to multiplyDivide4.input2.input2Y. // 
+                    connectAttr -f Max_jaw_guide.weight_05 multiplyDivide4.input2Z;
+                    """
+
+                    # 20241113 adding conection for rotation /END
+
 
                 if ctrl_prefix[:1] == 'c' and ctrl_prefix[2:-3] not in ['glo','cor'] and  ctrl_prefix[2:-3] == (joint_lip[6:])[:-15]:
                     multDoubleLinearU = cmds.createNode('multDoubleLinear',n='{}_{}_multDoubleLinearU'.format(joint_lip, ctrl_prefix))

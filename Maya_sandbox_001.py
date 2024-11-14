@@ -34,7 +34,7 @@ utili.createRibbonSystem(name = 'test')
 utili.build_struct_outliner(name='octopus')
 
 
-utili.createSimpleFkController(align = 'y',size = 5,shape = 'circle')
+utili.createSimpleFkController(align = 'z',size = 5,shape = 'circle')
 
 
 ## get the point in between 2 objects
@@ -46,11 +46,21 @@ utili.colorObject(color=4) #right
 utili.colorObject(color=17) #center
 utili.colorObject(color=18) #face general controller
 utili.colorObject(color=16) #face second controller
-utili.colorObject(color=13) #chest ik controller
+utili.colorObject(color=11) #chest ik controller
 
+
+utili.colorObject(color=7) #sub left
+
+
+utili.colorObject(color=8) #sub right
 
 ### control visibility
-utili.visibilitySwitch(targetCtrl = 'Max_c_pelvis01_jnt_fk_ctrl',targetVariable = 'FreeSpineControls')
+utili.visibilitySwitch(targetCtrl = 'Max_r_tentacle4_27_end_ctrl',targetVariable = 'ribbon_detail_ctrl')
+
+utili.visibilitySwitch(targetCtrl = 'Max_c_pelvis01_jnt_fk_ctrl',targetVariable = 'ribbon_detail_ctrl')
+
+
+
 utili.visibilitySwitch(targetCtrl = 'Max_c_pelvis01_jnt_fk_ctrl',targetVariable = 'ikblend',direct= 'ik',reverse='fk')
 
 selection = cmds.ls(sl=True)
