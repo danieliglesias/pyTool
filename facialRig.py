@@ -1127,8 +1127,23 @@ def build_jaw_guide(name = None,edgeloop = None):
 
     for i in range(0, edgeloop -1):
         #reverse = cmds.createNode('reverse', n='{}_{:02d}_reverse'.format(empty_jaw_grp, i))
-        [cmds.addAttr(empty_jaw_grp, longName='rotation_weight_{:02d}'.format((i * 3) + y),
-                      defaultValue=(((i * 3) + y) * 0.03), at='double', keyable=1) for y in range(1, 4)]
+        cal = (i - (edgeloop - 1)) * -1
+        value = (1 / (edgeloop * 2)) * (cal * cal / 5)
+        cmds.addAttr(empty_jaw_grp, longName='rotation_weight_{:02d}'.format(i),
+                      defaultValue=(value), at='double', keyable=1)
+
+    for i in range(0, edgeloop -1):
+        #reverse = cmds.createNode('reverse', n='{}_{:02d}_reverse'.format(empty_jaw_grp, i))
+        #cal = (i - (edgeloop - 1)) * -1
+        #value = (1 / (edgeloop * 2)) * (cal * cal / 5)
+        cmds.addAttr(empty_jaw_grp, longName='rotation_side_weight_{:02d}'.format(i),
+                      defaultValue=0, at='double', keyable=1)
+    for i in range(0, edgeloop -1):
+        #reverse = cmds.createNode('reverse', n='{}_{:02d}_reverse'.format(empty_jaw_grp, i))
+        #cal = (i - (edgeloop - 1)) * -1
+        #value = (1 / (edgeloop * 2)) * (cal * cal / 5)
+        cmds.addAttr(empty_jaw_grp, longName='rotation_oppositeside_weight_{:02d}'.format(i),
+                      defaultValue=0, at='double', keyable=1)
 
 
     return empty_jaw_grp
@@ -1172,10 +1187,12 @@ def build_mouth_controller(name  = None,controller_list= None, lip_joint_list = 
         cmds.connectAttr('{}.translateX'.format(ctrl), '{}.input1'.format(multDoubleLinearU))
         cmds.connectAttr('{}.output'.format(multDoubleLinearU),'{}_plusMinusAverageStart.input2D[{}].input2Dx'.format(joint_target,plusMinusAverage_start_POS))
         #20241113 adding direct conection for rotation
-        multDoubleLinearBlendNode = cmds.createNode('multDoubleLinear', n='{}_multDoubleLinear_BlendNode'.format(joint_target))
-        cmds.connectAttr('{}.rotateX'.format(ctrl),'{}.input1'.format(multDoubleLinearBlendNode))
-        cmds.connectAttr('{}.output'.format(multDoubleLinearBlendNode),
-                         '{}_plusMinusAverageEnd_animBlend.input3D[{}].input3Dx'.format(joint_target,plusMinusAverage_start_POS))
+
+        if ctrl_prefix[2:-3] != 'cor' and ctrl_prefix[2:-3] != 'glo' :
+            multDoubleLinearBlendNode = cmds.createNode('multDoubleLinear', n='{}_multDoubleLinear_BlendNode'.format(joint_target))
+            cmds.connectAttr('{}.rotateX'.format(ctrl),'{}.input1'.format(multDoubleLinearBlendNode))
+            cmds.connectAttr('{}.output'.format(multDoubleLinearBlendNode),
+                             '{}_plusMinusAverageEnd_animBlend.input3D[{}].input3Dx'.format(joint_target,plusMinusAverage_start_POS))
 
         # 20241113 adding direct conection for rotation /END
 
@@ -1183,13 +1200,13 @@ def build_mouth_controller(name  = None,controller_list= None, lip_joint_list = 
             cmds.setAttr('{}.input2'.format(multDoubleLinearV),0.05)
             cmds.setAttr('{}.input2'.format(multDoubleLinearU), -0.025)
             cmds.setAttr('{}.target[0].targetOffsetRotateY'.format(constrain), 180)
-
-            cmds.setAttr('{}.input2'.format(multDoubleLinearBlendNode), 0.5)
+            if ctrl_prefix[2:-3] != 'cor' and ctrl_prefix[2:-3] != 'glo':
+                cmds.setAttr('{}.input2'.format(multDoubleLinearBlendNode), 0.5)
         else:
             cmds.setAttr('{}.input2'.format(multDoubleLinearV),0.05)
             cmds.setAttr('{}.input2'.format(multDoubleLinearU), 0.025)
-
-            cmds.setAttr('{}.input2'.format(multDoubleLinearBlendNode), 0.5)
+            if ctrl_prefix[2:-3] != 'cor' and ctrl_prefix[2:-3] != 'glo':
+                cmds.setAttr('{}.input2'.format(multDoubleLinearBlendNode), 0.5)
 
         for joint_lip in lip_joint_list:
             if joint_lip != joint_target:
@@ -1215,14 +1232,14 @@ def build_mouth_controller(name  = None,controller_list= None, lip_joint_list = 
                     cmds.connectAttr('{}.vFallOffRearange_{}'.format('{}_jaw_guide'.format(name),(joint_lip[10:])[:2]),'{}.input2'.format(multDoubleLinearV))
 
                     # 20241113 adding conection for rotation
-                    multDoubleLinearBlendNode = cmds.createNode('multDoubleLinear',
+                    """multDoubleLinearBlendNode = cmds.createNode('multDoubleLinear',
                                                           n='{}_multDoubleLinear_BlendNode'.format(joint_lip))
                     cmds.connectAttr('{}.rotateX'.format(ctrl), '{}.input1'.format(multDoubleLinearBlendNode))
                     cmds.connectAttr('{}.output'.format(multDoubleLinearBlendNode),
                                      '{}_plusMinusAverageEnd_animBlend.input3D[{}].input3Dx'.format(joint_lip,
                                                                                            plusMinusAverage_start_POS))
                     cmds.connectAttr('{}.rotation_weight_{}'.format('{}_jaw_guide'.format(name), (joint_lip[10:])[:2]),
-                                     '{}.input2'.format(multDoubleLinearBlendNode))
+                                     '{}.input2'.format(multDoubleLinearBlendNode))"""
 
                     """[cmds.connectAttr('{}.vFallOffRearange_{}'.format('{}_jaw_guide'.format(name), (joint_lip[10:])[:2]),
                                      '{}.input2{}'.format(multDivideBlendNode,axis)) for axis in 'XYZ']"""
@@ -1251,6 +1268,16 @@ def build_mouth_controller(name  = None,controller_list= None, lip_joint_list = 
                     cmds.connectAttr('{}.vFallOffMidRearange_{}'.format('{}_jaw_guide'.format(name), (joint_lip[10:])[:2]),
                                      '{}.input2'.format(multDoubleLinearV))
 
+                    # 20241113 adding conection for rotation
+                    multDoubleLinearBlendNode = cmds.createNode('multDoubleLinear',
+                                                                n='{}_multDoubleLinear_BlendNode'.format(joint_lip))
+                    cmds.connectAttr('{}.rotateX'.format(ctrl), '{}.input1'.format(multDoubleLinearBlendNode))
+                    cmds.connectAttr('{}.output'.format(multDoubleLinearBlendNode),
+                                     '{}_plusMinusAverageEnd_animBlend.input3D[{}].input3Dx'.format(joint_lip,
+                                                                                                    plusMinusAverage_start_POS))
+                    cmds.connectAttr('{}.rotation_weight_{}'.format('{}_jaw_guide'.format(name), (joint_lip[10:])[:2]),
+                                     '{}.input2'.format(multDoubleLinearBlendNode))
+                    # 20241113 adding conection for rotation
                 if ctrl_prefix[:1] == 'c' and ctrl_prefix[2:-3]  == 'glo':
 
                     multDoubleLinearU = cmds.createNode('multDoubleLinear',n='{}_{}_multDoubleLinearU'.format(joint_lip, ctrl_prefix))
@@ -1265,14 +1292,21 @@ def build_mouth_controller(name  = None,controller_list= None, lip_joint_list = 
                     cmds.setAttr('{}.input2'.format(multDoubleLinearV), 0.05)
 
                 if ctrl_prefix[:1] in ['l','r'] and ctrl_prefix[2:-3] == 'upp' and ctrl_prefix[2:-3] == (joint_lip[6:])[:-15]:
-                    print('upp if')
-                    print(joint_lip)
+
                     multDoubleLinearU = cmds.createNode('multDoubleLinear',n='{}_{}_multDoubleLinearU'.format(joint_lip, ctrl_prefix))
                     multDoubleLinearV = cmds.createNode('multDoubleLinear',n='{}_{}_multDoubleLinearV'.format(joint_lip, ctrl_prefix))
                     cmds.connectAttr('{}.translateX'.format(ctrl), '{}.input1'.format(multDoubleLinearU))
                     cmds.connectAttr('{}.output'.format(multDoubleLinearU),'{}_plusMinusAverageStart.input2D[{}].input2Dx'.format(joint_lip,plusMinusAverage_start_POS))
                     cmds.connectAttr('{}.translateY'.format(ctrl), '{}.input1'.format(multDoubleLinearV))
                     cmds.connectAttr('{}.output'.format(multDoubleLinearV),'{}_plusMinusAverageStart.input2D[{}].input2Dy'.format(joint_lip,plusMinusAverage_start_POS))
+
+                    # 20241113 adding conection for rotation
+                    multDoubleLinearBlendNode = cmds.createNode('multDoubleLinear',
+                                                                n='{}_multDoubleLinear_BlendNode'.format(joint_lip))
+                    cmds.connectAttr('{}.rotateX'.format(ctrl), '{}.input1'.format(multDoubleLinearBlendNode))
+                    cmds.connectAttr('{}.output'.format(multDoubleLinearBlendNode),
+                                     '{}_plusMinusAverageEnd_animBlend.input3D[{}].input3Dx'.format(joint_lip,
+                                                                                                    plusMinusAverage_start_POS))
 
 
                     if ctrl_prefix[:1] in ['l']:
@@ -1285,6 +1319,11 @@ def build_mouth_controller(name  = None,controller_list= None, lip_joint_list = 
                             cmds.connectAttr('{}.vFallOff_ctrl_opposite_Rearange_{}'.format('{}_jaw_guide'.format(name),
                                                                                             (joint_lip[10:])[:2]),
                                              '{}.input2'.format(multDoubleLinearU))
+                            # 20241113 adding conection for rotation
+                            cmds.connectAttr(
+                                '{}.rotation_oppositeside_weight_{}'.format('{}_jaw_guide'.format(name), (joint_lip[10:])[:2]),
+                                '{}.input2'.format(multDoubleLinearBlendNode))
+                            # 20241113 adding conection for rotation
                         elif (joint_lip[4:])[:-19] in ['l','c']:
                             ### v value
                             cmds.connectAttr(
@@ -1294,6 +1333,11 @@ def build_mouth_controller(name  = None,controller_list= None, lip_joint_list = 
                             cmds.connectAttr('{}.vFallOff_ctrl_Rearange_{}'.format('{}_jaw_guide'.format(name),
                                                                                    (joint_lip[10:])[:2]),
                                              '{}.input2'.format(multDoubleLinearU))
+                            # 20241113 adding conection for rotation
+                            cmds.connectAttr(
+                                '{}.rotation_side_weight_{}'.format('{}_jaw_guide'.format(name), (joint_lip[10:])[:2]),
+                                '{}.input2'.format(multDoubleLinearBlendNode))
+                            # 20241113 adding conection for rotation
                     elif ctrl_prefix[:1] in ['r']:
                         if (joint_lip[4:])[:-19] == 'l':
                             ### v value
@@ -1305,6 +1349,11 @@ def build_mouth_controller(name  = None,controller_list= None, lip_joint_list = 
                             cmds.connectAttr('{}.vFallOff_ctrl_opposite_Rearange_{}'.format('{}_jaw_guide'.format(name),
                                                                                             (joint_lip[10:])[:2]),
                                              '{}.input2'.format(multDoubleLinearU))
+                            # 20241113 adding conection for rotation
+                            cmds.connectAttr(
+                                '{}.rotation_oppositeside_weight_{}'.format('{}_jaw_guide'.format(name), (joint_lip[10:])[:2]),
+                                '{}.input2'.format(multDoubleLinearBlendNode))
+                            # 20241113 adding conection for rotation
                         elif (joint_lip[4:])[:-19] in ['r','c']:
                             ### v value
                             cmds.connectAttr(
@@ -1315,6 +1364,11 @@ def build_mouth_controller(name  = None,controller_list= None, lip_joint_list = 
                             cmds.connectAttr('{}.vFallOff_ctrl_Rearange_{}'.format('{}_jaw_guide'.format(name),
                                                                                    (joint_lip[10:])[:2]),
                                              '{}.input2'.format(multDoubleLinearU))
+                            # 20241113 adding conection for rotation
+                            cmds.connectAttr(
+                                '{}.rotation_side_weight_{}'.format('{}_jaw_guide'.format(name), (joint_lip[10:])[:2]),
+                                '{}.input2'.format(multDoubleLinearBlendNode))
+                            # 20241113 adding conection for rotation
 
                 if ctrl_prefix[:1] in ['l', 'r'] and ctrl_prefix[2:-3] == 'low' and ctrl_prefix[2:-3] == (joint_lip[6:])[:-15]:
 
@@ -1325,7 +1379,13 @@ def build_mouth_controller(name  = None,controller_list= None, lip_joint_list = 
                     cmds.connectAttr('{}.translateY'.format(ctrl), '{}.input1'.format(multDoubleLinearV))
                     cmds.connectAttr('{}.output'.format(multDoubleLinearV),'{}_plusMinusAverageStart.input2D[{}].input2Dy'.format(joint_lip,plusMinusAverage_start_POS))
 
-
+                    # 20241113 adding conection for rotation
+                    multDoubleLinearBlendNode = cmds.createNode('multDoubleLinear',
+                                                                n='{}_multDoubleLinear_BlendNode'.format(joint_lip))
+                    cmds.connectAttr('{}.rotateX'.format(ctrl), '{}.input1'.format(multDoubleLinearBlendNode))
+                    cmds.connectAttr('{}.output'.format(multDoubleLinearBlendNode),
+                                     '{}_plusMinusAverageEnd_animBlend.input3D[{}].input3Dx'.format(joint_lip,
+                                                                                                    plusMinusAverage_start_POS))
 
                     if ctrl_prefix[:1] in ['l']:
 
@@ -1338,6 +1398,13 @@ def build_mouth_controller(name  = None,controller_list= None, lip_joint_list = 
                                                                                             (joint_lip[10:])[:2]),
                                              '{}.input2'.format(multDoubleLinearU))
 
+                            # 20241113 adding conection for rotation
+                            cmds.connectAttr(
+                                '{}.rotation_oppositeside_weight_{}'.format('{}_jaw_guide'.format(name),
+                                                                            (joint_lip[10:])[:2]),
+                                '{}.input2'.format(multDoubleLinearBlendNode))
+                            # 20241113 adding conection for rotation
+
                         elif (joint_lip[4:])[:-19] in ['l','c']:
                             ### v value
                             cmds.connectAttr('{}.vFallOffUpCurveRearange_{}'.format('{}_jaw_guide'.format(name),(joint_lip[10:])[:2]),'{}.input2'.format(multDoubleLinearV))
@@ -1346,6 +1413,12 @@ def build_mouth_controller(name  = None,controller_list= None, lip_joint_list = 
                             cmds.connectAttr('{}.vFallOff_ctrl_Rearange_{}'.format('{}_jaw_guide'.format(name),
                                                                                    (joint_lip[10:])[:2]),
                                              '{}.input2'.format(multDoubleLinearU))
+
+                            # 20241113 adding conection for rotation
+                            cmds.connectAttr(
+                                '{}.rotation_side_weight_{}'.format('{}_jaw_guide'.format(name), (joint_lip[10:])[:2]),
+                                '{}.input2'.format(multDoubleLinearBlendNode))
+                            # 20241113 adding conection for rotation
 
                     elif ctrl_prefix[:1] in ['r']:
 
@@ -1358,6 +1431,13 @@ def build_mouth_controller(name  = None,controller_list= None, lip_joint_list = 
                                                                                    (joint_lip[10:])[:2]),
                                              '{}.input2'.format(multDoubleLinearU))
 
+                            # 20241113 adding conection for rotation
+                            cmds.connectAttr(
+                                '{}.rotation_oppositeside_weight_{}'.format('{}_jaw_guide'.format(name),
+                                                                            (joint_lip[10:])[:2]),
+                                '{}.input2'.format(multDoubleLinearBlendNode))
+                            # 20241113 adding conection for rotation
+
                         elif (joint_lip[4:])[:-19] in ['r','c']:
                             ### v value
                             cmds.connectAttr('{}.vFallOffUpCurveRearange_{}'.format('{}_jaw_guide'.format(name),(joint_lip[10:])[:2]),'{}.input2'.format(multDoubleLinearV))
@@ -1366,6 +1446,12 @@ def build_mouth_controller(name  = None,controller_list= None, lip_joint_list = 
                             cmds.connectAttr('{}.vFallOff_ctrl_Rearange_{}'.format('{}_jaw_guide'.format(name),
                                                                                     (joint_lip[10:])[:2]),
                                              '{}.input2'.format(multDoubleLinearU))
+
+                            # 20241113 adding conection for rotation
+                            cmds.connectAttr(
+                                '{}.rotation_side_weight_{}'.format('{}_jaw_guide'.format(name), (joint_lip[10:])[:2]),
+                                '{}.input2'.format(multDoubleLinearBlendNode))
+                            # 20241113 adding conection for rotation
 
 def save_mouth_jaw_guide_numbers(name = None,object=None):
 
@@ -1450,12 +1536,12 @@ def load_eyelit_guide_numbers(name=None, file_name=None):
 
 def build_face_guide(name = None,base_object = 'center_jnt',guide_list = None,eye_guide_list = None):
     if not guide_list and not eye_guide_list:
-        guide_list = ['neck01','head02','head01','facelow','facemid','faceupp','facejaw','head02_end','nosemas','nosetip']
+        guide_list = ['neck01','neck02','head01','facelow','facemid','faceupp','facejaw','head02_end','nosemas','nosetip']
         eye_guide_list = [ 'eyeball','eyesock']
         extra_guide_list = ['cheek1','cheek2','snees','ears01','ears02',]
     guidePos = cmds.xform(base_object, t=True, ws=True, q=True)
     for i,item in enumerate(guide_list):
-        guide = cmds.sphere(radius= 0.2, name = '{}_guide'.format(item))[0]
+        guide = cmds.sphere(radius= 0.5, name = '{}_guide'.format(item))[0]
         cmds.setAttr('{}Shape.overrideEnabled'.format(guide), 1)
         cmds.setAttr('{}Shape.overrideColor'.format(guide), 4)
 
@@ -1467,7 +1553,7 @@ def build_face_guide(name = None,base_object = 'center_jnt',guide_list = None,ey
     guidePos = cmds.xform('facemid_guide', t=True, ws=True, q=True)
     for side in ('l', 'r'):
         for i,eye_item in enumerate(eye_guide_list):
-            guide = cmds.sphere(radius=0.2, name='{}_{}_guide'.format(side,eye_item))[0]
+            guide = cmds.sphere(radius=0.5, name='{}_{}_guide'.format(side,eye_item))[0]
             cmds.setAttr('{}Shape.overrideEnabled'.format(guide), 1)
             cmds.setAttr('{}Shape.overrideColor'.format(guide), 4)
             if side == 'l':
@@ -1475,7 +1561,7 @@ def build_face_guide(name = None,base_object = 'center_jnt',guide_list = None,ey
             else:
                 cmds.xform(guide, t=(guidePos[0]-5, guidePos[1], guidePos[2] + (5 * (i + 1))))
         for i,item in enumerate(extra_guide_list):
-            guide = cmds.sphere(radius=0.2, name='{}_{}_guide'.format(side, item))[0]
+            guide = cmds.sphere(radius=0.5, name='{}_{}_guide'.format(side, item))[0]
             cmds.setAttr('{}Shape.overrideEnabled'.format(guide), 1)
             cmds.setAttr('{}Shape.overrideColor'.format(guide), 4)
             if side == 'l':
@@ -1518,8 +1604,8 @@ def save_mainstructure_guide(name=None,guide_type = 'guide'):
     final_dict = dict()
     parent = None
     objectList = []
-    guide_list = ['head01', 'facelow', 'facemid', 'faceupp', 'head02_end']
-    eye_guide_list = ['eyeball', 'eyesock']
+    guide_list = ['head01', 'facelow', 'facemid', 'faceupp', 'head02_end','facejaw','neck01','neck02','nosemas','nosetip']
+    eye_guide_list = ['eyeball', 'eyesock','cheek1','cheek2','snees','ears01','ears02']
 
 
     if guide_type == 'guide':
@@ -1552,7 +1638,7 @@ def save_mainstructure_guide(name=None,guide_type = 'guide'):
             if (cmds.listRelatives(item, parent=True)) != None:
                 parent = cmds.listRelatives(item, parent=True)[0]
 
-            if not parent:
+            else:
                 parent = 'none'
                 # position
             if guide_type == 'joint' or guide_type == 'selected':
@@ -1607,15 +1693,14 @@ def load_mainstructure_guide( file_name=None):
         cmds.xform(guide_name, t=obj.get('pos'))
 
 
-
-        if obj.get('parent') != 'none':
-            print(guide_name)
-            cmds.parent(guide_name, obj.get('parent'))
-
         cmds.setAttr('{}.jointOrientX'.format(guide_name), obj.get('oriX'))
         cmds.setAttr('{}.jointOrientY'.format(guide_name), obj.get('oriY'))
         cmds.setAttr('{}.jointOrientZ'.format(guide_name), obj.get('oriZ'))
 
-
+    for guide_name, obj in data.items():
+        cmds.select(clear=True)
+        if obj.get('parent') != 'none':
+            print(guide_name)
+            cmds.parent(guide_name, obj.get('parent'))
 
 
