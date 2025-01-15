@@ -16,8 +16,8 @@ def tentacleBuild(name = 'character',mainjoint = 'joint', spacing = 45.0, midpos
     print(listGuide)"""
     tentacle_guide = utili.createEmptyGroup(name='{}_tentacle_rotation_guide'.format(name))
 
-    for x in range(1,5):
-        for side in ('l','r'):
+    for x in range(1, 5):
+        for side in ('l', 'r'):
 
             loc = cmds.spaceLocator(absolute=True, name='{}_{}_{}_loc'.format(name, side, x))
             cmds.delete(cmds.parentConstraint(mainjoint, loc))
@@ -46,17 +46,18 @@ def tentacleBuild(name = 'character',mainjoint = 'joint', spacing = 45.0, midpos
 
             # LETS CREATE A CURVE
             tentacle_curve = cmds.curve(d=3, p=positions, name='{}_{}_tentacle{}_curve'.format(name, side, x))
-            cmds.parent(tentacle_curve, loc)
+            # cmds.parent(tentacle_curve, loc)
 
             ##parenting the curve will multiply transformation
             # cmds.parent(curve, loc)
 
             ###creating joint controller and ik handle
             # lets create 3 joint
-            print('{:02d}_sub'.format(int(int(midpos) / 2) + 1))
             ik_list = ['{}_{}_tentacle{}_{}_joint'.format(name, side, x, obj) for obj in
-                       ('01_sta', '{:02d}_sub'.format(int(int(midpos) / 2) + 1), '{:02d}_mid'.format(int(midpos)),
-                        '{:02d}_bet'.format(int(int(midpos) + ((int(lastpos) - int(midpos)) / 2)) - 1),
+                       ('01_sta',
+                        # '{:02d}_sub'.format(int(int(midpos) / 2) + 1),
+                        '{:02d}_mid'.format(int(midpos)),
+                        # '{:02d}_bet'.format(int(int(midpos) + ((int(lastpos) - int(midpos)) / 2)) - 1),
                         '{:02d}_end'.format(int(lastpos)))]
 
             for i, item in enumerate(ik_list):
@@ -68,29 +69,30 @@ def tentacleBuild(name = 'character',mainjoint = 'joint', spacing = 45.0, midpos
                 ctrl = utili.createController(name='{}'.format(item[:-6]), shape='square', target=jnt_ctrl,
                                               contraint_target=None, facing='x',
                                               offsetnumber=2,
-                                              type='fk', size=7 - (i * 0.5))
+                                              type='fk', size=4 - (i * 0.4))
                 cmds.parent('{}_off'.format(ctrl), loc)
 
             # skin controller joints to the curve
-
-
-            """ik_handle = cmds.ikHandle(n='{}_{}_tentacle{}_ikhandle'.format(name, side, x),
+            cmds.skinCluster(ik_list, tentacle_curve, tsb=True,
+                             name='{}_{}_tentacle{}_skincluster'.format(name, side, x))
+            ik_handle = cmds.ikHandle(n='{}_{}_tentacle{}_ikhandle'.format(name, side, x),
                                       sj='{}_{}_tentacle{}_01_joint'.format(name, side, x),
                                       ee='{}_{}_tentacle{}_{}_joint'.format(name, side, x, int(lastpos)),
-                                      curve=curve, solver='ikSplineSolver', createCurve=False, parentCurve=False,
+                                      curve=tentacle_curve, solver='ikSplineSolver', createCurve=False,
+                                      parentCurve=False,
                                       numSpans=3)[0]
-            """
-            # cmds.parent(ik_handle, loc)
+
+            cmds.parent(ik_handle, loc)
             # here we create the fk controllers for the tip of the tentacles
             list_fk = ['{}_{}_tentacle{}_{:02d}_joint_def'.format(name, side, x, int(i)) for i in
                        range(int(lastpos), len(listGuide))]
 
             for i, item in enumerate(list_fk):
                 ctrl = utili.createController(name='{}'.format(item[:-10]), shape='circle', target=item,
-                                                contraint_target = None,
-                                                facing = 'x',
-                                                offsetnumber = 2,
-                                                type = 'fk', size = 4.5 - (i * 0.4))
+                                              contraint_target=None,
+                                              facing='x',
+                                              offsetnumber=2,
+                                              type='fk', size=3 - (i * 0.3))
                 # here we group the controllers of the fk controller
                 if i >= 1:
                     cmds.parent('{}_off'.format(ctrl), '{}_ctrl'.format((list_fk[i - 1])[:-10]))
@@ -98,168 +100,137 @@ def tentacleBuild(name = 'character',mainjoint = 'joint', spacing = 45.0, midpos
             cmds.parent('{}_{}_tentacle{}_{:02d}_ctrl_off'.format(name, side, x, (int(lastpos))), loc)
             cmds.parentConstraint(ik_list[-1],
                                   '{}_{}_tentacle{}_{:02d}_ctrl_off'.format(name, side, x, (int(lastpos))),
-            maintainOffset = True)
+                                  maintainOffset=True)
 
-            #we rotate automatically the first controller base on %
+            # we rotate automatically the first controller base on %
             multiplyDivide = cmds.createNode('multiplyDivide',
-                                             n='{}_{}_tentacle{}_{:02d}_ctrl_multiplyDivide'.format(name, side, x, (int(lastpos)+1)))
-            cmds.connectAttr('{}_{}_tentacle{}_{:02d}_ctrl.rotate'.format(name, side, x, (int(lastpos)+1)),'{}.input1'.format(multiplyDivide), force=True)
-            cmds.connectAttr('{}.output'.format(multiplyDivide),'{}_{}_tentacle{}_{:02d}_ctrl.rotate'.format(name, side, x, (int(lastpos))), force=True)
-            [cmds.setAttr('{}.input2{}'.format(multiplyDivide, axis), 0.5) for  axis in 'XYZ']
-
+                                             n='{}_{}_tentacle{}_{:02d}_ctrl_multiplyDivide'.format(name, side, x,
+                                                                                                    (int(lastpos) + 1)))
+            cmds.connectAttr('{}_{}_tentacle{}_{:02d}_ctrl.rotate'.format(name, side, x, (int(lastpos) + 1)),
+                             '{}.input1'.format(multiplyDivide), force=True)
+            cmds.connectAttr('{}.output'.format(multiplyDivide),
+                             '{}_{}_tentacle{}_{:02d}_ctrl.rotate'.format(name, side, x, (int(lastpos))), force=True)
+            [cmds.setAttr('{}.input2{}'.format(multiplyDivide, axis), 0.5) for axis in 'XYZ']
             cmds.setAttr('{}_{}_tentacle{}_{:02d}_ctrlShape.visibility'.format(name, side, x, (int(lastpos))), 0)
 
-            """
-            arc1 = cmds.arclen(curve)
+            arc1 = cmds.arclen(tentacle_curve)
             cmds.setAttr('{}_ctrl.translateX'.format((ik_list[2])[:-6]), 20)
-            arc2 = cmds.arclen(curve)
+            arc2 = cmds.arclen(tentacle_curve)
+            cmds.setAttr('{}_ctrl.translateX'.format((ik_list[2])[:-6]), -20)
+            arc3 = cmds.arclen(tentacle_curve)
             cmds.setAttr('{}_ctrl.translateX'.format((ik_list[2])[:-6]), 0)
-    
-            arc = cmds.arclen(curve, ch=True, n='{}_{}_tentacle{}_curveinfo'.format(name, side, x))
-            set_driven_key_tentacles(curve_list, ('{}_ctrl'.format((ik_list[2])[:-6])), 0, arc, curve, 0)
-            set_driven_key_tentacles(curve_list, ('{}_ctrl'.format((ik_list[2])[:-6])), 20, arc, curve, (arc2 - arc1))
-            """
+
+            arc = cmds.arclen(tentacle_curve, ch=True, n='{}_{}_tentacle{}_curveinfo'.format(name, side, x))
+
+            set_driven_key_tentacles(curve_list, ('{}_ctrl'.format((ik_list[2])[:-6])), 0, arc, tentacle_curve, 0)
+            set_driven_key_tentacles(curve_list, ('{}_ctrl'.format((ik_list[2])[:-6])), 20, arc, tentacle_curve,
+                                     (arc2 - arc1))
+            # set_driven_key_tentacles(curve_list, ('{}_ctrl'.format((ik_list[2])[:-6])), -20, arc, tentacle_curve, (arc3 - arc1))
+
             # NOW WE CREATE THE RIBBON SYSTEM
             # we may want to customise more this funtion later for other tools
             listRibbonJnt = ['{}_{}_tentacle{}_{:02d}_joint'.format(name, side, x, int(i)) for i in
-            range(1, int(lastpos) + 1)]
+                             range(1, int(lastpos) + 1)]
 
+            finallistRibbonJnt = []
+            for i, item in enumerate(listRibbonJnt):
+                if i % 2 == 0:
+                    finallistRibbonJnt.append(item)
 
-
-            ribbon = utili.createRibbon(list=listRibbonJnt, name='{}_{}_tentacle{}'.format(name, side, x),
-            target = ('{}_ctrl'.format((ik_list[1])[:-6])),
-            sta_ctrl = '{}_ctrl'.format((ik_list[0])[:-6]), mid_ctrl = '{}_ctrl'.format((ik_list[1])[:-6]),
-            end_ctrl = '{}_ctrl'.format((ik_list[2])[:-6]),
-            midpos = midpos, u_parches = 28)
-            cmds.parent(ribbon, loc)
-
-
-
+            ribbon = utili.createRibbon(list=finallistRibbonJnt, name='{}_{}_tentacle{}'.format(name, side, x),
+                                        target=('{}_ctrl'.format((ik_list[1])[:-6])),
+                                        sta_ctrl='{}_ctrl'.format((ik_list[0])[:-6]),
+                                        mid_ctrl='{}_ctrl'.format((ik_list[1])[:-6]),
+                                        end_ctrl='{}_ctrl'.format((ik_list[2])[:-6]),
+                                        midpos=midpos, u_parches=14, ikhandle=ik_handle)
+            ##cmds.parent(ribbon, loc)
 
             ##LETS WORK ON ROTATIONS
 
+            for i in range(1, (int(midpos) + 2)):
+                animBlendNodeAdditiveRotation = cmds.createNode('animBlendNodeAdditiveRotation',
+                                                                n='{}_{}_tentacle{}_animBlendNodeAdditiveRotation{:02d}'.format(
+                                                                    name, side, x, (i)))
+                cmds.connectAttr('{}.output.outputX'.format(animBlendNodeAdditiveRotation),
+                                 '{}_{}_tentacle{}_ribbon_{:02d}_joint_def_ctrl_off.rotate.rotateX'.format(name, side,
+                                                                                                           x, (i)),
+                                 force=True)
+
             ik_list = [('01_sta'),
-                       #('{:02d}_sub'.format(int(int(midpos) / 2) + 1)),
-                       ('{:02d}_mid'.format(int(midpos))),
-                       #('{:02d}_bet'.format(int(int(midpos) + ((int(lastpos) - int(midpos)) / 2)) - 1)),
-                       ('{:02d}_end'.format(int(lastpos)))]
-
-
-
-            for i, item in enumerate(listGuide):
-                if i + 1 <= int(lastpos):
-                    animBlendNodeAdditiveRotation = cmds.createNode('animBlendNodeAdditiveRotation',
-                                                            n='{}_{}_tentacle{}_animBlendNodeAdditiveRotation{:02d}'.format(name,
-                                                                                                                            side, x,
-                                                                                                                            (
-                                                                                                                                        i + 1)))
-                    cmds.connectAttr('{}.output.outputX'.format(animBlendNodeAdditiveRotation),
-                                     '{}_{}_tentacle{}_ribbon_{:02d}_joint_def_ctrl_off.rotate.rotateX'.format(name, side, x,
-                                                                                                  (i + 1)), force=True)
-
-            for i, item in enumerate(ik_list):
-                if i == 0:
-                    for i in range(2, (int(int(midpos) / 2))):
-                        #if (i + 1) % 2 != 0:
-                        exist = cmds.attributeQuery('sta_{:02d}'.format((i)), node='{}_tentacle_rotation_guide'.format(name), ex=True)
+                       # ('{:02d}_sub'.format(int(int(midpos) / 2) + 1)),
+                       ('{:02d}_mid'.format(int(int(midpos) / 2) + 1))]
+            # ('{:02d}_bet'.format(int(int(midpos) + ((int(lastpos) - int(midpos)) / 2)) - 1)),
+            # ('{:02d}_end'.format(int(lastpos/2)+1))]
+            for item in (ik_list):
+                if item[3:] == 'sta':
+                    for i in range(1, int(int(int(midpos) + 1) / 2)):
+                        # if (i + 1) % 2 != 0:
+                        exist = cmds.attributeQuery('sta_{:02d}'.format(int(i)),
+                                                    node='{}_tentacle_rotation_guide'.format(name), ex=True)
                         if not exist:
-                            cmds.addAttr(tentacle_guide, longName='sta_{:02d}'.format((i)), defaultValue=0, minValue=0,
+                            cmds.addAttr(tentacle_guide, longName='sta_{:02d}'.format(int(i)), defaultValue=0, minValue=-1,
                                          maxValue=1,
                                          keyable=1)
                         multiplyDivide = cmds.createNode('multiplyDivide',
-                                                         n='{}_{}_tentacle{}_multiplyDivide{:02d}'.format(name, side, x, (i)))
+                                                         n='{}_{}_tentacle{}_multiplyDivide{:02d}'.format(name, side, x,
+                                                                                                          int(i)))
                         cmds.connectAttr('{}.outputX'.format(multiplyDivide),
-                                         '{}_{}_tentacle{}_animBlendNodeAdditiveRotation{:02d}.inputAX'.format(name, side, x, (i)))
-                        cmds.connectAttr('{}_tentacle_rotation_guide.sta_{:02d}'.format(name,(i)), '{}.input2X'.format(multiplyDivide))
+                                         '{}_{}_tentacle{}_animBlendNodeAdditiveRotation{:02d}.inputAX'.format(name,
+                                                                                                               side,
+                                                                                                               x, int(i)))
+                        cmds.connectAttr('{}_tentacle_rotation_guide.sta_{:02d}'.format(name, int(i)),
+                                         '{}.input2X'.format(multiplyDivide))
                         cmds.connectAttr('{}_{}_tentacle{}_{:02d}_sta_ctrl.rotateX'.format(name, side, x, 1),
                                          '{}.input1X'.format(multiplyDivide))
 
-                if i == 1:
-                    cmds.connectAttr('{}_{}_tentacle{}_{:02d}_sub_ctrl.rotate.rotateX'.format(name, side, x, (int(int(midpos) / 2) + 1)),
-                                     '{}_{}_tentacle{}_animBlendNodeAdditiveRotation{}.inputB.inputBX'.format(name, side, x, item[:2]))
-                    for i in range(1, int(midpos) - 1):
-                        if (i + 1) != (int(int(midpos) / 2) + 1):
-                            exist = cmds.attributeQuery('sub_{:02d}'.format((i + 1)),
-                                                        node='{}_tentacle_rotation_guide'.format(name), ex=True)
-                            if not exist:
-                                cmds.addAttr(tentacle_guide, longName='sub_{:02d}'.format((i + 1)), defaultValue=0,
-                                             minValue=0,
-                                             maxValue=1,
-                                             keyable=1)
-                            multiplyDivide = cmds.createNode('multiplyDivide',
-                                                             n='{}_{}_tentacle{}_multiplyDivide{:02d}'.format(name, side, x, (i + 1)))
-                            cmds.connectAttr('{}.outputX'.format(multiplyDivide),
-                                             '{}_{}_tentacle{}_animBlendNodeAdditiveRotation{:02d}.inputBX'.format(name, side, x, (i + 1)))
-                            cmds.connectAttr('{}_tentacle_rotation_guide.sub_{:02d}'.format(name,(i + 1)), '{}.input2X'.format(multiplyDivide))
-                            cmds.connectAttr('{}_{}_tentacle{}_{:02d}_sub_ctrl.rotateX'.format(name, side, x, (int(int(midpos) / 2) + 1)),
-                                             '{}.input1X'.format(multiplyDivide))
+                if item[3:] == 'mid':
+                    # cmds.connectAttr('{}_{}_tentacle{}_{:02d}_mid_ctrl.rotate.rotateX'.format(name, side, x, int(midpos)),'{}_{}_tentacle{}_animBlendNodeAdditiveRotation{}.inputA.inputAX'.format(name, side, x,item[:2]))
 
-                if i == 2:
-                    cmds.connectAttr('{}_{}_tentacle{}_{:02d}_mid_ctrl.rotate.rotateX'.format(name, side, x, int(midpos)),
-                                     '{}_{}_tentacle{}_animBlendNodeAdditiveRotation{}.inputA.inputAX'.format(name, side, x, item[:2]))
-                    for i in range((int(int(midpos) / 2) + 1),(int(int(midpos) + ((int(lastpos) - int(midpos)) / 2)) - 2)):
-                        if (i + 1) != int(midpos):
-                            exist = cmds.attributeQuery('mid_{:02d}'.format((i + 1)),
-                                                        node='{}_tentacle_rotation_guide'.format(name), ex=True)
-                            if not exist:
-                                cmds.addAttr(tentacle_guide, longName='mid_{:02d}'.format((i + 1)), defaultValue=0,
-                                             minValue=0,
-                                             maxValue=1,
-                                             keyable=1)
-                            multiplyDivide = cmds.createNode('multiplyDivide',
-                                                             n='{}_{}_tentacle{}_multiplyDivide{:02d}'.format(name, side, x, (i + 1)))
-                            cmds.connectAttr('{}.outputX'.format(multiplyDivide),
-                                             '{}_{}_tentacle{}_animBlendNodeAdditiveRotation{:02d}.inputAX'.format(name, side, x, (i + 1)))
-                            cmds.connectAttr('{}_tentacle_rotation_guide.mid_{:02d}'.format(name,(i + 1)), '{}.input2X'.format(multiplyDivide))
-                            cmds.connectAttr('{}_{}_tentacle{}_{:02d}_mid_ctrl.rotateX'.format(name, side, x, int(midpos)),
-                                             '{}.input1X'.format(multiplyDivide))
-
-                if i == 3:
-                    cmds.connectAttr('{}_{}_tentacle{}_{:02d}_bet_ctrl.rotate.rotateX'.format(name, side, x, int(int(midpos) + (
-                                (int(lastpos) - int(midpos)) / 2)) - 1),
-                                     '{}_{}_tentacle{}_animBlendNodeAdditiveRotation{}.inputB.inputBX'.format(name, side, x, item[:2]))
-                    for i in range(int(midpos), int(lastpos) - 1):
-                        if i + 1 != (int(int(midpos) + ((int(lastpos) - int(midpos)) / 2)) - 1):
-                            exist = cmds.attributeQuery('bet_{:02d}'.format((i + 1)),
-                                                        node='{}_tentacle_rotation_guide'.format(name), ex=True)
-                            if not exist:
-                                cmds.addAttr(tentacle_guide, longName='bet_{:02d}'.format((i + 1)), defaultValue=0,
-                                             minValue=0,
-                                             maxValue=1,
-                                             keyable=1)
-                            multiplyDivide = cmds.createNode('multiplyDivide',
-                                                             n='{}_{}_tentacle{}_multiplyDivide{:02d}'.format(name, side, x, (i + 1)))
-                            cmds.connectAttr('{}.outputX'.format(multiplyDivide),
-                                             '{}_{}_tentacle{}_animBlendNodeAdditiveRotation{:02d}.inputBX'.format(name, side, x, (i + 1)))
-                            cmds.connectAttr('{}_tentacle_rotation_guide.bet_{:02d}'.format(name,(i + 1)), '{}.input2X'.format(multiplyDivide))
-                            cmds.connectAttr(
-                                '{}_{}_tentacle{}_{:02d}_bet_ctrl.rotateX'.format(name, side, x, int(int(midpos) + ((int(lastpos) - int(midpos)) / 2)) - 1),
-                                '{}.input1X'.format(multiplyDivide))
-
-                if i == 4:
-                    cmds.connectAttr('{}_{}_tentacle{}_{:02d}_end_ctrl.rotate.rotateX'.format(name, side, x, int(lastpos)),
-                                     '{}_{}_tentacle{}_animBlendNodeAdditiveRotation{}.inputA.inputAX'.format(name, side, x, item[:2]))
-                    for i in range((int(int(midpos) + ((int(lastpos) - int(midpos)) / 2)) - 1), int(lastpos) - 1):
-                        #if (i + 1) % 2 != 0:
-                        exist = cmds.attributeQuery('end_{:02d}'.format((i + 1)),
+                    for i in range(int(int(int(midpos) + 1) / 2), int(int(lastpos) / 2) + 1):
+                        exist = cmds.attributeQuery('mid_{:02d}'.format(int(i)),
                                                     node='{}_tentacle_rotation_guide'.format(name), ex=True)
                         if not exist:
-                            cmds.addAttr(tentacle_guide, longName='end_{:02d}'.format((i + 1)), defaultValue=0,
+                            cmds.addAttr(tentacle_guide, longName='mid_{:02d}'.format(int(i)), defaultValue=0,
+                                         minValue=-1,
+                                         maxValue=1,
+                                         keyable=1)
+                        multiplyDivide = cmds.createNode('multiplyDivide',
+                                                         n='{}_{}_tentacle{}_multiplyDivide{:02d}'.format(name, side, x,
+                                                                                                          int(i)))
+                        cmds.connectAttr('{}.outputX'.format(multiplyDivide),
+                                         '{}_{}_tentacle{}_animBlendNodeAdditiveRotation{:02d}.inputAX'.format(name,
+                                                                                                               side, x,
+                                                                                                               int(i)))
+                        cmds.connectAttr('{}_tentacle_rotation_guide.mid_{:02d}'.format(name, int(i)),
+                                         '{}.input2X'.format(multiplyDivide))
+                        cmds.connectAttr('{}_{}_tentacle{}_{:02d}_mid_ctrl.rotateX'.format(name, side, x, int(midpos)),
+                                         '{}.input1X'.format(multiplyDivide))
+                """if item[3:] == 'end':
+                    cmds.connectAttr('{}_{}_tentacle{}_{:02d}_end_ctrl.rotate.rotateX'.format(name, side, x, int(lastpos)),
+                                     '{}_{}_tentacle{}_animBlendNodeAdditiveRotation{}.inputA.inputAX'.format(name, side, x,
+                                                                                                              item[:2]))
+                    for i in range((int(int(midpos+1) / 2) + 1),(int(lastpos/2)+1)):
+                        # if (i + 1) % 2 != 0:
+                        exist = cmds.attributeQuery('end_{:02d}'.format((i)),
+                                                    node='{}_tentacle_rotation_guide'.format(name), ex=True)
+                        if not exist:
+                            cmds.addAttr(tentacle_guide, longName='end_{:02d}'.format((i)), defaultValue=0,
                                          minValue=0,
                                          maxValue=1,
                                          keyable=1)
                         multiplyDivide = cmds.createNode('multiplyDivide',
-                                                         n='{}_{}_tentacle{}_multiplyDivide{:02d}'.format(name, side, x, (i + 1)))
+                                                         n='{}_{}_tentacle{}_multiplyDivide{:02d}'.format(name, side, x,
+                                                                                                          (i)))
                         cmds.connectAttr('{}.outputX'.format(multiplyDivide),
-                                         '{}_{}_tentacle{}_animBlendNodeAdditiveRotation{:02d}.inputAX'.format(name, side, x, (i + 1)))
-                        cmds.connectAttr('{}_tentacle_rotation_guide.end_{:02d}'.format(name,(i + 1)), '{}.input2X'.format(multiplyDivide))
+                                         '{}_{}_tentacle{}_animBlendNodeAdditiveRotation{:02d}.inputBX'.format(name, side,
+                                                                                                               x, (i)))
+                        cmds.connectAttr('{}_tentacle_rotation_guide.end_{:02d}'.format(name, (i)),
+                                         '{}.input2X'.format(multiplyDivide))
                         cmds.connectAttr('{}_{}_tentacle{}_{:02d}_end_ctrl.rotateX'.format(name, side, x, int(lastpos)),
-                                     '{}.input1X'.format(multiplyDivide))
+                                         '{}.input1X'.format(multiplyDivide))"""
 
-                # print('{}_{}_tentacle{}_{}_joint.rotateX'.format(name, side, x, item))
-                # print('{}_{}_tentacle{}_ribbon_ribbon_{}_joint_def_ctrl_off.rotateX'.format(name, side, x,item[:2]))
-            cmds.parent('{}_{}_tentacle{}_{:02d}_joint_def'.format(name, side, x, int(lastpos)), loc)
-            cmds.delete('{}_{}_tentacle{}_01_joint'.format(name, side, x))
+            # cmds.parent('{}_{}_tentacle{}_{:02d}_joint_def'.format(name, side, x, int(lastpos)), loc)
+            # cmds.delete('{}_{}_tentacle{}_01_joint'.format(name, side, x))
 
             # scale
             for item in range(1, 300):
@@ -267,14 +238,13 @@ def tentacleBuild(name = 'character',mainjoint = 'joint', spacing = 45.0, midpos
                     [cmds.connectAttr('Octopus_trs_ctrl_multiplydividefollicle_trs.output{}'.format(axis),
                                       'follicle{}.scale{}'.format(item, axis), force=True) for axis in 'XYZ']
 
-
             """### here we connect the scale of the main controller to the follicle, THIS WILL FAIL we need to set up the ribbon follicle names!
             for item in range(1, 233):
                 [cmds.connectAttr('Octopus_trs_ctrl_multiplydividefollicle_trs.output{}'.format(axis),
                               'follicle{}.scale{}'.format(item, axis), force=True) for axis in 'XYZ']
-
+            """
             ### here we want to connect the scale of the main controller with the tentacles
-            for item in range(1, lastpos + 1):
+            """for item in range(1, lastpos + 1):
                 multiplyDivideTRS = cmds.createNode('multiplyDivide',
                                                     n='{}_{}_tentacle{}_{:02d}_joint_multiplydivide_trs'.format(name,
                                                                                                                 side, x,
@@ -292,66 +262,116 @@ def tentacleBuild(name = 'character',mainjoint = 'joint', spacing = 45.0, midpos
 
     ###Finally we rotate loc to place everything in place. AND fix
     for x in range(1, 5):
-        for side in ('l','r'):
-            #val = x*spacing
+        for side in ('l', 'r'):
+            # val = x*spacing
 
-            ik_list = ['{}_{}_tentacle{}_{}_joint'.format(name, side, x, obj) for obj in
+            # here we create wire to control tentacles
+            """ik_list = ['{}_{}_tentacle{}_{}_joint'.format(name, side, x, obj) for obj in
                        ('01_sta', '{:02d}_sub'.format(int(int(midpos) / 2) + 1), '{:02d}_mid'.format(int(midpos)),
                         '{:02d}_bet'.format(int(int(midpos) + ((int(lastpos) - int(midpos)) / 2)) - 1),
                         '{:02d}_end'.format(int(lastpos)))]
 
+            cmds.wire('{}_{}_tentacle{}'.format(name, side, x), w='{}_{}_tentacle{}_curve'.format(name, side, x),
+                      dds=[(0, 50)])
+            cmds.skinCluster(ik_list, '{}_{}_tentacle{}_curve'.format(name, side, x), tsb=True,
+                             name='{}_{}_tentacle{}_skincluster'.format(name, side, x))"""
 
             if side == 'l':
-                cmds.setAttr('{}.rotateY'.format('{}_{}_{}_loc'.format(name,side, x)), (x-1) * 45.0)
+                cmds.setAttr('{}.rotateY'.format('{}_{}_{}_loc'.format(name, side, x)), (x - 1) * 45.0)
             else:
                 cmds.setAttr('{}.rotateY'.format('{}_{}_{}_loc'.format(name, side, x)), (360 - (x * 45.0)))
 
-            cmds.wire('{}_{}_tentacle{}'.format(name, side, x), w='{}_{}_tentacle{}_curve'.format(name, side, x), dds=[(0, 50)])
-            cmds.skinCluster(ik_list, '{}_{}_tentacle{}_curve'.format(name, side, x), tsb=True,
-                             name='{}_{}_tentacle{}_skincluster'.format(name, side, x))
-
-            """cmds.skinPercent('{}_{}_tentacle{}_skincluster'.format(name, side, x),
-                             '{}_{}_tentacle{}_curve.cv[7]'.format(name, side, x),
-                             transformValue=[('{}_{}_tentacle{}_07_mid_joint'.format(name, side, x), 0.8)])
+            # skin weight of the cv
             cmds.skinPercent('{}_{}_tentacle{}_skincluster'.format(name, side, x),
-                             '{}_{}_tentacle{}_curve.cv[8]'.format(name, side, x),
-                             transformValue=[('{}_{}_tentacle{}_07_mid_joint'.format(name, side, x), 0.5)])
+                             '{}_{}_tentacle{}_curve.cv[0]'.format(name, side, x),
+                             transformValue=[('{}_{}_tentacle{}_01_sta_joint'.format(name, side, x), 1),
+                                             ('{}_{}_tentacle{}_13_mid_joint'.format(name, side, x), 0.0),
+                                             ('{}_{}_tentacle{}_27_end_joint'.format(name, side, x), 0.0)])
             cmds.skinPercent('{}_{}_tentacle{}_skincluster'.format(name, side, x),
-                             '{}_{}_tentacle{}_curve.cv[9]'.format(name, side, x),
-                             transformValue=[('{}_{}_tentacle{}_07_mid_joint'.format(name, side, x), 0.25)])
-            cmds.skinPercent('{}_{}_tentacle{}_skincluster'.format(name, side, x),
-                             '{}_{}_tentacle{}_curve.cv[10]'.format(name, side, x),
-                             transformValue=[('{}_{}_tentacle{}_07_mid_joint'.format(name, side, x), 0.1)])
-            cmds.skinPercent('{}_{}_tentacle{}_skincluster'.format(name, side, x),
-                             '{}_{}_tentacle{}_curve.cv[11]'.format(name, side, x),
-                             transformValue=[('{}_{}_tentacle{}_07_mid_joint'.format(name, side, x), 0.03)])
-
-            cmds.skinPercent('{}_{}_tentacle{}_skincluster'.format(name, side, x),
-                             '{}_{}_tentacle{}_curve.cv[6]'.format(name, side, x),
-                             transformValue=[('{}_{}_tentacle{}_07_mid_joint'.format(name, side, x), 0.9),
-                                             ('{}_{}_tentacle{}_01_sta_joint'.format(name, side, x), 0.05),
-                                             ('{}_{}_tentacle{}_14_end_joint'.format(name, side, x), 0.05)])
-
-            cmds.skinPercent('{}_{}_tentacle{}_skincluster'.format(name, side, x),
-                             '{}_{}_tentacle{}_curve.cv[5]'.format(name, side, x),
-                             transformValue=[('{}_{}_tentacle{}_07_mid_joint'.format(name, side, x), 0.8)])
-            cmds.skinPercent('{}_{}_tentacle{}_skincluster'.format(name, side, x),
-                             '{}_{}_tentacle{}_curve.cv[4]'.format(name, side, x),
-                             transformValue=[('{}_{}_tentacle{}_07_mid_joint'.format(name, side, x), 0.5)])
-            cmds.skinPercent('{}_{}_tentacle{}_skincluster'.format(name, side, x),
-                             '{}_{}_tentacle{}_curve.cv[3]'.format(name, side, x),
-                             transformValue=[('{}_{}_tentacle{}_07_mid_joint'.format(name, side, x), 0.25)])
+                             '{}_{}_tentacle{}_curve.cv[1]'.format(name, side, x),
+                             transformValue=[('{}_{}_tentacle{}_01_sta_joint'.format(name, side, x), 0.999),
+                                             ('{}_{}_tentacle{}_13_mid_joint'.format(name, side, x), 0.001),
+                                             ('{}_{}_tentacle{}_27_end_joint'.format(name, side, x), 0.0)])
             cmds.skinPercent('{}_{}_tentacle{}_skincluster'.format(name, side, x),
                              '{}_{}_tentacle{}_curve.cv[2]'.format(name, side, x),
-                             transformValue=[('{}_{}_tentacle{}_07_mid_joint'.format(name, side, x), 0.03)])
-"""
+                             transformValue=[('{}_{}_tentacle{}_01_sta_joint'.format(name, side, x), 0.956),
+                                             ('{}_{}_tentacle{}_13_mid_joint'.format(name, side, x), 0.044),
+                                             ('{}_{}_tentacle{}_27_end_joint'.format(name, side, x), 0.0)])
+            cmds.skinPercent('{}_{}_tentacle{}_skincluster'.format(name, side, x),
+                             '{}_{}_tentacle{}_curve.cv[3]'.format(name, side, x),
+                             transformValue=[('{}_{}_tentacle{}_01_sta_joint'.format(name, side, x), 0.700),
+                                             ('{}_{}_tentacle{}_13_mid_joint'.format(name, side, x), 0.300),
+                                             ('{}_{}_tentacle{}_27_end_joint'.format(name, side, x), 0.0)])
+            cmds.skinPercent('{}_{}_tentacle{}_skincluster'.format(name, side, x),
+                             '{}_{}_tentacle{}_curve.cv[4]'.format(name, side, x),
+                             transformValue=[('{}_{}_tentacle{}_01_sta_joint'.format(name, side, x), 0.300),
+                                             ('{}_{}_tentacle{}_13_mid_joint'.format(name, side, x), 0.700),
+                                             ('{}_{}_tentacle{}_27_end_joint'.format(name, side, x), 0.0)])
+            cmds.skinPercent('{}_{}_tentacle{}_skincluster'.format(name, side, x),
+                             '{}_{}_tentacle{}_curve.cv[5]'.format(name, side, x),
+                             transformValue=[('{}_{}_tentacle{}_01_sta_joint'.format(name, side, x), 0.050),
+                                             ('{}_{}_tentacle{}_13_mid_joint'.format(name, side, x), 0.950),
+                                             ('{}_{}_tentacle{}_27_end_joint'.format(name, side, x), 0.0)])
+            cmds.skinPercent('{}_{}_tentacle{}_skincluster'.format(name, side, x),
+                             '{}_{}_tentacle{}_curve.cv[6]'.format(name, side, x),
+                             transformValue=[('{}_{}_tentacle{}_01_sta_joint'.format(name, side, x), 0.000),
+                                             ('{}_{}_tentacle{}_13_mid_joint'.format(name, side, x), 1.000),
+                                             ('{}_{}_tentacle{}_27_end_joint'.format(name, side, x), 0.000)])
+            cmds.skinPercent('{}_{}_tentacle{}_skincluster'.format(name, side, x),
+                             '{}_{}_tentacle{}_curve.cv[7]'.format(name, side, x),
+                             transformValue=[('{}_{}_tentacle{}_01_sta_joint'.format(name, side, x), 0.000),
+                                             ('{}_{}_tentacle{}_13_mid_joint'.format(name, side, x), 0.950),
+                                             ('{}_{}_tentacle{}_27_end_joint'.format(name, side, x), 0.050)])
+            cmds.skinPercent('{}_{}_tentacle{}_skincluster'.format(name, side, x),
+                             '{}_{}_tentacle{}_curve.cv[8]'.format(name, side, x),
+                             transformValue=[('{}_{}_tentacle{}_01_sta_joint'.format(name, side, x), 0.000),
+                                             ('{}_{}_tentacle{}_13_mid_joint'.format(name, side, x), 0.700),
+                                             ('{}_{}_tentacle{}_27_end_joint'.format(name, side, x), 0.300)])
+            cmds.skinPercent('{}_{}_tentacle{}_skincluster'.format(name, side, x),
+                             '{}_{}_tentacle{}_curve.cv[9]'.format(name, side, x),
+                             transformValue=[('{}_{}_tentacle{}_01_sta_joint'.format(name, side, x), 0.000),
+                                             ('{}_{}_tentacle{}_13_mid_joint'.format(name, side, x), 0.400),
+                                             ('{}_{}_tentacle{}_27_end_joint'.format(name, side, x), 0.600)])
+            cmds.skinPercent('{}_{}_tentacle{}_skincluster'.format(name, side, x),
+                             '{}_{}_tentacle{}_curve.cv[10]'.format(name, side, x),
+                             transformValue=[('{}_{}_tentacle{}_01_sta_joint'.format(name, side, x), 0.000),
+                                             ('{}_{}_tentacle{}_13_mid_joint'.format(name, side, x), 0.200),
+                                             ('{}_{}_tentacle{}_27_end_joint'.format(name, side, x), 0.800)])
+            cmds.skinPercent('{}_{}_tentacle{}_skincluster'.format(name, side, x),
+                             '{}_{}_tentacle{}_curve.cv[11]'.format(name, side, x),
+                             transformValue=[('{}_{}_tentacle{}_01_sta_joint'.format(name, side, x), 0.000),
+                                             ('{}_{}_tentacle{}_13_mid_joint'.format(name, side, x), 0.050),
+                                             ('{}_{}_tentacle{}_27_end_joint'.format(name, side, x), 0.950)])
+            cmds.skinPercent('{}_{}_tentacle{}_skincluster'.format(name, side, x),
+                             '{}_{}_tentacle{}_curve.cv[12]'.format(name, side, x),
+                             transformValue=[('{}_{}_tentacle{}_01_sta_joint'.format(name, side, x), 0.000),
+                                             ('{}_{}_tentacle{}_13_mid_joint'.format(name, side, x), 0.000),
+                                             ('{}_{}_tentacle{}_27_end_joint'.format(name, side, x), 1.000)])
+            cmds.skinPercent('{}_{}_tentacle{}_skincluster'.format(name, side, x),
+                             '{}_{}_tentacle{}_curve.cv[13]'.format(name, side, x),
+                             transformValue=[('{}_{}_tentacle{}_01_sta_joint'.format(name, side, x), 0.000),
+                                             ('{}_{}_tentacle{}_13_mid_joint'.format(name, side, x), 0.000),
+                                             ('{}_{}_tentacle{}_27_end_joint'.format(name, side, x), 1.000)])
 
-            """
-                setAttr ($name+"_c_pelvis01_jnt_ik_ikhandle.dTwistControlEnable") 1;
-                setAttr ($name+"_c_pelvis01_jnt_ik_ikhandle.dWorldUpType") 4;
-                connectAttr -f ($name+"_c_pelvis01_jnt_spinedef_ctrl.worldMatrix[0]") ($name+"_c_pelvis01_jnt_ik_ikhandle.dWorldUpMatrix");
-                connectAttr -f ($name+"_c_chest01_jnt_spinedef_ctrl.worldMatrix[0]") ($name+"_c_pelvis01_jnt_ik_ikhandle.dWorldUpMatrixEnd");
-            """
+            cmds.addAttr('{}_{}_tentacle{}_27_end_ctrl'.format(name, side, x), longName='FreeArmControls',
+                         defaultValue=0,
+                         minValue=0,
+                         maxValue=1,
+                         keyable=1)
+
+            listaControles = ['{}_{}_tentacle{}_ribbon_{:02d}_joint_def_ctrl'.format(name, side, x, int(i)) for i in
+                              range(1, int(midpos) + 2)]
+
+            utili.visibilitySwitch(objectList=listaControles,
+                                   targetCtrl='{}_{}_tentacle{}_27_end_ctrl'.format(name, side, x),
+                                   targetVariable='FreeArmControls')
+
+            """#connecting vectical controller with first tentacle controllers                               
+            multiplyDivide = cmds.createNode('multiplyDivide',n='{}_{}_tentacle{}_verticalPos_multiplyDivide'.format(name, side, x)) 
+            cmds.connectAttr('{}_{}_tentacle{}_01_sta_ctrl.rotateZ'.format(name, side, x),'{}.input1Z'.format(multiplyDivide))
+            cmds.connectAttr('{}.outputZ'.format(multiplyDivide),'{}_{}_tentacle{}_verticalpos_joint_ctrl.rotateZ'.format(name, side, x))
+               """
+
 
 def set_driven_key_tentacles(list=None, ctrl=None, unit=None, arc=None, curve = None,diff = None):
     if not list:

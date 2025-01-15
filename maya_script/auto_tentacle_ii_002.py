@@ -130,6 +130,7 @@ for x in range(1,5):
 
 
         arc = cmds.arclen(tentacle_curve, ch=True, n='{}_{}_tentacle{}_curveinfo'.format(name, side, x))
+        
         set_driven_key_tentacles(curve_list, ('{}_ctrl'.format((ik_list[2])[:-6])), 0, arc, tentacle_curve, 0)
         set_driven_key_tentacles(curve_list, ('{}_ctrl'.format((ik_list[2])[:-6])), 20, arc, tentacle_curve, (arc2 - arc1))
         #set_driven_key_tentacles(curve_list, ('{}_ctrl'.format((ik_list[2])[:-6])), -20, arc, tentacle_curve, (arc3 - arc1))
@@ -252,7 +253,7 @@ for x in range(1,5):
                           'follicle{}.scale{}'.format(item, axis), force=True) for axis in 'XYZ']
         """
         ### here we want to connect the scale of the main controller with the tentacles
-        for item in range(1, lastpos + 1):
+        """for item in range(1, lastpos + 1):
             multiplyDivideTRS = cmds.createNode('multiplyDivide',
                                                 n='{}_{}_tentacle{}_{:02d}_joint_multiplydivide_trs'.format(name,
                                                                                                             side, x,
@@ -266,7 +267,7 @@ for x in range(1,5):
                              force=True)
             cmds.connectAttr('{}_{}_tentacle{}_{:02d}_joint_multiplydivide_trs.outputX'.format(name, side, x, item),
                              '{}_{}_tentacle{}_{:02d}_joint_translateX.input'.format(name, side, x, item),
-                             force=True)
+                             force=True)"""
 
 ###Finally we rotate loc to place everything in place. AND fix
 for x in range(1, 5):
@@ -377,11 +378,11 @@ for x in range(1, 5):
         
         
         
-        #connecting vectical controller with first tentacle controllers                               
+        """#connecting vectical controller with first tentacle controllers                               
         multiplyDivide = cmds.createNode('multiplyDivide',n='{}_{}_tentacle{}_verticalPos_multiplyDivide'.format(name, side, x)) 
         cmds.connectAttr('{}_{}_tentacle{}_01_sta_ctrl.rotateZ'.format(name, side, x),'{}.input1Z'.format(multiplyDivide))
         cmds.connectAttr('{}.outputZ'.format(multiplyDivide),'{}_{}_tentacle{}_verticalpos_joint_ctrl.rotateZ'.format(name, side, x))
-                                                        
+           """                                             
 
     
         

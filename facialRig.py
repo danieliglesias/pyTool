@@ -168,7 +168,7 @@ def createEyebrows(name=None,side = None, joint_row = None):
         # CREATE MAIN CONTROLLER
         main_ctrl=utili.createController(name='{}_main'.format(nurbplane.replace('_surface','')), character_name=None, shape='circle', target=None, contraint_target=None,
                          facing='z', offsetnumber=3,
-                         type='face', size=1, move=[0,0,0.8])
+                         type='face', size=5, move=[0,0,0.8])
         # lets keep controller in the same space with the plane
         cmds.parent('{}_off_constrain'.format(main_ctrl), nurbplane)
 
@@ -179,7 +179,7 @@ def createEyebrows(name=None,side = None, joint_row = None):
                 ctrl = utili.createController(name='{}_{}{}'.format( nurbplane.replace('_surface',''), u, v),
                                                    character_name=None, shape='circle', target=None, contraint_target=None,
                                                    facing='z', offsetnumber=3,
-                                                   type='face', size=0.5, move=[0, 0, 1])
+                                                   type='face', size=2.5, move=[0, 0, 1])
                 #lets keep controller in the same space with the plane
                 cmds.parent('{}_off_constrain'.format(ctrl), nurbplane)
                 # double linear
@@ -363,7 +363,7 @@ def createEyeLidCurve(name = None,l_eye_guide=None,r_eye_guide=None,side=None):
         cmds.parent(upp_curve,low_curve,loc)
 
 def saveCurveCvPosition(name = None ,side = None):
-    directory = 'C:/Users/danie/Documents/maya/2022/scripts/pyTool/guide/eyelid/'
+    directory = '/eyelid/'
     if not side:
         utili.errorMessage('No side was selected')
     if len(side) == 2:
@@ -385,7 +385,7 @@ def saveCurveCvPosition(name = None ,side = None):
                     cvPos = cmds.xform('{}_eyelit_{}_curve.cv[{}]'.format(side, portion, cv), t=True, ws=True, q=True)
                     emptyDict.update({'{}_eyelit_{}_curve.cv[{}]'.format(side, portion, cv): cvPos})
 
-    utili.nameInputWindow( directory=directory, dictionary = emptyDict )
+    utili.nameInputWindow( section_dir=directory, dictionary = emptyDict )
 
 def loadCurvePosition(name = None ,file_name = None ,l_eye_guide = None,r_eye_guide = None):
 
@@ -564,16 +564,16 @@ def createEyeLid(name = None,portion='upp',side='l',curve= None,edgeloop = None,
         for portion in ('low','upp'):
             if sides == 'l':
                 if portion == 'upp':
-                    move = [0,0.5,0.25]
+                    move = [0,2.5,1]
                 else:
-                    move = [0,-0.5,0.25]
+                    move = [0,-2.5,1]
             else:
                 if portion == 'upp':
-                    move = [0,0.5,-0.25]
+                    move = [0,2.5,-1]
                 else:
-                    move = [0,-0.5,-0.25]
+                    move = [0,-2.5,-1]
             ctrl = utili.createController(name='{}_{}_global_eyelit_{}'.format(name,sides,portion), shape='circle', target=None, contraint_target=None, facing='z',
-                                          offsetnumber=3, type='face', size=0.5 , move =move)
+                                          offsetnumber=3, type='face', size=2.5 , move =move)
 
             #cmds.delete(cmds.aimConstraint('{}_{}_eyelid_grp'.format(name, side), '{}_off_constrain'.format(ctrl), aimVector=[0, 0, -1], upVector=[0, 1, 0],worldUpType='objectrotation', worldUpVector=[0, 1, 0],worldUpObject='{}_{}_eyelid_grp'.format(name, side)))
 
@@ -608,15 +608,15 @@ def createEyeLid(name = None,portion='upp',side='l',curve= None,edgeloop = None,
                     cmds.setAttr('{}.inputMax'.format(remapNode), 10)
                     cmds.setAttr('{}.outputMin'.format(remapNode), -10)
                     cmds.setAttr('{}.outputMax'.format(remapNode), 10)
-                    cmds.setAttr('{}.value[2].value_FloatValue'.format(remapNode), 0.46)
+                    cmds.setAttr('{}.value[2].value_FloatValue'.format(remapNode), 0.47)
                     cmds.setAttr('{}.value[2].value_Position'.format(remapNode), 0.5)
                     cmds.setAttr('{}.value[2].value_Interp'.format(remapNode), 1)
                 else:
                     cmds.setAttr('{}.inputMin'.format(remapNode), -10)
                     cmds.setAttr('{}.inputMax'.format(remapNode), 10)
-                    cmds.setAttr('{}.outputMin'.format(remapNode), -5)
-                    cmds.setAttr('{}.outputMax'.format(remapNode), 5)
-                    cmds.setAttr('{}.value[2].value_FloatValue'.format(remapNode), 0.42)
+                    cmds.setAttr('{}.outputMin'.format(remapNode), -10)
+                    cmds.setAttr('{}.outputMax'.format(remapNode), 10)
+                    cmds.setAttr('{}.value[2].value_FloatValue'.format(remapNode), 0.47)
                     cmds.setAttr('{}.value[2].value_Position'.format(remapNode), 0.5)
                     cmds.setAttr('{}.value[2].value_Interp'.format(remapNode), 1)
 
@@ -730,7 +730,7 @@ def createEyeballController(name=None, sides='l', targetoff=30):
     for side in sides:
         ctrl = utili.createController(name='{}_{}_eyelid_fk'.format(name, side), character_name='Max', shape='eyefk',
                                       target='{}_{}_eyeball_jnt'.format(name, side),
-                                      contraint_target=None, facing='z', offsetnumber=2, type='fk', size=5)
+                                      contraint_target=None, facing='z', offsetnumber=2, type='fk', size=10)
         jntPos = cmds.xform('{}_{}_eyeball_jnt'.format(name, side), t=True, ws=True, q=True)
         cmds.xform('{}_off'.format(ctrl), t=(jntPos[0], jntPos[1], jntPos[2]))
         cmds.select(clear=True)
@@ -753,7 +753,7 @@ def createEyeballController(name=None, sides='l', targetoff=30):
     eyetarget_ctrl = utili.createController(name='{}_eyetarget'.format(name), character_name='Max', shape='circle',
                                             target=['{}_l_eyetarget'.format(name), '{}_r_eyetarget'.format(name)],
                                             contraint_target=None, facing='z', offsetnumber=2, type='eye_target',
-                                            size=5)
+                                            size=10)
     cmds.parent('{}_off'.format(eyetarget_ctrl), jnt)
     [cmds.parent('{}_{}_eyetarget'.format(name, side), eyetarget_ctrl) for side in ('l', 'r')]
     [cmds.aimConstraint('{}_{}_eyetarget'.format(name, side), '{}_{}_eyelid_fk_ctrl_off'.format(name, side),
@@ -802,7 +802,7 @@ def createEyeballController(name=None, sides='l', targetoff=30):
 ########################################################################################################################
 ########################################################################################################################
 
-def createEyeSocketCtrl(name= None, sides='l',size = 5, facing  = 'x',move=[0,0,10], fk_ctrl = 'Max_r_eyelid_fk_ctrl_off'):
+def createEyeSocketCtrl(name= None, sides='l',size = 10, facing  = 'x',move=[0,0,10], fk_ctrl = 'Max_r_eyelid_fk_ctrl_off'):
 
     for side in sides:
         fk_ctrl = '{}_{}_eyelid_fk_ctrl_off'.format(name,side)
@@ -1163,17 +1163,17 @@ def build_mouth_controller(name  = None,controller_list= None, lip_joint_list = 
 
         if ctrl_prefix[2:-3] == 'glo':
             joint_target = '{}_c_low_00_lip_jnt_def'.format(name)
-            ctrl_size = 1
+            ctrl_size = 5
         elif ctrl_prefix[2:-3] == 'cor':
             joint_target = '{}_{}_cor_{:02d}_lip_jnt_def'.format(name,ctrl_prefix[:1],edgeloop-1)
-            ctrl_size = 0.5
+            ctrl_size = 2.5
 
         elif ctrl_prefix[:1] == 'c' and ctrl_prefix[2:-3] != 'glo':
             joint_target = '{}_{}_{}_{}_lip_jnt_def'.format(name, ctrl_prefix[:1], ctrl_prefix[2:-3], ctrl_prefix[-2:])
-            ctrl_size = 0.5
+            ctrl_size = 2.5
         else:
             joint_target = '{}_{}_{}_{}_lip_jnt_def'.format(name,ctrl_prefix[:1] ,ctrl_prefix[2:-3],ctrl_prefix[-2:])
-            ctrl_size = 0.25
+            ctrl_size = 1.25
 
         ctrl = utili.createController(name='{}_{}_lip'.format(name,ctrl_prefix), shape='circle',target=None, contraint_target=None, facing='z',
                                       offsetnumber=3, type='face', size=ctrl_size, move = move)
@@ -1590,12 +1590,22 @@ def build_face_structure(name=None, guide_list=None, eye_guide_list=None):
 
             guidePos = cmds.xform('{}'.format(item), t=True, ws=True, q=True)
             cmds.xform(jnt, t=(guidePos[0], guidePos[1], guidePos[2]))
+            if(item[2:-6] == 'eyeball'):
+                cmds.select(clear=True)
+                jnt = cmds.joint(name='{}_{}_grp'.format(name, item[:-6]))
+
+                guidePos = cmds.xform('{}'.format(item), t=True, ws=True, q=True)
+                cmds.xform(jnt, t=(guidePos[0], guidePos[1], guidePos[2]))
+
         for item in data:
             if data[item] != 'none':
                 cmds.parent('{}_{}_jnt'.format(name, item[:-6]), '{}_{}_jnt'.format(name, data[item][:-6]))
+            if (item[2:-6] == 'eyeball'):
+                cmds.parent('{}_{}_grp'.format(name, item[:-6]), '{}_{}_jnt'.format(name, data[item][:-6]))
         for item in data:
             #lets get rid of guides after creating joints
             cmds.delete('{}'.format(item))
+
     else:
         utili.errorMessage('Not all object listed  in the this file exist')
 
@@ -1685,6 +1695,7 @@ def load_mainstructure_guide( file_name=None):
             cmds.select(clear=True)
             jnt = cmds.joint(name=guide_name)
             # guide = cmds.sphere(radius=0.2, name=guide_name)[0]
+
     print(data)
     for guide_name, obj in data.items():
         cmds.select(clear=True)
