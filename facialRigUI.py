@@ -135,6 +135,7 @@ def build_data_frame(window, main_layout):
     utili.file_manage(section_dir='eyebrows/', action='show', field=listPos_eyebrow)
 
     botton_layout = cmds.gridLayout(numberOfColumns=1, cellWidthHeight=(150, 25),parent=data_row)
+
     cmds.button(label='load selected', parent=botton_layout ,command=lambda x: controllerLoadPositionBtn(listPos = listPos_eyebrow))
     char_name = cmds.textField(general_name, query=True,text=True)
     cmds.button(label='Save', parent=botton_layout, command=lambda x: controller_save_to_json(general_name = general_name,checkbox = 'side_checkbox'))
