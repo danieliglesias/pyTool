@@ -66,7 +66,8 @@ def build_data_frame(window, main_layout):
                                                    parent=data_frame_general, rowSpacing=[1, 5])
 
 
-    cmds.button(label='R_WING', height=25, parent=head_grid_layout,command=lambda x: frame_collapse(button_name = 'wing_botton',frame = 'data_frame_wing'))
+    cmds.button(label='R_WING', height=25, parent=head_grid_layout,
+                command=lambda x: constructor_limb_selected(limb_selected = 'rwing'))
 
 
     #cmds.button('head_botton',label='HEAD', height=50, parent=head_grid_layout,command=lambda x: controller_eyebrow_mirror(button_name = 'head_botton',frame = data_frame_head ))
@@ -76,12 +77,13 @@ def build_data_frame(window, main_layout):
     cmds.button('head_botton2',label='', enable=False, height=15, parent=head_layout)
     #cmds.button('head_botton3',label='Head', height=50, parent=head_layout,command=lambda x: frame_collapse(button_name = 'head_botton',frame = 'data_frame_head'))
     cmds.button('head_botton3', label='Head', height=50, parent=head_layout,
-                command=lambda x: constructor_limb_selected(limb_selected = 'head selected'))
+                command=lambda x: constructor_limb_selected(limb_selected = 'head'))
 
     cmds.button('head_botton4',label='', enable=False, height=15, parent=head_layout)
     cmds.button('head_botton5',label='', enable=False, height=15, parent=head_layout)
 
-    cmds.button(label='L_WING', height=25, parent=head_grid_layout,command=lambda x: frame_collapse(button_name = 'wing_botton',frame = 'data_frame_wing'))
+    cmds.button(label='L_WING', height=25, parent=head_grid_layout,
+                command=lambda x: constructor_limb_selected(limb_selected = 'lwing'))
     #########
 
     neck_grid_layout = cmds.rowColumnLayout(numberOfColumns=5,
@@ -98,7 +100,7 @@ def build_data_frame(window, main_layout):
     neck_layout = cmds.gridLayout(numberOfColumns=3, cellWidthHeight=(33.33, 15),parent=neck_grid_layout)
     cmds.button(label='', enable=False, height=15, parent=neck_layout)
     cmds.button(label='NECK', height=25, parent=neck_layout,
-                command=lambda x: constructor_limb_selected(limb_selected = 'neck selected'))
+                command=lambda x: constructor_limb_selected(limb_selected = 'neck'))
     cmds.button(label='', enable=False, height=15, parent=neck_layout)
 
     cmds.button(label='', enable=False, height=15, parent=neck_grid_layout)
@@ -116,15 +118,18 @@ def build_data_frame(window, main_layout):
     cmds.button(label='',enable=False, height=25, parent=torso_grid_layout)
 
     rarm_layout = cmds.gridLayout(numberOfColumns=1, cellWidthHeight=(100, 37.5), parent=torso_grid_layout)
-    cmds.button(label='R_ARM', height=37.5, parent=rarm_layout,command=lambda x: frame_collapse(button_name = 'arm_botton',frame = 'data_frame_arm'))
+    cmds.button(label='R_ARM', height=37.5, parent=rarm_layout,
+                command=lambda x: constructor_limb_selected(limb_selected = 'rarm'))
     cmds.button(label='', enable=False, height=15, parent=rarm_layout)
 
 
 
-    cmds.button(label='TORSO', height=75, parent=torso_grid_layout,command=lambda x: frame_collapse(button_name = 'torso_botton',frame = 'data_frame_torso'))
+    cmds.button(label='TORSO', height=75, parent=torso_grid_layout,
+                command=lambda x: torso_ui())
 
     larm_layout = cmds.gridLayout(numberOfColumns=1, cellWidthHeight=(100, 37.5), parent=torso_grid_layout)
-    cmds.button(label='L_ARM', height=37.5, parent=larm_layout,command=lambda x: frame_collapse(button_name = 'arm_botton',frame = 'data_frame_arm'))
+    cmds.button(label='L_ARM', height=37.5, parent=larm_layout,
+                command=lambda x: constructor_limb_selected(limb_selected = 'larm'))
     cmds.button(label='', enable=False, height=15, parent=larm_layout)
 
     cmds.button(label='',enable=False, height=25, parent=torso_grid_layout)
@@ -140,7 +145,8 @@ def build_data_frame(window, main_layout):
 
     cmds.button(label='', enable=False, height=25, parent=hip_grid_layout)
     cmds.button(label='', enable=False, height=25, parent=hip_grid_layout)
-    cmds.button(label='HIP (1)', height=25, parent=hip_grid_layout ,command=lambda x: frame_collapse(button_name = 'hip_botton',frame = 'data_frame_hip'))
+    cmds.button(label='HIP (1)', height=25, parent=hip_grid_layout ,
+                command=lambda x: hip_ui())
     cmds.button(label='', enable=False, height=25, parent=hip_grid_layout)
     cmds.button(label='', enable=False, height=25, parent=hip_grid_layout)
     #########
@@ -157,17 +163,20 @@ def build_data_frame(window, main_layout):
 
     rleg_layout = cmds.gridLayout(numberOfColumns=2, cellWidthHeight=(50, 75), parent=leg_grid_layout)
     cmds.button(label='', enable=False, height=75, parent=rleg_layout)
-    cmds.button(label='R_LEG', height=75, parent=rleg_layout ,command=lambda x: frame_collapse(button_name = 'leg_botton',frame = 'data_frame_leg'))
+    cmds.button(label='R_LEG', height=75, parent=rleg_layout ,
+                command=lambda x: constructor_limb_selected(limb_selected = 'rleg'))
 
     lleg_layout = cmds.gridLayout(numberOfColumns=5, cellWidthHeight=(20, 75), parent=leg_grid_layout)
     cmds.button(label='', enable=False, height=75, parent=lleg_layout)
     cmds.button(label='', enable=False, height=75, parent=lleg_layout)
-    cmds.button(label='TAIL', height=75, parent=lleg_layout ,command=lambda x: frame_collapse(button_name = 'tail_botton',frame = 'data_frame_tail'))
+    cmds.button(label='TAIL', height=75, parent=lleg_layout ,
+                command=lambda x: constructor_limb_selected(limb_selected = 'tail'))
     cmds.button(label='', enable=False, height=75, parent=lleg_layout)
     cmds.button(label='', enable=False, height=75, parent=lleg_layout)
 
     lleg_layout = cmds.gridLayout(numberOfColumns=2, cellWidthHeight=(50, 75), parent=leg_grid_layout)
-    cmds.button(label='L_LEG', height=75, parent=lleg_layout ,command=lambda x: frame_collapse(button_name = 'leg_botton',frame = 'data_frame_leg'))
+    cmds.button(label='L_LEG', height=75, parent=lleg_layout ,
+                command=lambda x: constructor_limb_selected(limb_selected = 'lleg'))
     cmds.button(label='', enable=False, height=75, parent=lleg_layout)
 
 
@@ -341,5 +350,47 @@ def build_data_frame(window, main_layout):
 
     def constructor_limb_selected(limb_selected = None):
         clear_grid(grid = 'selected_grid')
-        cmds.button(label='{}'.format(limb_selected), height=25, parent='selected_grid')
+        ###check if a save file is selected
+        ### return exist or not
+        return False
+
+    def hip_ui():
+        if constructor_limb_selected('hip') == False:
+            cmds.button(label='{}'.format('Generate Hip Guide'), height=25, parent='selected_grid',
+                command=lambda x: hip_guide_creating())
+
+    def hip_guide_creating():
+
+        sphere_name = cmds.sphere(name = 'hip_guide',r=1)[0]
+        material_name = cmds.shadingNode('lambert', asShader=True)
+        cmds.rename(material_name, "shaderrigger")  # Rename the material to "shaderrigger"
+        # Step 3: Set the color of the material (e.g., Red color)
+        shading_group = cmds.setAttr("shaderrigger.color", 1, 0.3921, 0.4232, type="double3")  # Red color
+        # Step 5: Assign the material to the sphere
+        cmds.select(sphere_name)
+        cmds.hyperShade(assign='shaderrigger')
+
+        distance_value = cmds.getAttr('heightDistance.distance')/2
+        cmds.move(0, distance_value, 0, sphere_name)
+        annotate = cmds.annotate(sphere_name, tx='hip', p=(0, distance_value, 0))
+        cmds.parent(annotate, sphere_name)
+        #cmds.rename(annotate, "hip_annotation")
+        cmds.setAttr(annotate + '.overrideEnabled', 1)
+        cmds.setAttr(annotate + '.overrideColor', 6)
+
+    def torso_ui():
+        if constructor_limb_selected('torso') == False:
+
+            data_row_torso = cmds.rowColumnLayout(numberOfColumns=2,
+                                                           columnWidth=[(1, 100), (2, 400)],
+                                                           columnOffset=[(1, 'left', 5), (2, 'both', 5)],
+                                                           columnAlign=[(1, 'left'), (2, 'center')],
+                                                           parent='selected_grid', rowSpacing=[1, 5])
+            # character name
+            cmds.text(align='center', height=30, label='number of spine:', parent=data_row_torso)
+            cmds.textField(height=30, text='3', parent=data_row_torso)
+
+            cmds.button(label='{}'.format('Generate Hip Guide'), height=25, parent='selected_grid',
+                command=lambda x: hip_guide_creating())
+
 
