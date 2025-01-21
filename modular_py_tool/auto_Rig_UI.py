@@ -27,27 +27,63 @@ def constructor_limb_selected(limb_selected=None):
     return False
 
 
+
+def lleg_ui():
+    if constructor_limb_selected('lleg') == False:
+        data_row_lleg = cmds.rowColumnLayout(numberOfColumns=2,
+                                            columnWidth=[(1, 100), (2, 400)],
+                                            columnOffset=[(1, 'left', 5), (2, 'both', 5)],
+                                            columnAlign=[(1, 'left'), (2, 'center')],
+                                            parent='selected_grid', rowSpacing=[1, 5])
+
+        cmds.checkBoxGrp('root_jnt', numberOfCheckBoxes=2, label='Root Jnt (Game)',
+                         labelArray2=['YES', 'NO'], parent='selected_grid')
+
+        cmds.text(align='center', height=30, label='position', parent=data_row_lleg)
+        hip_position = cmds.textField(height=30, text='C', parent=data_row_lleg)
+
+        cmds.text(align='center', height=30, label='Body part', parent=data_row_lleg)
+        hip_bodypart = cmds.textField(height=30, text='hip', parent=data_row_lleg)
+
+        cmds.text(align='center', height=30, label='Function', parent=data_row_lleg)
+        hip_function = cmds.textField(height=30, text='BIND', parent=data_row_lleg)
+
+        cmds.button(label='{}'.format('Generate lleg Guide'), height=25, parent='selected_grid')
+
 def build_lleg_layout(leg_grid_layout = None):
+
+    if cmds.layout('lleg_layout', exists=True):
+        # List all children of the layout
+        children = cmds.layout('lleg_layout', q=True, ca=True)  # ca = children
+        if children:
+            # Delete each child control
+            for child in children:
+                cmds.delete(child)
+
+
 
     if check_global_dict():
         ### lets figure out how many llegs are created
         lleg_amount = 3
 
-        lleg_layout = cmds.gridLayout(numberOfColumns=lleg_amount + 1, cellWidthHeight=(100 / (lleg_amount + 1), 75),
+        lleg_layout = cmds.gridLayout('lleg_layout' ,numberOfColumns=lleg_amount + 1, cellWidthHeight=(100 / (lleg_amount + 1), 75),
                                       parent=leg_grid_layout)
 
         for i in range(lleg_amount):
             vertical_label = '\n'.join('leg0{}'.format(i))
             cmds.button(label='{}'.format(vertical_label), height=75, parent=lleg_layout,
-                        command=lambda x: constructor_limb_selected(limb_selected='lleg{}'.format(i)))
+                        command=lambda x: lleg_ui())
 
 
     else:
-        lleg_layout = cmds.gridLayout(numberOfColumns=2, cellWidthHeight=(50, 75), parent=leg_grid_layout)
+        lleg_layout = cmds.gridLayout( 'lleg_layout' ,numberOfColumns=2, cellWidthHeight=(50, 75), parent=leg_grid_layout)
         vertical_label = '\n'.join('leg01')
         cmds.button(label=vertical_label, height=75, parent=lleg_layout ,
-                    command=lambda x: constructor_limb_selected(limb_selected = 'lleg'))
+                    command=lambda x: lleg_ui())
         cmds.button(label='', enable=False, height=75, parent=lleg_layout)
+
+def on_option_menu_change(selected_value = None):
+    print(selected_value)
 
 
 def modular_ui():
@@ -98,7 +134,48 @@ def build_data_frame(window, main_layout):
     # Lets calculate the height of the character
     cmds.button(label='Generate Height guide', parent=data_row_general_seg_02,command=lambda x: generate_height_guides())
 
+    data_row_general_seg_03 = cmds.rowColumnLayout(numberOfColumns=3,
+                                                   columnWidth=[(1, 125), (2, 125), (3, 125), (4, 125)],
+                                                   columnOffset=[(1, 'both', 5), (2, 'both', 5), (3, 'both', 5), (4, 'both', 5)],
+                                                   columnAlign=[(1, 'center'), (2, 'center'), (3, 'center'), (4, 'center')],
+                                                   parent=data_frame_general, rowSpacing=[1, 5])
+
+    option_menu = cmds.optionMenu(label='head',parent= data_row_general_seg_03)
+    cmds.menuItem(label="1")
+    cmds.menuItem(label="2")
+    cmds.menuItem(label="3")
+
+    option_menu = cmds.optionMenu(label='larm ',parent= data_row_general_seg_03)
+    cmds.menuItem(label="1")
+    cmds.menuItem(label="2")
+    cmds.menuItem(label="3")
+
+    option_menu = cmds.optionMenu(label='rarm', parent=data_row_general_seg_03)
+    cmds.menuItem(label="1")
+    cmds.menuItem(label="2")
+    cmds.menuItem(label="3")
+
+    lleg_option_menu = cmds.optionMenu( 'lleg',label='lleg ', parent=data_row_general_seg_03)
+    cmds.menuItem(label="1")
+    cmds.menuItem(label="2")
+    cmds.menuItem(label="3")
+
+    cmds.optionMenu(lleg_option_menu, e=True, cc=lambda selected_value: on_option_menu_change(cmds.optionMenu(lleg_option_menu, q=True, v=True)))
+
+    option_menu = cmds.optionMenu(label='rleg', parent=data_row_general_seg_03)
+    cmds.menuItem(label="1")
+    cmds.menuItem(label="2")
+    cmds.menuItem(label="3")
+
+    option_menu = cmds.optionMenu(label='tail ', parent=data_row_general_seg_03)
+    cmds.menuItem(label="1")
+    cmds.menuItem(label="2")
+    cmds.menuItem(label="3")
+
     ##########################################################################
+    data_frame_limbview = cmds.frameLayout(label='visual structure rig', width=500,
+                                          collapsable=True, parent=main_layout)
+
     # General face guides
     """grid_layoutgeneral = cmds.gridLayout(numberOfColumns=3,
                                          cellWidthHeight=(500, 25), 
@@ -107,7 +184,7 @@ def build_data_frame(window, main_layout):
                                                    columnWidth=[(1, 100),(2, 300),(3, 100)],
                                                    columnOffset=[(1, 'both', 2),(2, 'both', 2),(3, 'both', 2)],
                                                    columnAlign=[(1, 'left'),(2, 'left'),(3, 'left')],
-                                                   parent=data_frame_general, rowSpacing=[1, 5])
+                                                   parent=data_frame_limbview, rowSpacing=[1, 5])
 
 
     cmds.button(label='R_WING', height=25, parent=head_grid_layout,
@@ -136,7 +213,7 @@ def build_data_frame(window, main_layout):
                                                           (4, 'both', 2), (5, 'both', 2)],
                                             columnAlign=[(1, 'left'), (2, 'left'), (3, 'left'), (4, 'left'),
                                                          (5, 'left')],
-                                            parent=data_frame_general, rowSpacing=[1, 5])
+                                            parent=data_frame_limbview, rowSpacing=[1, 5])
 
     cmds.button(label='', enable=False, height=15, parent=neck_grid_layout)
     cmds.button(label='', enable=False, height=15, parent=neck_grid_layout)
@@ -157,7 +234,7 @@ def build_data_frame(window, main_layout):
                                                           (4, 'both', 2), (5, 'both', 2)],
                                             columnAlign=[(1, 'left'), (2, 'left'), (3, 'left'), (4, 'left'),
                                                          (5, 'left')],
-                                            parent=data_frame_general, rowSpacing=[1, 5])
+                                            parent=data_frame_limbview, rowSpacing=[1, 5])
 
     cmds.button(label='',enable=False, height=25, parent=torso_grid_layout)
 
@@ -185,7 +262,7 @@ def build_data_frame(window, main_layout):
                                                            (4, 'both', 2), (5, 'both', 2)],
                                              columnAlign=[(1, 'left'), (2, 'left'), (3, 'left'), (4, 'left'),
                                                           (5, 'left')],
-                                             parent=data_frame_general, rowSpacing=[1, 5])
+                                             parent=data_frame_limbview, rowSpacing=[1, 5])
 
     cmds.button(label='', enable=False, height=25, parent=hip_grid_layout)
     cmds.button(label='', enable=False, height=25, parent=hip_grid_layout)
@@ -201,7 +278,7 @@ def build_data_frame(window, main_layout):
                                                          (4, 'both', 2), (5, 'both', 2)],
                                            columnAlign=[(1, 'left'), (2, 'left'), (3, 'left'), (4, 'left'),
                                                         (5, 'left')],
-                                           parent=data_frame_general, rowSpacing=[1, 5])
+                                           parent=data_frame_limbview, rowSpacing=[1, 5])
 
     cmds.button(label='', enable=False, height=75, parent=leg_grid_layout)
 
@@ -345,7 +422,6 @@ def build_data_frame(window, main_layout):
 
 
 
-
     def check_global_dict():
         return "global_dict" in globals()
 
@@ -389,6 +465,9 @@ def build_data_frame(window, main_layout):
 
 
         ##cmds.deleteUI(button_name, control=True)
+
+
+
 
 
     def hip_ui():
