@@ -7,10 +7,14 @@ import pyTool.utilities as utili
 import importlib
 importlib.reload(fundation)
 importlib.reload(utili)
-
-
 def check_global_dict():
-    return "global_dict" in globals()
+    return 'global_dict' in globals()
+
+if check_global_dict():
+    global_dict = {}
+
+
+
 
 def clear_grid(grid=None):
     children = cmds.layout(grid, q=True, childArray=True)
@@ -28,7 +32,9 @@ def constructor_limb_selected(limb_selected=None):
 
 
 
-def lleg_ui():
+def lleg_ui(limb_name = None):
+    clear_grid(grid='selected_grid')
+    print(limb_name)
     if constructor_limb_selected('lleg') == False:
         data_row_lleg = cmds.rowColumnLayout(numberOfColumns=2,
                                             columnWidth=[(1, 100), (2, 400)],
@@ -39,53 +45,84 @@ def lleg_ui():
         cmds.checkBoxGrp('root_jnt', numberOfCheckBoxes=2, label='Root Jnt (Game)',
                          labelArray2=['YES', 'NO'], parent='selected_grid')
 
+        cmds.text(align='center', height=30, label='guide limb connection', parent=data_row_lleg)
+        hip_position = cmds.textField(height=30, text='chest01', parent=data_row_lleg) ### chest01 default connection to the body
+
+        cmds.text(align='center', height=30, label='limb_name', parent=data_row_lleg)
+        hip_position = cmds.textField(height=30, text='{}'.format(limb_name), parent=data_row_lleg, enable = False)
+
         cmds.text(align='center', height=30, label='position', parent=data_row_lleg)
-        hip_position = cmds.textField(height=30, text='C', parent=data_row_lleg)
+        hip_position = cmds.textField(height=30, text='L', parent=data_row_lleg)
 
         cmds.text(align='center', height=30, label='Body part', parent=data_row_lleg)
-        hip_bodypart = cmds.textField(height=30, text='hip', parent=data_row_lleg)
+        hip_bodypart = cmds.textField(height=30, text='leg', parent=data_row_lleg)
 
         cmds.text(align='center', height=30, label='Function', parent=data_row_lleg)
         hip_function = cmds.textField(height=30, text='BIND', parent=data_row_lleg)
 
         cmds.button(label='{}'.format('Generate lleg Guide'), height=25, parent='selected_grid')
 
-def build_lleg_layout(leg_grid_layout = None):
+def build_layout(option_menu = None,grid_layout = None,reload = None,limb_number = None):
 
-    if cmds.layout('lleg_layout', exists=True):
+    if cmds.layout('{}_layout'.format(option_menu), exists=True):
         # List all children of the layout
-        children = cmds.layout('lleg_layout', q=True, ca=True)  # ca = children
+        children = cmds.layout('{}_layout'.format(option_menu), query=True, childArray=True)
+
         if children:
-            # Delete each child control
             for child in children:
-                cmds.delete(child)
+                cmds.deleteUI(child)
+        else:
+            print("No children found to delete.")
 
+        cmds.deleteUI('{}_layout'.format(option_menu))
 
-
-    if check_global_dict():
+    if check_global_dict() or reload == True:
         ### lets figure out how many llegs are created
-        lleg_amount = 3
+        limb_amount = limb_number
 
-        lleg_layout = cmds.gridLayout('lleg_layout' ,numberOfColumns=lleg_amount + 1, cellWidthHeight=(100 / (lleg_amount + 1), 75),
-                                      parent=leg_grid_layout)
+        limb_layout = cmds.gridLayout('{}_layout'.format(option_menu) ,numberOfColumns=limb_amount + 1, cellWidthHeight=(100 / (limb_amount + 1), 75),
+                                      parent='{}_layout_frame'.format(option_menu))
 
-        for i in range(lleg_amount):
-            vertical_label = '\n'.join('leg0{}'.format(i))
-            cmds.button(label='{}'.format(vertical_label), height=75, parent=lleg_layout,
-                        command=lambda x: lleg_ui())
+
+
+        for i in range(limb_amount):
+            create_button(option_menu,i)
+
+            """vertical_label = '\n'.join('leg0{}'.format(i))
+            print('lleg0{}'.format(i+1))
+            cmds.button('lleg0{}'.format(i) , label='{}'.format(vertical_label), height=75, parent='lleg_layout',
+                        command=lambda x: lleg_ui(limb_name='leg0{}'.format(i+1)))"""
 
 
     else:
-        lleg_layout = cmds.gridLayout( 'lleg_layout' ,numberOfColumns=2, cellWidthHeight=(50, 75), parent=leg_grid_layout)
-        vertical_label = '\n'.join('leg01')
-        cmds.button(label=vertical_label, height=75, parent=lleg_layout ,
-                    command=lambda x: lleg_ui())
-        cmds.button(label='', enable=False, height=75, parent=lleg_layout)
-
-def on_option_menu_change(selected_value = None):
-    print(selected_value)
+        limb_layout = cmds.gridLayout( '{}_layout'.format(option_menu) ,numberOfColumns=2, cellWidthHeight=(50, 75), parent='{}_layout_frame'.format(option_menu))
+        vertical_label = '\n'.join('{}1'.format(option_menu))
+        button01 = cmds.button(label=vertical_label, height=75, parent=limb_layout ,
+                    command=lambda x: lleg_ui(limb_name = '{}1'.format(option_menu)))
+        button02 = cmds.button(label='', enable=False, height=75, parent=limb_layout)
 
 
+def create_button(option_menu,i):
+    vertical_label = '{}{}'.format(option_menu,i+1)  # This matches your print statement logic
+    # Create the button with the correct label and the correct limb_name
+    if option_menu == 'lleg':
+        cmds.button('{}{}'.format(option_menu,i+1), label=vertical_label, height=75, parent='{}_layout'.format(option_menu),
+                    command=lambda x: lleg_ui(limb_name='{}{}'.format(option_menu,i+1)))
+
+def on_option_menu_change(option_menu = None ,selected_value = None):
+    build_layout(option_menu = option_menu,grid_layout='lleg_layout_frame', reload=True, limb_number=int(selected_value))
+    """if option_menu == 'lleg':
+        build_lleg_layout(leg_grid_layout='lleg_layout_frame', reload=True,limb_number = int(selected_value))
+    elif option_menu == 'rleg':
+        return 0
+    elif option_menu == 'tail':
+        return 1
+    elif option_menu == 'head':
+        return 1
+    elif option_menu == 'rarm':
+        return 0
+    elif option_menu == 'larm':
+        return 0"""
 def modular_ui():
     if cmds.window('ModularToolUI', exists=True):
         cmds.deleteUI('ModularToolUI')
@@ -160,7 +197,9 @@ def build_data_frame(window, main_layout):
     cmds.menuItem(label="2")
     cmds.menuItem(label="3")
 
-    cmds.optionMenu(lleg_option_menu, e=True, cc=lambda selected_value: on_option_menu_change(cmds.optionMenu(lleg_option_menu, q=True, v=True)))
+
+
+    cmds.optionMenu(lleg_option_menu, e=True, cc=lambda *args: on_option_menu_change((lleg_option_menu.split('|')[-1]),cmds.optionMenu(lleg_option_menu, q=True, v=True)))
 
     option_menu = cmds.optionMenu(label='rleg', parent=data_row_general_seg_03)
     cmds.menuItem(label="1")
@@ -272,7 +311,7 @@ def build_data_frame(window, main_layout):
     cmds.button(label='', enable=False, height=25, parent=hip_grid_layout)
     #########
 
-    leg_grid_layout = cmds.rowColumnLayout(numberOfColumns=5,
+    leg_grid_rowColumnlayout = cmds.rowColumnLayout( 'lleg_grid_rowColumnlayout' ,numberOfColumns=5,
                                            columnWidth=[(1, 100), (2, 100), (3, 100), (4, 100), (5, 100)],
                                            columnOffset=[(1, 'both', 2), (2, 'both', 2), (3, 'both', 2),
                                                          (4, 'both', 2), (5, 'both', 2)],
@@ -280,25 +319,32 @@ def build_data_frame(window, main_layout):
                                                         (5, 'left')],
                                            parent=data_frame_limbview, rowSpacing=[1, 5])
 
-    cmds.button(label='', enable=False, height=75, parent=leg_grid_layout)
+    cmds.button(label='', enable=False, height=75, parent=leg_grid_rowColumnlayout)
 
-    rleg_layout = cmds.gridLayout(numberOfColumns=2, cellWidthHeight=(50, 75), parent=leg_grid_layout)
+    rleg_gridLayout_frame = cmds.gridLayout('rleg_layout_frame', numberOfColumns=1, cellWidthHeight=(100, 75),
+                                            parent=leg_grid_rowColumnlayout)
+    rleg_layout = cmds.gridLayout(numberOfColumns=2, cellWidthHeight=(50, 75), parent=rleg_gridLayout_frame)
     cmds.button(label='', enable=False, height=75, parent=rleg_layout)
     cmds.button(label='R_LEG', height=75, parent=rleg_layout ,
                 command=lambda x: constructor_limb_selected(limb_selected = 'rleg'))
 
-    lleg_layout = cmds.gridLayout(numberOfColumns=5, cellWidthHeight=(20, 75), parent=leg_grid_layout)
-    cmds.button(label='', enable=False, height=75, parent=lleg_layout)
-    cmds.button(label='', enable=False, height=75, parent=lleg_layout)
-    cmds.button(label='TAIL', height=75, parent=lleg_layout ,
+    tail_gridLayout_frame = cmds.gridLayout('tail_gridLayout_frame', numberOfColumns=1, cellWidthHeight=(100, 75),
+                                            parent=leg_grid_rowColumnlayout)
+
+    tail_layout = cmds.gridLayout(numberOfColumns=5, cellWidthHeight=(20, 75), parent=tail_gridLayout_frame)
+    cmds.button(label='', enable=False, height=75, parent=tail_layout)
+    cmds.button(label='', enable=False, height=75, parent=tail_layout)
+    cmds.button(label='TAIL', height=75, parent=tail_layout ,
                 command=lambda x: constructor_limb_selected(limb_selected = 'tail'))
-    cmds.button(label='', enable=False, height=75, parent=lleg_layout)
-    cmds.button(label='', enable=False, height=75, parent=lleg_layout)
+    cmds.button(label='', enable=False, height=75, parent=tail_layout)
+    cmds.button(label='', enable=False, height=75, parent=tail_layout)
 
-    build_lleg_layout(leg_grid_layout = leg_grid_layout)
+    lleg_gridLayout_frame = cmds.gridLayout('lleg_layout_frame', numberOfColumns=1, cellWidthHeight=(100, 75), parent=leg_grid_rowColumnlayout)
+
+    build_layout(option_menu = 'lleg',grid_layout = lleg_gridLayout_frame)
 
 
-    cmds.button(label='', enable=False, height=75, parent=leg_grid_layout)
+    cmds.button(label='', enable=False, height=75, parent=leg_grid_rowColumnlayout)
 
 
 
@@ -480,6 +526,10 @@ def build_data_frame(window, main_layout):
                                                 columnAlign=[(1, 'left'), (2, 'center')],
                                                 parent='selected_grid', rowSpacing=[1, 5])
 
+            cmds.text(align='center', height=30, label='guide limb connection', parent=data_row_hip)
+            hip_position = cmds.textField(height=30, text='root01',
+                                          parent=data_row_hip)  ### root01 default connection to the body
+
             cmds.checkBoxGrp('root_jnt', numberOfCheckBoxes=2, label='Root Jnt (Game)',
                              labelArray2=['YES', 'NO'], parent='selected_grid')
 
@@ -522,6 +572,10 @@ def build_data_frame(window, main_layout):
                                                            columnOffset=[(1, 'left', 5), (2, 'both', 5)],
                                                            columnAlign=[(1, 'left'), (2, 'center')],
                                                            parent='selected_grid', rowSpacing=[1, 5])
+
+            cmds.text(align='center', height=30, label='guide limb connection', parent=data_row_torso)
+            hip_position = cmds.textField(height=30, text='hip01',
+                                          parent=data_row_torso)  ### hip01 default connection to the body
 
             cmds.text(align='center', height=30, label='number of spine:', parent=data_row_torso)
             int_field_name = cmds.intField(minValue=3, maxValue=5, value=3, parent=data_row_torso )
@@ -591,3 +645,6 @@ def build_data_frame(window, main_layout):
         cmds.setAttr('{}.overrideEnabled'.format(controller), 1)
         cmds.setAttr('{}.overrideColorRGB'.format(controller), color[0], color[1], color[2])
 
+    def save_limb_json():
+        my_dict = {}
+        sub_dict = {}
