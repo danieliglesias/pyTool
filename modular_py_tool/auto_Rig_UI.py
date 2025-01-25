@@ -363,101 +363,6 @@ def build_data_frame(window, main_layout):
 
     cmds.button(label='Name', height=25, parent=selected_grid_layout)
 
-    """###HIP###########################################################################################################################
-
-    data_frame_hip = cmds.frameLayout('data_frame_hip',label='Build Hip', width=500,
-                                        collapsable=True, collapse=True, parent=main_layout)
-    data_row_hip_seg_01 = cmds.rowColumnLayout(numberOfColumns=2,
-                                                 columnWidth=[(1, 500)],
-                                                 columnOffset=[(1, 'both', 5)],
-                                                 columnAlign=[(1, 'left')],
-                                                 parent=data_frame_hip, rowSpacing=[1, 5])
-
-    cmds.button(label='test', parent=data_row_hip_seg_01)
-
-    ###TORSO###########################################################################################################################
-
-    data_frame_torso = cmds.frameLayout('data_frame_torso',label='Build Torso', width=500,
-                                           collapsable=True,collapse = True, parent=main_layout)
-    data_row_torso_seg_01 = cmds.rowColumnLayout(numberOfColumns=2,
-                                           columnWidth=[(1, 500)],
-                                           columnOffset=[(1, 'both', 5)],
-                                           columnAlign=[(1, 'left')],
-                                           parent=data_frame_torso, rowSpacing=[1, 5])
-
-    cmds.button(label='test', parent=data_row_torso_seg_01)
-
-    ###TORSO###########################################################################################################################
-
-    data_frame_leg = cmds.frameLayout('data_frame_leg',label='Build Leg', width=500,
-                                        collapsable=True,collapse = True, parent=main_layout)
-    data_row_leg_seg_01 = cmds.rowColumnLayout(numberOfColumns=2,
-                                                 columnWidth=[(1, 500)],
-                                                 columnOffset=[(1, 'both', 5)],
-                                                 columnAlign=[(1, 'left')],
-                                                 parent=data_frame_leg, rowSpacing=[1, 5])
-
-    cmds.button(label='test', parent=data_row_leg_seg_01)
-
-    ###ARMS###########################################################################################################################
-
-    data_frame_arm = cmds.frameLayout('data_frame_arm',label='Build Arm', width=500,
-                                      collapsable=True,collapse = True, parent=main_layout)
-    data_row_arm_seg_01 = cmds.rowColumnLayout(numberOfColumns=2,
-                                               columnWidth=[(1, 500)],
-                                               columnOffset=[(1, 'both', 5)],
-                                               columnAlign=[(1, 'left')],
-                                               parent=data_frame_arm, rowSpacing=[1, 5])
-
-    cmds.button(label='test', parent=data_row_arm_seg_01)
-    ###NECK###########################################################################################################################
-
-    data_frame_neck = cmds.frameLayout('data_frame_neck', label='Build neck', width=500,
-                                       collapsable=True, collapse=True, parent=main_layout)
-    data_row_neck_seg_01 = cmds.rowColumnLayout(numberOfColumns=2,
-                                                columnWidth=[(1, 500)],
-                                                columnOffset=[(1, 'both', 5)],
-                                                columnAlign=[(1, 'left')],
-                                                parent=data_frame_neck, rowSpacing=[1, 5])
-
-    cmds.button(label='test', parent=data_row_neck_seg_01)
-    ###HEAD###########################################################################################################################
-
-    data_frame_head = cmds.frameLayout('data_frame_head',label='Build Head', width=500,
-                                      collapsable=True,collapse = True, parent=main_layout)
-    data_row_head_seg_01 = cmds.rowColumnLayout(numberOfColumns=2,
-                                               columnWidth=[(1, 500)],
-                                               columnOffset=[(1, 'both', 5)],
-                                               columnAlign=[(1, 'left')],
-                                               parent=data_frame_head, rowSpacing=[1, 5])
-
-    cmds.button(label='test', parent=data_row_head_seg_01,command=lambda x: controller_refresh_head(grid = 'head_gridlayout'))
-
-    ###TAIL###########################################################################################################################
-
-    data_frame_tail = cmds.frameLayout('data_frame_tail', label='Build Tail', width=500,
-                                       collapsable=True, collapse=True, parent=main_layout)
-    data_row_tail_seg_01 = cmds.rowColumnLayout(numberOfColumns=2,
-                                                columnWidth=[(1, 500)],
-                                                columnOffset=[(1, 'both', 5)],
-                                                columnAlign=[(1, 'left')],
-                                                parent=data_frame_tail, rowSpacing=[1, 5])
-
-    cmds.button(label='Generate Tail', parent=data_row_tail_seg_01)
-
-    ###WING###########################################################################################################################
-
-    data_frame_wing = cmds.frameLayout('data_frame_wing', label='Build Wing', width=500,
-                                       collapsable=True, collapse=True, parent=main_layout)
-    data_row_wing_seg_01 = cmds.rowColumnLayout(numberOfColumns=2,
-                                                columnWidth=[(1, 500)],
-                                                columnOffset=[(1, 'both', 5)],
-                                                columnAlign=[(1, 'left')],
-                                                parent=data_frame_wing, rowSpacing=[1, 5])
-
-    cmds.button(label='Generate Tail', parent=data_row_wing_seg_01)"""
-
-
 
     #=================================================================================================================================
     # =================================================================================================================================
@@ -527,11 +432,20 @@ def build_data_frame(window, main_layout):
                                                 parent='selected_grid', rowSpacing=[1, 5])
 
             cmds.text(align='center', height=30, label='guide limb connection', parent=data_row_hip)
-            hip_position = cmds.textField(height=30, text='root01',
+            hip_position = cmds.textField(height=30, text='???',
                                           parent=data_row_hip)  ### root01 default connection to the body
 
-            cmds.checkBoxGrp('root_jnt', numberOfCheckBoxes=2, label='Root Jnt (Game)',
-                             labelArray2=['YES', 'NO'], parent='selected_grid')
+            """cmds.checkBoxGrp('root_jnt', numberOfCheckBoxes=2, label='Root Jnt (Game)',
+                             labelArray2=[True, False], parent='selected_grid')"""
+
+            isForGame = cmds.optionMenu(label='Root Jnt (Game)', parent='selected_grid')
+            cmds.menuItem(label=True)
+            cmds.menuItem(label=False)
+
+
+            cmds.text(align='center', height=30, label='group name', parent=data_row_hip)
+            root_grp = cmds.textField(height=30, text='root', parent=data_row_hip)
+
 
             cmds.text(align='center', height=30, label='position', parent=data_row_hip)
             hip_position = cmds.textField(height=30, text='C', parent=data_row_hip)
@@ -543,26 +457,52 @@ def build_data_frame(window, main_layout):
             hip_function = cmds.textField(height=30, text='BIND', parent=data_row_hip)
 
             cmds.button(label='{}'.format('Generate Hip Guide'), height=25, parent='selected_grid',
-                command=lambda x: hip_guide_creating())
+                command=lambda x: controller_hip_guide(root_grp = root_grp, isForGame = isForGame))
 
-    def hip_guide_creating():
+    def controller_hip_guide(root_grp = None , isForGame = None):
 
-        sphere_name = cmds.sphere(name = 'hip_guide',r=1)[0]
+        group_value = cmds.textField(root_grp, query=True, text=True)
+        selected_item = cmds.optionMenu(isForGame, query=True, value=True)
+
+        print(group_value)
+        print(selected_item)
+
+        if selected_item:
+            for i in range(1,3):
+                print('{}{:02d}'.format(group_value,i))
+        else:
+            print('nothing')
+
+            sphere_name = cmds.sphere(name='hip_guide', r=1)[0]
+            shader_name = create_shader_guide()
+            # Step 5: Assign the material to the sphere
+            cmds.select(sphere_name)
+            cmds.hyperShade(assign='{}'.format(shader_name))
+
+            distance_value = cmds.getAttr('heightDistance.distance') / 2
+            cmds.move(0, distance_value, 0, sphere_name)
+            annotate = cmds.annotate(sphere_name, tx='hip', p=(0, distance_value, 0))
+            cmds.parent(annotate, sphere_name)
+            # cmds.rename(annotate, "hip_annotation")
+            cmds.setAttr(annotate + '.overrideEnabled', 1)
+            cmds.setAttr(annotate + '.overrideColor', 6)
+
+
+    def create_shader_guide():
+        shader_name = "shader_guide"
+
+        # Check if the shader already exists
+        if cmds.objExists(shader_name):
+            return shader_name  # Return the name if it already exists
+
+        # Create the Lambert shader
         material_name = cmds.shadingNode('lambert', asShader=True)
-        cmds.rename(material_name, "shaderrigger")  # Rename the material to "shaderrigger"
-        # Step 3: Set the color of the material (e.g., Red color)
-        shading_group = cmds.setAttr("shaderrigger.color", 1, 0.3921, 0.4232, type="double3")  # Red color
-        # Step 5: Assign the material to the sphere
-        cmds.select(sphere_name)
-        cmds.hyperShade(assign='shaderrigger')
+        cmds.rename(material_name, shader_name)
 
-        distance_value = cmds.getAttr('heightDistance.distance')/2
-        cmds.move(0, distance_value, 0, sphere_name)
-        annotate = cmds.annotate(sphere_name, tx='hip', p=(0, distance_value, 0))
-        cmds.parent(annotate, sphere_name)
-        #cmds.rename(annotate, "hip_annotation")
-        cmds.setAttr(annotate + '.overrideEnabled', 1)
-        cmds.setAttr(annotate + '.overrideColor', 6)
+        # Set the color of the shader
+        cmds.setAttr(f"{shader_name}.color", 1, 0.3921, 0.4232, type="double3")  # Specific color
+
+        return shader_name  # Return the name of the newly created shader
 
     def torso_ui():
         if constructor_limb_selected('torso') == False:
@@ -593,7 +533,7 @@ def build_data_frame(window, main_layout):
             torso_function = cmds.textField(height=30, text='BIND', parent=data_row_torso)
 
             cmds.button(label='{}'.format('Generate Hip Guide'), height=25, parent='selected_grid',
-                command=lambda x: generate_chain_guide(int_field_name))
+                command=lambda x: generate_chain_guide(int_field_name,torso_grp))
 
 
 
@@ -635,9 +575,17 @@ def build_data_frame(window, main_layout):
                         command=lambda x: generate_chain_guide(int_field_name))
 
 
-    def generate_chain_guide(name_field = None):
+    def generate_chain_guide(name_field = None,torso_grp = None):
         int_value = cmds.intField(name_field, query=True, value=True)
-        print(int_value)
+        group_value = cmds.textField(torso_grp, query=True, text=True)
+        for number in range(int_value):
+            print('{}{:02d}'.format(group_value,number+1))
+
+    def generate_chain_guide(int_value=None, group_value=None):
+
+        for number in range(int_value):
+            print('{}{:02d}'.format(group_value,number+1))
+
 
 
     def change_color_controller(color_slider = None,controller = None):

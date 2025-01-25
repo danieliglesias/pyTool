@@ -4,8 +4,13 @@ class NestedDictionary:
     def __init__(self):
         #self.data = data
         self.data = {
+            'general':{
+                'file': '',
+                'char_name': 'Max'
+            },
             'torso01': {
                 'general': {
+                'exist': True,
                 'parent': 'hip'
                 },'guide1': {
                 'position': [1, 0, 0],
@@ -20,6 +25,10 @@ class NestedDictionary:
                 }
             },
             'lfarm01': {
+                'general': {
+                    'exist': True,
+                    'parent': 'torso'
+                },
                 'subkey1': 'value3',
                 'subkey2': 'value4'
             },
@@ -96,3 +105,30 @@ class NestedDictionary:
             print('Data loaded from {}'.format(filename))
         except Exception as e:
             print('Error loading from JSON: {}'.format(e))
+
+    #this method will return file name and character name
+    def get_general_info(self):
+        """
+        Returns the values of 'file' and 'char_name' under the 'general' key.
+        """
+        general_info = self.data.get('general', {})
+        file_value = general_info.get('file', None)
+        char_name = general_info.get('char_name', None)
+        return file_value, char_name
+
+    #this method will update the info values for the file name and character name
+    def update_general_info(self, file_value=None, char_name=None):
+        """
+        Updates the 'file' and 'char_name' values under the 'general' key.
+
+        Args:
+            file_value (str): New value for 'file' (optional).
+            char_name (str): New value for 'char_name' (optional).
+        """
+        if 'general' not in self.data:
+            self.data['general'] = {}
+
+        if file_value is not None:
+            self.data['general']['file'] = file_value
+        if char_name is not None:
+            self.data['general']['char_name'] = char_name

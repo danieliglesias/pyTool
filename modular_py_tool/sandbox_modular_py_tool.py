@@ -2,11 +2,10 @@ import maya.cmds as cmds
 import pyTool.modular_py_tool.auto_Rig_UI as auto_rig_ui
 import pyTool.utilities as utili
 import importlib
-#import pyTool.modular_py_tool.nested_dictionary
-from  pyTool.modular_py_tool.nested_dictionary import NestedDictionary 
+import pyTool.modular_py_tool.nested_dictionary as dict
+#from  pyTool.modular_py_tool.nested_dictionary import NestedDictionary as dict
 
-# Create an instance of the class
-nested_dict_instance = NestedDictionary()
+
 import os
 import json
 import math
@@ -14,10 +13,16 @@ import sys
 
 importlib.reload(auto_rig_ui)
 importlib.reload(utili)
-importlib.reload(pyTool.modular_py_tool.nested_dictionary)
+importlib.reload(dict)
 
 
 auto_rig_ui.modular_ui()
+
+# Create an instance of the class
+nested_dict_instance = NestedDictionary()
+
+
+print(nested_dict_instance.get_all_limb())
 
 sub_dict_key1 = nested_dict_instance.get_limb('torso01')
 print("Sub-dictionary for 'key1':", sub_dict_key1)
