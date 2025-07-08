@@ -1,8 +1,8 @@
 import maya.cmds as cmds
-import pyTool.modular_py_tool.auto_Rig_UI as auto_rig_ui
+import pyTool.modular_py_tool.UiAutoRig as auto_rig_ui
 import pyTool.utilities as utili
 import importlib
-import pyTool.modular_py_tool.nested_dictionary as dict
+from pyTool.modular_py_tool.utilities_dictionary import NestedDictionary as dict_utilities
 #from  pyTool.modular_py_tool.nested_dictionary import NestedDictionary as dict
 import os
 import json
@@ -19,7 +19,7 @@ auto_rig_ui.modular_ui()
 # Create an instance of the class
 nested_dict_instance = NestedDictionary()
 
-
+print(nested_dict_instance)
 print(nested_dict_instance.get_all_limb())
 
 sub_dict_key1 = nested_dict_instance.get_limb('torso01')
@@ -28,7 +28,7 @@ print("Sub-dictionary for 'key1':", sub_dict_key1)
 keys = nested_dict_instance.get_all_limb()
 print("All top-level keys:", keys)
 
-print(nested_dict_instance.get_item('key1')) 
+print(nested_dict_instance.get_item('torso01','exist')) 
 
 #calculate height character
 

@@ -7,12 +7,12 @@ import pyTool.utilities as utili
 import importlib
 importlib.reload(fundation)
 importlib.reload(utili)
+
 def check_global_dict():
     return 'global_dict' in globals()
 
 if check_global_dict():
     global_dict = {}
-
 
 
 
@@ -156,11 +156,27 @@ def build_data_frame(window, main_layout):
                                             columnOffset=[(1, 'left', 5), (2, 'both', 5)],
                                             columnAlign=[(1, 'left'), (2, 'center')],
                                             parent=data_frame_general, rowSpacing=[1, 5])
-    # character name
+    # File name
     cmds.text(align='center', height=30, label='Json name:', parent=data_row_general_seg_01)
     general_name = cmds.textField(height=30, text='New json name...', parent=data_row_general_seg_01)
+
+    # Character name
     cmds.text(align='center', height=30, label='character name:', parent=data_row_general_seg_01)
     general_name = cmds.textField(height=30, text='New name...', parent=data_row_general_seg_01)
+
+
+    ###########################################################
+
+    data_row_general_seg_01b = cmds.rowColumnLayout(numberOfColumns=3,
+                                                   columnWidth=[(1, 166.6), (2, 166.6),(3, 166.6)],
+                                                   columnOffset=[(1, 'both', 1), (2, 'both', 1), (3, 'both', 1)],
+                                                   columnAlign=[(1, 'center'), (2, 'center'), (3, 'center')],
+                                                   parent=data_frame_general, rowSpacing=[1, 1])
+
+    cmds.button(label='Load', parent=data_row_general_seg_01b,  command=lambda x: LoadJsonView())
+    cmds.button(label='Save', parent=data_row_general_seg_01b)
+    cmds.button(label='New', parent=data_row_general_seg_01b)
+
     ###########################################################
 
     data_row_general_seg_02 = cmds.rowColumnLayout(numberOfColumns=1,
@@ -600,3 +616,41 @@ def build_data_frame(window, main_layout):
     def save_limb_json():
         my_dict = {}
         sub_dict = {}
+
+
+    def LoadJsonView(*args):
+        if cmds.window("mySecondWindow", exists=True):
+            cmds.deleteUI("mySecondWindow", window=True)
+
+        second_window = cmds.window("mySecondWindow", title="Second Window", widthHeight=(300, 150))
+
+        main_layout2 = cmds.columnLayout(adjustableColumn=True)
+
+        data_frame_general_load_json_view = cmds.frameLayout(label='General parameters', width=500,
+                                              collapsable=True, parent=main_layout2)
+
+        json_load = cmds.rowColumnLayout(numberOfColumns=3,
+                                          columnWidth=[(1, 100), (2, 250), (3, 150)],
+                                          columnOffset=[(1, 'both', 5), (2, 'both', 0),
+                                                        (3, 'both', 5)],
+                                          columnAlign=[(1, 'left'), (2, 'center'), (3, 'right')],
+                                          parent=data_frame_general_load_json_view, rowSpacing=[1, 5])
+        # guide load
+        char_name = cmds.textField(general_name, query=True, text=True)
+
+        # load save position
+        cmds.text(align='left', height=30, label='Plane Pos', parent=json_load)
+        listPos_faceguides = cmds.textScrollList(numberOfRows=5, allowMultiSelection=False
+                                                 , showIndexedItem=4, parent=json_load)
+        utili.file_manage(section_dir='base/', action='show', field=listPos_faceguides)
+
+        listPos_faceguides_btn = cmds.gridLayout(numberOfColumns=1, cellWidthHeight=(150, 25), parent=json_load)
+
+        cmds.button(label='load selected', parent=listPos_faceguides_btn)
+        cmds.button(label='delete', parent=listPos_faceguides_btn)
+        cmds.button(label='Refresh list', parent=listPos_faceguides_btn,
+                    command=lambda x: utili.file_manage(section_dir='base/', action='show', field=listPos_faceguides))
+
+
+        cmds.button(label="Close", command=lambda *x: cmds.deleteUI("mySecondWindow", window=True))
+        cmds.showWindow(second_window)

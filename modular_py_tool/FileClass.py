@@ -1,47 +1,43 @@
 import json
 import os
+
 class NestedDictionary:
     def __init__(self):
         #self.data = data
         self.data = {
             'general':{
-                'file': '',
-                'char_name': 'Max'
-            },
-            'torso01': {
-                'general': {
-                'exist': True,
-                'parent': 'hip'
-                },'guide1': {
-                'position': [1, 0, 0],
-                'bone_ori': 'XYZ',
-                'parent': 'hip01',
-                'bone_name': 'spine01_BIND'
-                },'guide2': {
-                'position': [1, 0, 0],
-                'bone_ori': 'XYZ',
-                'parent': 'Guide1',
-                'bone_name': 'spine02_BIND'
-                }
-            },
-            'lfarm01': {
-                'general': {
-                    'exist': True,
-                    'parent': 'torso'
-                },
-                'subkey1': 'value3',
-                'subkey2': 'value4'
-            },
-            'rfarm01': {
-                'subkey1': 'value3',
-                'subkey2': 'value4'
-            },
-            'head01': {
-                'subkey1': 'value3',
-                'subkey2': 'value4'
+                'file': 'Nombre Json Array',
+                'char_name': 'Character Name'
             }
+
         }
 
+    def LoadDictionary(self, filepath):
+
+        f = open('C:/Users/danie/Desktop/Rigging/python_tool/test.json')
+        return 0
+
+    def SaveDictionary(self, filepath):
+
+        f = open('C:/Users/danie/Desktop/Rigging/python_tool/test.json')
+        return 0
+
+    def AddLimb(self):
+
+        return 0
+
+    def UpdateLimb(self):
+
+        return 0
+
+    def ValidationValues(self):
+
+        return 0
+
+
+
+
+    """
     def add_item(self, key, subkey, value):
         if key not in self.data:
             self.data[key] = {}
@@ -108,9 +104,9 @@ class NestedDictionary:
 
     #this method will return file name and character name
     def get_general_info(self):
-        """
+        
         Returns the values of 'file' and 'char_name' under the 'general' key.
-        """
+        
         general_info = self.data.get('general', {})
         file_value = general_info.get('file', None)
         char_name = general_info.get('char_name', None)
@@ -118,13 +114,13 @@ class NestedDictionary:
 
     #this method will update the info values for the file name and character name
     def update_general_info(self, file_value=None, char_name=None):
-        """
+        
         Updates the 'file' and 'char_name' values under the 'general' key.
 
         Args:
             file_value (str): New value for 'file' (optional).
             char_name (str): New value for 'char_name' (optional).
-        """
+        
         if 'general' not in self.data:
             self.data['general'] = {}
 
@@ -132,3 +128,37 @@ class NestedDictionary:
             self.data['general']['file'] = file_value
         if char_name is not None:
             self.data['general']['char_name'] = char_name
+
+        ## here the rest of the nested structure 
+            'torso01': {
+                'general': {
+                'exist': True,
+                'parent': 'hip'
+                },'guide1': {
+                'position': [1, 0, 0],
+                'bone_ori': 'XYZ',
+                'parent': 'hip01',
+                'bone_name': 'spine01_BIND'
+                },'guide2': {
+                'position': [1, 0, 0],
+                'bone_ori': 'XYZ',
+                'parent': 'Guide1',
+                'bone_name': 'spine02_BIND'
+                }
+            },
+            'lfarm01': {
+                'general': {
+                    'exist': True,
+                    'parent': 'torso'
+                },
+                'subkey1': 'value3',
+                'subkey2': 'value4'
+            },
+            'rfarm01': {
+                'subkey1': 'value3',
+                'subkey2': 'value4'
+            },
+            'head01': {
+                'subkey1': 'value3',
+                'subkey2': 'value4'
+            }"""
