@@ -1,0 +1,41 @@
+{"torso01": { 
+        "general": {
+        "parent": "??"
+        },"guide1": {
+        "position": [1, 0, 0],
+        "bone_ori": "XYZ",
+        "parent": "hip01",
+        "bone_name": "spine01_BIND"
+        },"guide2": {
+        "position": [1, 0, 0],
+        "bone_ori": "XYZ",
+        "parent": "Guide1",
+        "bone_name": "spine02_BIND"
+        },"guide3": {
+        "position": [1, 0, 0],
+        "bone_ori": "XYZ",
+        "parent": "Guide2",
+        "bone_name": "chest01_BIND"
+        }
+    },"lfarm01": {
+        "general": {
+        "parent": "??"
+        },"guide1": {
+        "position": [1, 0, 0],
+        "bone_ori": "XYZ",
+        "parent": "hip01",
+        "bone_name": "spine01_BIND"
+        },
+        "guide2": {
+        "position": [1, 0, 0],
+        "bone_ori": "XYZ",
+        "parent": "Guide1",
+        "bone_name": "spine02_BIND"
+        },
+        "guide3": {
+        "position": [1, 0, 0],
+        "bone_ori": "XYZ",
+        "parent": "Guide2",
+        "bone_name": "chest01_BIND"
+        }
+    }}

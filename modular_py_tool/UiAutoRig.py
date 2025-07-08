@@ -4,15 +4,30 @@ import json
 
 import pyTool.modular_py_tool.auto_rig_fundation as fundation
 import pyTool.utilities as utili
+import pyTool.modular_py_tool.UiUtilities as uiutili
+import pyTool.modular_py_tool.FileClass as FileClass
 import importlib
 importlib.reload(fundation)
 importlib.reload(utili)
+importlib.reload(uiutili)
+importlib.reload(FileClass)
+
+
+
+global _nested_dict_instance
+_nested_dict_instance = FileClass.NestedDictionary()
+
 
 def check_global_dict():
-    return 'global_dict' in globals()
+    return '_nested_dict_instance' in globals()
 
-if check_global_dict():
-    global_dict = {}
+"""if check_global_dict():
+    del _global_instance
+else:"""
+
+
+
+print(_nested_dict_instance.PrintTest())
 
 
 
@@ -62,7 +77,7 @@ def lleg_ui(limb_name = None):
 
         cmds.button(label='{}'.format('Generate lleg Guide'), height=25, parent='selected_grid')
 
-def build_layout(option_menu = None,grid_layout = None,reload = None,limb_number = None):
+def build_layout(option_menu = None,grid_layout = None,reload = None,limb_number = 1):
 
     if cmds.layout('{}_layout'.format(option_menu), exists=True):
         # List all children of the layout
@@ -622,11 +637,11 @@ def build_data_frame(window, main_layout):
         if cmds.window("mySecondWindow", exists=True):
             cmds.deleteUI("mySecondWindow", window=True)
 
-        second_window = cmds.window("mySecondWindow", title="Second Window", widthHeight=(300, 150))
+        second_window = cmds.window("mySecondWindow", title="Second Window", widthHeight=(500, 150))
 
         main_layout2 = cmds.columnLayout(adjustableColumn=True)
 
-        data_frame_general_load_json_view = cmds.frameLayout(label='General parameters', width=500,
+        data_frame_general_load_json_view = cmds.frameLayout(label='General parameters'                                                        , width=500,
                                               collapsable=True, parent=main_layout2)
 
         json_load = cmds.rowColumnLayout(numberOfColumns=3,
@@ -642,14 +657,14 @@ def build_data_frame(window, main_layout):
         cmds.text(align='left', height=30, label='Plane Pos', parent=json_load)
         listPos_faceguides = cmds.textScrollList(numberOfRows=5, allowMultiSelection=False
                                                  , showIndexedItem=4, parent=json_load)
-        utili.file_manage(section_dir='base/', action='show', field=listPos_faceguides)
+        uiutili.file_manage( action='show', field=listPos_faceguides)
 
         listPos_faceguides_btn = cmds.gridLayout(numberOfColumns=1, cellWidthHeight=(150, 25), parent=json_load)
 
         cmds.button(label='load selected', parent=listPos_faceguides_btn)
         cmds.button(label='delete', parent=listPos_faceguides_btn)
         cmds.button(label='Refresh list', parent=listPos_faceguides_btn,
-                    command=lambda x: utili.file_manage(section_dir='base/', action='show', field=listPos_faceguides))
+                    command=lambda x: utili.file_manage( action='show', field=listPos_faceguides))
 
 
         cmds.button(label="Close", command=lambda *x: cmds.deleteUI("mySecondWindow", window=True))

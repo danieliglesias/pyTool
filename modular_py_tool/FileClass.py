@@ -5,12 +5,15 @@ class NestedDictionary:
     def __init__(self):
         #self.data = data
         self.data = {
-            'general':{
+            'general2':{
                 'file': 'Nombre Json Array',
                 'char_name': 'Character Name'
             }
 
         }
+    def PrintTest(self):
+
+        return list(self.data.keys())
 
     def LoadDictionary(self, filepath):
 

@@ -1,8 +1,9 @@
 import maya.cmds as cmds
 import pyTool.modular_py_tool.UiAutoRig as auto_rig_ui
 import pyTool.utilities as utili
+import pyTool.modular_py_tool.UiUtilities as uiutili
 import importlib
-from pyTool.modular_py_tool.utilities_dictionary import NestedDictionary as dict_utilities
+from pyTool.modular_py_tool.FileClass import NestedDictionary
 #from  pyTool.modular_py_tool.nested_dictionary import NestedDictionary as dict
 import os
 import json
@@ -10,8 +11,9 @@ import math
 import sys
 
 importlib.reload(auto_rig_ui)
-importlib.reload(utili)
-importlib.reload(dict)
+importlib.reload(utili)    
+importlib.reload(uiutili)
+importlib.reload(dict_utilities)
 
 
 auto_rig_ui.modular_ui()
@@ -19,8 +21,10 @@ auto_rig_ui.modular_ui()
 # Create an instance of the class
 nested_dict_instance = NestedDictionary()
 
-print(nested_dict_instance)
-print(nested_dict_instance.get_all_limb())
+del NestedDictionary
+
+print(dict_utilities)
+print(nested_dict_instance.PrintTest())
 
 sub_dict_key1 = nested_dict_instance.get_limb('torso01')
 print("Sub-dictionary for 'key1':", sub_dict_key1)
