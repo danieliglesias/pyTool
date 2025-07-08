@@ -34,7 +34,7 @@ def constructor_limb_selected(limb_selected=None):
 
 def lleg_ui(limb_name = None):
     clear_grid(grid='selected_grid')
-    print(limb_name)
+    print("entramos")
     if constructor_limb_selected('lleg') == False:
         data_row_lleg = cmds.rowColumnLayout(numberOfColumns=2,
                                             columnWidth=[(1, 100), (2, 400)],
@@ -201,10 +201,14 @@ def build_data_frame(window, main_layout):
 
     cmds.optionMenu(lleg_option_menu, e=True, cc=lambda *args: on_option_menu_change((lleg_option_menu.split('|')[-1]),cmds.optionMenu(lleg_option_menu, q=True, v=True)))
 
-    option_menu = cmds.optionMenu(label='rleg', parent=data_row_general_seg_03)
+    rleg_option_menu = cmds.optionMenu(label='rleg', parent=data_row_general_seg_03)
     cmds.menuItem(label="1")
     cmds.menuItem(label="2")
     cmds.menuItem(label="3")
+
+    cmds.optionMenu(rleg_option_menu, e=True, cc=lambda *args: on_option_menu_change((rleg_option_menu.split('|')[-1]),
+                                                                                     cmds.optionMenu(rleg_option_menu,
+                                                                                                     q=True, v=True)))
 
     option_menu = cmds.optionMenu(label='tail ', parent=data_row_general_seg_03)
     cmds.menuItem(label="1")
@@ -581,10 +585,10 @@ def build_data_frame(window, main_layout):
         for number in range(int_value):
             print('{}{:02d}'.format(group_value,number+1))
 
-    def generate_chain_guide(int_value=None, group_value=None):
+    """def generate_chain_guide(int_value=None, group_value=None):
 
         for number in range(int_value):
-            print('{}{:02d}'.format(group_value,number+1))
+            print('{}{:02d}'.format(group_value,number+1))"""
 
 
 

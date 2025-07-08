@@ -4,8 +4,6 @@ import pyTool.utilities as utili
 import importlib
 import pyTool.modular_py_tool.nested_dictionary as dict
 #from  pyTool.modular_py_tool.nested_dictionary import NestedDictionary as dict
-
-
 import os
 import json
 import math
