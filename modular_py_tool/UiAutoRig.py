@@ -3,13 +3,13 @@ import os
 import json
 
 import pyTool.modular_py_tool.auto_rig_fundation as fundation
-import pyTool.utilities as utili
-import pyTool.modular_py_tool.UiUtilities as uiutili
+#import pyTool.utilities as utili
+import pyTool.modular_py_tool.Utilities as utili
 import pyTool.modular_py_tool.FileClass as FileClass
+
 import importlib
 importlib.reload(fundation)
 importlib.reload(utili)
-importlib.reload(uiutili)
 importlib.reload(FileClass)
 
 
@@ -24,11 +24,6 @@ def check_global_dict():
 """if check_global_dict():
     del _global_instance
 else:"""
-
-
-
-print(_nested_dict_instance.PrintTest())
-
 
 
 def clear_grid(grid=None):
@@ -124,7 +119,8 @@ def create_button(option_menu,i):
         cmds.button('{}{}'.format(option_menu,i+1), label=vertical_label, height=75, parent='{}_layout'.format(option_menu),
                     command=lambda x: lleg_ui(limb_name='{}{}'.format(option_menu,i+1)))
 
-def on_option_menu_change(option_menu = None ,selected_value = None):
+def limb_option_menu_change( option_menu = None ,selected_value = None):
+
     build_layout(option_menu = option_menu,grid_layout='lleg_layout_frame', reload=True, limb_number=int(selected_value))
     """if option_menu == 'lleg':
         build_lleg_layout(leg_grid_layout='lleg_layout_frame', reload=True,limb_number = int(selected_value))
@@ -173,24 +169,13 @@ def build_data_frame(window, main_layout):
                                             parent=data_frame_general, rowSpacing=[1, 5])
     # File name
     cmds.text(align='center', height=30, label='Json name:', parent=data_row_general_seg_01)
-    general_name = cmds.textField(height=30, text='New json name...', parent=data_row_general_seg_01)
+    json_file_name = cmds.textField(height=30, text='New json name...', parent=data_row_general_seg_01)
 
     # Character name
     cmds.text(align='center', height=30, label='character name:', parent=data_row_general_seg_01)
-    general_name = cmds.textField(height=30, text='New name...', parent=data_row_general_seg_01)
+    char_name = cmds.textField(height=30, text='New name...', parent=data_row_general_seg_01)
 
 
-    ###########################################################
-
-    data_row_general_seg_01b = cmds.rowColumnLayout(numberOfColumns=3,
-                                                   columnWidth=[(1, 166.6), (2, 166.6),(3, 166.6)],
-                                                   columnOffset=[(1, 'both', 1), (2, 'both', 1), (3, 'both', 1)],
-                                                   columnAlign=[(1, 'center'), (2, 'center'), (3, 'center')],
-                                                   parent=data_frame_general, rowSpacing=[1, 1])
-
-    cmds.button(label='Load', parent=data_row_general_seg_01b,  command=lambda x: LoadJsonView())
-    cmds.button(label='Save', parent=data_row_general_seg_01b)
-    cmds.button(label='New', parent=data_row_general_seg_01b)
 
     ###########################################################
 
@@ -200,7 +185,17 @@ def build_data_frame(window, main_layout):
                                            columnAlign=[(1, 'left')],
                                            parent=data_frame_general, rowSpacing=[1,5])
     # Lets calculate the height of the character
-    cmds.button(label='Generate Height guide', parent=data_row_general_seg_02,command=lambda x: generate_height_guides())
+    cmds.button(label='FILE MANAGEMENT (Save,Load, Delete)', parent=data_row_general_seg_02, command=lambda x: ScrollListUi())
+    cmds.button(label='Generate Height guide', parent=data_row_general_seg_02,command=lambda x: utili.generate_height_guides())
+
+    type_rig_option_menu = option_menu = cmds.optionMenu(label='Type of rig', parent=data_row_general_seg_02)
+    cmds.menuItem(label="Select a option")
+    cmds.menuItem(label="Game")
+    cmds.menuItem(label="Cinematic")
+    cmds.menuItem(label="Other")
+    #this trigger a function call any time we change something in the option menu
+    cmds.optionMenu(type_rig_option_menu, e=True, cc=lambda *args: fundation.type_rig_option_menu_change(cmds.optionMenu(type_rig_option_menu,
+                                                                                                     q=True, v=True),cmds.textField(char_name, query=True, text=True)))
 
     data_row_general_seg_03 = cmds.rowColumnLayout(numberOfColumns=3,
                                                    columnWidth=[(1, 125), (2, 125), (3, 125), (4, 125)],
@@ -227,17 +222,17 @@ def build_data_frame(window, main_layout):
     cmds.menuItem(label="1")
     cmds.menuItem(label="2")
     cmds.menuItem(label="3")
+    # this trigger a function call any time we changge something in the option menu
+    cmds.optionMenu(lleg_option_menu, e=True, cc=lambda *args: limb_option_menu_change(
+        (lleg_option_menu.split('|')[-1]),cmds.optionMenu(lleg_option_menu, q=True, v=True)))
 
-
-
-    cmds.optionMenu(lleg_option_menu, e=True, cc=lambda *args: on_option_menu_change((lleg_option_menu.split('|')[-1]),cmds.optionMenu(lleg_option_menu, q=True, v=True)))
-
-    rleg_option_menu = cmds.optionMenu(label='rleg', parent=data_row_general_seg_03)
+    rleg_option_menu = cmds.optionMenu('rleg',label='rleg', parent=data_row_general_seg_03)
     cmds.menuItem(label="1")
     cmds.menuItem(label="2")
     cmds.menuItem(label="3")
 
-    cmds.optionMenu(rleg_option_menu, e=True, cc=lambda *args: on_option_menu_change((rleg_option_menu.split('|')[-1]),
+    # this trigger a function call any time we changge something in the option menu
+    cmds.optionMenu(rleg_option_menu, e=True, cc=lambda *args: limb_option_menu_change((rleg_option_menu.split('|')[-1]),
                                                                                      cmds.optionMenu(rleg_option_menu,
                                                                                                      q=True, v=True)))
 
@@ -411,30 +406,6 @@ def build_data_frame(window, main_layout):
     def check_global_dict():
         return "global_dict" in globals()
 
-    def generate_height_guides():
-        ### first we check to make sure that the unit scale in maya is the best one
-        linear_units = cmds.currentUnit(query=True, linear=True)
-        if linear_units != 'cm':
-            utili.errorMessage('Please change unit to centimeter')
-        else:
-            ### lets validate if guide already exist.
-            if cmds.objExists('height') == True:
-                utili.errorMessage('height guide already exist')
-            else:
-                ### if the scale is in centimeters then we create a distance tool, this will provide scale to controllers
-                distance_shape = cmds.distanceDimension(sp=(0, 0, 0), ep=(0, 2, 0))
-                transform_node = cmds.listRelatives(distance_shape, parent=True)[0]
-                locators = cmds.listConnections(distance_shape, type='locator')
-
-                cmds.rename(transform_node, 'heightDistance')
-                for i, loc in enumerate(locators):
-                    if i == 0:
-                        cmds.rename(loc, 'heightLocA')
-                    else:
-                        cmds.rename(loc, 'heightLocB')
-
-                emptyGrp = utili.createEmptyGroup(name='height')
-                [cmds.parent(object1, emptyGrp) for object1 in ('heightDistance', 'heightLocA', 'heightLocB')]
 
     def frame_collapse(button_name = None,frame = None):
 
@@ -548,7 +519,7 @@ def build_data_frame(window, main_layout):
                                                            columnAlign=[(1, 'left'), (2, 'center')],
                                                            parent='selected_grid', rowSpacing=[1, 5])
 
-            cmds.text(align='center', height=30, label='guide limb connection', parent=data_row_torso)
+            cmds.text(align='center', height=30, label='parent', parent=data_row_torso)
             hip_position = cmds.textField(height=30, text='hip01',
                                           parent=data_row_torso)  ### hip01 default connection to the body
 
@@ -567,8 +538,8 @@ def build_data_frame(window, main_layout):
             cmds.text(align='center', height=30, label='Function', parent=data_row_torso)
             torso_function = cmds.textField(height=30, text='BIND', parent=data_row_torso)
 
-            cmds.button(label='{}'.format('Generate Hip Guide'), height=25, parent='selected_grid',
-                command=lambda x: generate_chain_guide(int_field_name,torso_grp))
+            """cmds.button(label='{}'.format('Generate Hip Guide'), height=25, parent='selected_grid',
+                command=lambda x: generate_chain_guide(int_field_name,torso_grp))"""
 
 
 
@@ -633,7 +604,7 @@ def build_data_frame(window, main_layout):
         sub_dict = {}
 
 
-    def LoadJsonView(*args):
+    def ScrollListUi(*args):
         if cmds.window("mySecondWindow", exists=True):
             cmds.deleteUI("mySecondWindow", window=True)
 
@@ -641,31 +612,56 @@ def build_data_frame(window, main_layout):
 
         main_layout2 = cmds.columnLayout(adjustableColumn=True)
 
-        data_frame_general_load_json_view = cmds.frameLayout(label='General parameters'                                                        , width=500,
-                                              collapsable=True, parent=main_layout2)
-
         json_load = cmds.rowColumnLayout(numberOfColumns=3,
                                           columnWidth=[(1, 100), (2, 250), (3, 150)],
                                           columnOffset=[(1, 'both', 5), (2, 'both', 0),
                                                         (3, 'both', 5)],
                                           columnAlign=[(1, 'left'), (2, 'center'), (3, 'right')],
-                                          parent=data_frame_general_load_json_view, rowSpacing=[1, 5])
+                                          parent=main_layout2, rowSpacing=[1, 5])
         # guide load
-        char_name = cmds.textField(general_name, query=True, text=True)
+        ##char_name = cmds.textField(general_name, query=True, text=True)
 
         # load save position
         cmds.text(align='left', height=30, label='Plane Pos', parent=json_load)
-        listPos_faceguides = cmds.textScrollList(numberOfRows=5, allowMultiSelection=False
+        file_name = cmds.textScrollList(numberOfRows=5, allowMultiSelection=False
                                                  , showIndexedItem=4, parent=json_load)
-        uiutili.file_manage( action='show', field=listPos_faceguides)
+        utili.ScrollListFileManage( action='show', field=file_name)
 
-        listPos_faceguides_btn = cmds.gridLayout(numberOfColumns=1, cellWidthHeight=(150, 25), parent=json_load)
+        jsonload_btn_gridl = cmds.gridLayout(numberOfColumns=1, cellWidthHeight=(150, 25), parent=json_load)
 
-        cmds.button(label='load selected', parent=listPos_faceguides_btn)
-        cmds.button(label='delete', parent=listPos_faceguides_btn)
-        cmds.button(label='Refresh list', parent=listPos_faceguides_btn,
-                    command=lambda x: utili.file_manage( action='show', field=listPos_faceguides))
+        cmds.button(label='Load selected', parent=jsonload_btn_gridl, command=lambda x: _nested_dict_instance.LoadDictionary(file_name=file_name))
+        cmds.button(label='Delete', parent=jsonload_btn_gridl)
+        cmds.button(label='Save', parent=jsonload_btn_gridl, command=lambda x: _nested_dict_instance.SaveDictionary())
+        cmds.button(label='Refresh list', parent=jsonload_btn_gridl,
+                    command=lambda x: utili.file_manage( action='show', field=file_name))
 
 
         cmds.button(label="Close", command=lambda *x: cmds.deleteUI("mySecondWindow", window=True))
         cmds.showWindow(second_window)
+
+
+def NameInputUi(section_dir=None, dictionary=None):
+    if cmds.window('InputName', exists=True):
+        cmds.deleteUI('InputName')
+    InputName = cmds.window('InputName', title='Input file name', width=500, height=100)
+
+    data_frame_name_input = cmds.columnLayout(adjustableColumn=True)
+
+    data_row = cmds.rowColumnLayout(numberOfColumns=3,
+                                    columnWidth=[(1, 100), (2, 250), (3, 150)],
+                                    columnOffset=[(1, 'both', 5), (2, 'both', 0),
+                                                  (3, 'both', 5)],
+                                    columnAlign=[(1, 'left'), (2, 'center'), (3, 'right')],
+                                    parent=data_frame_name_input, rowSpacing=[1, 5])
+
+    cmds.text(align='center', height=30, label='File Name:', parent=data_row)
+    textfields = cmds.textField(height=30, parent=data_row)
+    cmds.button(label='Save position', height=30, parent=data_row,
+                command=lambda x: uiutili.ScrollListFileManage(section_dir=section_dir, action='write',
+                                                               field=textfields, dictionary=dictionary,
+                                                               windows=InputName))
+
+    nameInputWin2 = cmds.gridLayout(numberOfColumns=1, cellWidthHeight=(500, 40), parent=data_frame_name_input)
+    cmds.button(label='Close', height=40, parent=nameInputWin2, command=lambda x: cmds.deleteUI(InputName))
+
+    cmds.showWindow(InputName)

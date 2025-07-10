@@ -1,4 +1,7 @@
-{"torso01": { 
+{   "general":{
+		"file": "Nombre Json Array",
+		"char_name": "Character Name"
+    },"torso01": { 
         "general": {
         "parent": "??"
         },"guide1": {
@@ -38,4 +41,5 @@
         "parent": "Guide2",
         "bone_name": "chest01_BIND"
         }
-    }}
+    }
+}

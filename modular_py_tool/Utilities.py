@@ -1,0 +1,213 @@
+import maya.cmds as cmds
+import maya.mel as mel
+import math
+import json
+import sys
+import os
+import importlib
+import pyTool.utilities as utili
+importlib.reload(utili)
+
+def ScrollListFileManage(section_dir = None,action = None,field = None,dictionary = None,windows = None):
+    if sys.platform == 'darwin':
+        local = '/Users/danieliglesiasvalenzuela/Library/Preferences/Autodesk/maya/2022/prefs/scripts/pyTool/guide/{}'.format(section_dir)
+
+    else:
+        local = 'C:/Users/danie/Documents/maya/2022/scripts/pyTool/modular_py_tool/save/'
+
+    #####################################################################################################
+
+    if action == 'show':
+        list_to_show = os.listdir(local)
+        #return filter(lambda k: '.json' in k, list)
+        cmds.textScrollList(field, edit=True, removeAll=True)
+        cmds.textScrollList(field, edit=True, append=filter(lambda k: '.json' in k, list_to_show))
+
+    elif action == 'write':
+
+        name = cmds.textField(field, query=True, text=True)
+
+        print(name)
+        print(local)
+        print(section_dir)
+        with open('{}{}'.format(local, name), 'w') as outfile:
+            json.dump(dictionary, outfile)
+        cmds.deleteUI(windows)
+
+    """    elif action == 'load':
+        f = open(local)
+        data = json.load(f)
+        f.close()
+        return data"""
+
+
+def generate_height_guides():
+    ### first we check to make sure that the unit scale in maya is the best one
+    linear_units = cmds.currentUnit(query=True, linear=True)
+    if linear_units != 'cm':
+        utili.errorMessage('Please change unit to centimeter')
+    else:
+        ### lets validate if guide already exist.
+        if cmds.objExists('height') == True:
+            utili.errorMessage('height guide already exist')
+        else:
+            ### if the scale is in centimeters then we create a distance tool, this will provide scale to controllers
+            distance_shape = cmds.distanceDimension(sp=(0, 0, 0), ep=(0, 2, 0))
+            transform_node = cmds.listRelatives(distance_shape, parent=True)[0]
+            locators = cmds.listConnections(distance_shape, type='locator')
+            print(cmds.listConnections(distance_shape, type='distanceDimShape'))
+            cmds.rename(transform_node, 'heightDistance')
+            for i, loc in enumerate(locators):
+                if i == 0:
+                    cmds.rename(loc, 'heightLocA')
+                else:
+                    cmds.rename(loc, 'heightLocB')
+
+            emptyGrp = utili.createEmptyGroup(name='height')
+            [cmds.parent(object1, emptyGrp) for object1 in ('heightDistance', 'heightLocA', 'heightLocB')]
+
+
+
+def createController(name='controller',character_name = None, shape='circle', target = None, contraint_target=None, facing='x', offsetnumber=2,
+                          type='fk', size=1,side = 'l' , move = None):
+
+
+    char_height = cmds.getAttr('{}.distance'.format('heightDistanceShape'))
+    print(char_height)
+
+    ### target constraint
+    if not contraint_target:
+        contraint_target = target
+
+    ###FACING
+    if facing == 'x':
+        nr_value = (1, 0, 0)
+    elif facing == 'y':
+        nr_value = (0, 1, 0)
+    else:
+        nr_value = (0, 0, 1)
+    ###SHAPE
+    if shape == 'circle':
+        ctrl = cmds.circle(nr=nr_value, c=(0, 0, 0), r=size, name='{}_ctrl'.format(name))[0]
+    elif shape == 'square':
+        ctrl = cmds.circle(nr=nr_value, c=(0, 0, 0), r=size, sections=4, degree=1, name='{}_ctrl'.format(name))[0]
+    elif shape == 'sphere':
+        ctrl = cmds.circle(nr=(0, 0, 1), c=(0, 0, 0), r=size, name='{}_ctrl'.format(name))[0]
+        shape02 = cmds.listHistory(cmds.circle(nr=(0, 1, 0), c=(0, 0, 0), r=size, name='Cicle_02_shape')[0])[0]
+        shape03 = cmds.listHistory(cmds.circle(nr=(1, 0, 0), c=(0, 0, 0), r=size, name='Cicle_03_shape')[0])[0]
+        list = (ctrl, shape02, shape03)
+        cmds.parent(list[1:], list[0], relative=True, shape=True)
+        cmds.delete('Cicle_*_shape')
+    elif shape == 'eyefk':
+        size = 0.5
+        ctrl = cmds.curve(p=[(0, 0, 0), (0, 0, 5), (0, 0, 10), (0, 0, 15), (0, 0, 20)], k=[0, 0, 0, 1, 2, 2, 2],
+                          name='{}_ctrl'.format(name))
+        # ctrl = cmds.circle(nr=(0, 0, 1), c=(0, 0, 0), r=size, name='{}_ctrl'.format(name))[0]
+        circle01 = cmds.circle(nr=(0, 0, 1), c=(0, 0, 0), r=size, name='Cicle_01_shape')[0]
+        circle02 = cmds.circle(nr=(0, 1, 0), c=(0, 0, 0), r=size, name='Cicle_02_shape')[0]
+        circle03 = cmds.circle(nr=(1, 0, 0), c=(0, 0, 0), r=size, name='Cicle_03_shape')[0]
+        shape01 = cmds.listHistory(circle01)[0]
+        shape02 = cmds.listHistory(circle02)[0]
+        shape03 = cmds.listHistory(circle03)[0]
+
+        cmds.setAttr('{}.centerZ'.format(cmds.listHistory(circle01)[1]), 20)
+        cmds.setAttr('{}.centerZ'.format(cmds.listHistory(circle02)[1]), 20)
+        cmds.setAttr('{}.centerZ'.format(cmds.listHistory(circle03)[1]), 20)
+
+        list = (ctrl, shape01, shape02, shape03)
+        cmds.parent(list[1:], list[0], relative=True, shape=True)
+        cmds.delete('Cicle_*_shape')
+    else:
+        ctrl = cmds.circle(nr=nr_value, c=(0, 0, 0), r=size, name='{}_ctrl'.format(name))[0]
+
+    ###GROUP
+    if offsetnumber == 3:
+        off = cmds.group(ctrl, name='{}_off'.format(ctrl))
+        constrain = cmds.group(off, name='{}_constrain'.format(off))
+    else:
+        #changed to our own function to keep center pivot on the group
+        #off = cmds.group(ctrl, name='{}_off'.format(ctrl))
+        off = groupObject(object='{}'.format(ctrl), offset=2)
+
+
+    ###MOVE
+    if move:
+        cmds.move(move[0], move[1], move[2], '{}.cv[0:7]'.format(ctrl), r=True, os=True, wd=True)
+
+
+    ###GROUP
+    if target and offsetnumber == 3:
+        cmds.delete(cmds.parentConstraint(target, constrain))
+    elif target and offsetnumber == 2:
+        cmds.delete(cmds.parentConstraint(target, off))
+    #target_pos = cmds.xform(target, t=True, ws=True, q=True)
+    #cmds.xform(moving, t=(target_pos[0], target_pos[1], target_pos[2]))
+
+
+
+
+    ###TYPE
+    if type == 'simple':  # WE SHOULD JUST PARENT CONTRAINT WITH THE TARGET
+        print('simple')
+
+    if type == 'fk':  # WE SHOULD JUST PARENT CONTRAINT WITH THE TARGET
+        print('entramos a FK')
+        cmds.parentConstraint(ctrl,target)
+
+    elif type == 'ik_pole':  # POINT CONSTRAINT FOR THE END
+        cmds.delete(cmds.parentConstraint(ctrl, target))
+        cmds.poleVectorConstraint(ctrl, contraint_target)
+
+    elif type == 'ik_point':  # POINT CONSTRAINT FOR THE END
+        cmds.delete(cmds.parentConstraint(ctrl, target))
+        cmds.pointConstraint(ctrl, contraint_target)
+
+
+    #face should be always 3 off set numbers
+    elif type == 'face':  # SUBSTRACT CONTROLLER TO THE OFF
+        if target:
+            cmds.parentConstraint(ctrl, target)
+        # we want to substract the movement of this controller so me can keep the ctl on position.
+        multiplyDivideOff = cmds.createNode('multiplyDivide', n='{}_multiplyDivide'.format(ctrl))
+
+        for x in 'XYZ':
+            cmds.setAttr('{}.input2{}'.format(multiplyDivideOff, x), -1)
+
+        cmds.connectAttr('{}.translate'.format(ctrl), '{}.input1'.format(multiplyDivideOff), force=True)
+        cmds.connectAttr('{}.output'.format(multiplyDivideOff), '{}.translate'.format(off), force=True)
+
+        #here we flip the position of the controller
+        if '_r_' in name:
+            cmds.setAttr('{}_constrain.scaleZ'.format(off), -1)
+
+
+    elif type == 'eye_target':
+        ### converge eyes system
+        cmds.addAttr(ctrl, longName='converge', defaultValue=0, minValue=0, maxValue=1, keyable=1)
+        cmds.addAttr(ctrl, longName='space', at='enum', en='local:world:', keyable=1)
+
+        jntPos = cmds.xform(target[0], t=True, ws=True, q=True)
+        cmds.xform(off, t=(0, jntPos[1], jntPos[2] + 10))
+
+        #here we spect a list for target for the left and right side
+        for emptyGrp in target:
+
+            remapNode = cmds.createNode('remapValue', n='{}_remapValue'.format(emptyGrp))
+            cmds.setAttr('{}.inputMin'.format(remapNode), 1)
+            cmds.setAttr('{}.inputMax'.format(remapNode), 0)
+            cmds.setAttr('{}.outputMin'.format(remapNode), 0)
+
+            if '_r_' in emptyGrp:
+                rjntPos = cmds.xform('{}_r_eyesock_jnt'.format(character_name), t=True, ws=True, q=True)
+                cmds.setAttr('{}.outputMax'.format(remapNode), rjntPos[0])
+            if '_l_' in emptyGrp:
+                ljntPos = cmds.xform('{}_l_eyesock_jnt'.format(character_name), t=True, ws=True, q=True)
+                cmds.setAttr('{}.outputMax'.format(remapNode), ljntPos[0])
+
+            cmds.connectAttr('{}.converge'.format(ctrl), '{}.inputValue'.format(remapNode))
+            cmds.connectAttr('{}.outValue'.format(remapNode), '{}.translateX'.format(emptyGrp))
+
+
+
+
+    return ctrl

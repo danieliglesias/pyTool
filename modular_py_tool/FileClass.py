@@ -1,11 +1,19 @@
+import maya.cmds as cmds
 import json
 import os
+
+#import pyTool.utilities as utili
+import pyTool.modular_py_tool.UiAutoRig as UiAutoRig
+import pyTool.modular_py_tool.Utilities as utili
+import importlib
+importlib.reload(utili)
+importlib.reload(UiAutoRig)
 
 class NestedDictionary:
     def __init__(self):
         #self.data = data
         self.data = {
-            'general2':{
+            'general':{
                 'file': 'Nombre Json Array',
                 'char_name': 'Character Name'
             }
@@ -15,14 +23,70 @@ class NestedDictionary:
 
         return list(self.data.keys())
 
-    def LoadDictionary(self, filepath):
+    def LoadDictionary(self, file_name):
+
+        file_name = cmds.textScrollList(file_name, q=1, si=1)
+        if not file_name:
+            utili.errorMessage('nothing was selected')
+            cmds.error('nothing was selected')
+
+        elif len(file_name) > 1:
+            utili.errorMessage('More than one object selected')
+            cmds.error('More than one object selected')
+        else:
+            #face.load_mainstructure_guide(file_name=file_name)
+            f = open('C:/Users/danie/Documents/maya/2022/scripts/pyTool/modular_py_tool/save/{}'.format(file_name[0]))
+            loaded_dict = {}
+            loaded_dict = json.load(f)
+
+            for key,value in loaded_dict.items():
+
+                self.data[key] = value
+
+            #print(self.data['torso01'].values())
+
+            #keys = list(self.data['torso01'].keys())
+            keys = [k for k in self.data['torso01'] if k != 'general']
+
+            for item in keys:
+                print(item)
+                print(self.data['torso01'][item]['position'])
+            """
+                if item != 'general':
+                    del loaded_dict[item]
+            print(loaded_dict)"""
+
+        """print(filename)
 
         f = open('C:/Users/danie/Desktop/Rigging/python_tool/test.json')
+
+        try:
+            with open(filename, 'r') as json_file:
+                self.data = json.load(json_file)
+            print('Data loaded from {}'.format(filename))
+        except Exception as e:
+            print('Error loading from JSON: {}'.format(e))"""
+
+
+    def SaveDictionary(self):
+
+        directory = 'C:/Users/danie/Documents/maya/2022/scripts/pyTool/modular_py_tool/save/'
+        UiAutoRig.NameInputUi(section_dir=directory, dictionary=self.data)
+        ##utili.errorMessage('Make sure that the selection is in hierarchy order from parent to children')
+
+    def GuideNumber(self, limb_name = 'torso01'):
+
+        keys = [k for k in self.data['torso01'] if k != 'general']
+
+
+        for item in keys:
+            print(keys)
+            print(self.data['torso01'][keys]['position'])
+
+
+    def GuidePositioner(self):
         return 0
-
-    def SaveDictionary(self, filepath):
-
-        f = open('C:/Users/danie/Desktop/Rigging/python_tool/test.json')
+    def JntCreation(self):
         return 0
 
     def AddLimb(self):
