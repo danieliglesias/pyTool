@@ -5,8 +5,6 @@ import json
 import sys
 import os
 import importlib
-import pyTool.utilities as utili
-importlib.reload(utili)
 
 def ScrollListFileManage(section_dir = None,action = None,field = None,dictionary = None,windows = None):
     if sys.platform == 'darwin':
@@ -45,11 +43,11 @@ def generate_height_guides():
     ### first we check to make sure that the unit scale in maya is the best one
     linear_units = cmds.currentUnit(query=True, linear=True)
     if linear_units != 'cm':
-        utili.errorMessage('Please change unit to centimeter')
+        errorMessage('Please change unit to centimeter')
     else:
         ### lets validate if guide already exist.
         if cmds.objExists('height') == True:
-            utili.errorMessage('height guide already exist')
+            errorMessage('height guide already exist')
         else:
             ### if the scale is in centimeters then we create a distance tool, this will provide scale to controllers
             distance_shape = cmds.distanceDimension(sp=(0, 0, 0), ep=(0, 2, 0))
@@ -63,7 +61,7 @@ def generate_height_guides():
                 else:
                     cmds.rename(loc, 'heightLocB')
 
-            emptyGrp = utili.createEmptyGroup(name='height')
+            emptyGrp = createEmptyGroup(name='height')
             [cmds.parent(object1, emptyGrp) for object1 in ('heightDistance', 'heightLocA', 'heightLocB')]
 
 
@@ -74,6 +72,9 @@ def createController(name='controller',character_name = None, shape='circle', ta
 
     char_height = cmds.getAttr('{}.distance'.format('heightDistanceShape'))
     print(char_height)
+    if size == 'root':
+        dynamic_size = char_height / 3
+
 
     ### target constraint
     if not contraint_target:
@@ -88,13 +89,13 @@ def createController(name='controller',character_name = None, shape='circle', ta
         nr_value = (0, 0, 1)
     ###SHAPE
     if shape == 'circle':
-        ctrl = cmds.circle(nr=nr_value, c=(0, 0, 0), r=size, name='{}_ctrl'.format(name))[0]
+        ctrl = cmds.circle(nr=nr_value, c=(0, 0, 0), r=dynamic_size, name='{}_ctrl'.format(name))[0]
     elif shape == 'square':
-        ctrl = cmds.circle(nr=nr_value, c=(0, 0, 0), r=size, sections=4, degree=1, name='{}_ctrl'.format(name))[0]
+        ctrl = cmds.circle(nr=nr_value, c=(0, 0, 0), r=dynamic_size, sections=4, degree=1, name='{}_ctrl'.format(name))[0]
     elif shape == 'sphere':
-        ctrl = cmds.circle(nr=(0, 0, 1), c=(0, 0, 0), r=size, name='{}_ctrl'.format(name))[0]
-        shape02 = cmds.listHistory(cmds.circle(nr=(0, 1, 0), c=(0, 0, 0), r=size, name='Cicle_02_shape')[0])[0]
-        shape03 = cmds.listHistory(cmds.circle(nr=(1, 0, 0), c=(0, 0, 0), r=size, name='Cicle_03_shape')[0])[0]
+        ctrl = cmds.circle(nr=(0, 0, 1), c=(0, 0, 0), r=dynamic_size, name='{}_ctrl'.format(name))[0]
+        shape02 = cmds.listHistory(cmds.circle(nr=(0, 1, 0), c=(0, 0, 0), r=dynamic_size, name='Cicle_02_shape')[0])[0]
+        shape03 = cmds.listHistory(cmds.circle(nr=(1, 0, 0), c=(0, 0, 0), r=dynamic_size, name='Cicle_03_shape')[0])[0]
         list = (ctrl, shape02, shape03)
         cmds.parent(list[1:], list[0], relative=True, shape=True)
         cmds.delete('Cicle_*_shape')
@@ -103,9 +104,9 @@ def createController(name='controller',character_name = None, shape='circle', ta
         ctrl = cmds.curve(p=[(0, 0, 0), (0, 0, 5), (0, 0, 10), (0, 0, 15), (0, 0, 20)], k=[0, 0, 0, 1, 2, 2, 2],
                           name='{}_ctrl'.format(name))
         # ctrl = cmds.circle(nr=(0, 0, 1), c=(0, 0, 0), r=size, name='{}_ctrl'.format(name))[0]
-        circle01 = cmds.circle(nr=(0, 0, 1), c=(0, 0, 0), r=size, name='Cicle_01_shape')[0]
-        circle02 = cmds.circle(nr=(0, 1, 0), c=(0, 0, 0), r=size, name='Cicle_02_shape')[0]
-        circle03 = cmds.circle(nr=(1, 0, 0), c=(0, 0, 0), r=size, name='Cicle_03_shape')[0]
+        circle01 = cmds.circle(nr=(0, 0, 1), c=(0, 0, 0), r=dynamic_size, name='Cicle_01_shape')[0]
+        circle02 = cmds.circle(nr=(0, 1, 0), c=(0, 0, 0), r=dynamic_size, name='Cicle_02_shape')[0]
+        circle03 = cmds.circle(nr=(1, 0, 0), c=(0, 0, 0), r=dynamic_size, name='Cicle_03_shape')[0]
         shape01 = cmds.listHistory(circle01)[0]
         shape02 = cmds.listHistory(circle02)[0]
         shape03 = cmds.listHistory(circle03)[0]
@@ -122,12 +123,12 @@ def createController(name='controller',character_name = None, shape='circle', ta
 
     ###GROUP
     if offsetnumber == 3:
-        off = cmds.group(ctrl, name='{}_off'.format(ctrl))
+        off = cmds.group(ctrl, name='{}_off'.format(name))
         constrain = cmds.group(off, name='{}_constrain'.format(off))
     else:
         #changed to our own function to keep center pivot on the group
         #off = cmds.group(ctrl, name='{}_off'.format(ctrl))
-        off = groupObject(object='{}'.format(ctrl), offset=2)
+            off = cmds.group(ctrl, name='{}_off'.format(name))
 
 
     ###MOVE
@@ -207,7 +208,34 @@ def createController(name='controller',character_name = None, shape='circle', ta
             cmds.connectAttr('{}.converge'.format(ctrl), '{}.inputValue'.format(remapNode))
             cmds.connectAttr('{}.outValue'.format(remapNode), '{}.translateX'.format(emptyGrp))
 
-
-
-
     return ctrl
+
+def errorMessage(message = None):
+
+    if  not message:
+        cmds.error('for utilities.error() you most provide a message')
+    if cmds.window('ErrorMessage', exists=True):
+        cmds.deleteUI('ErrorMessage')
+    window_error = cmds.window('Error message', title='Error message', width=500)
+
+    grid_layouteyebrow = cmds.gridLayout(numberOfColumns=1, cellWidthHeight=(500, 40))
+
+    cmds.text(align='center', height=30, label= message , font = 'boldLabelFont', parent=grid_layouteyebrow)
+
+    cmds.button(label='Close', height=40, parent=grid_layouteyebrow,
+                command=lambda x: cmds.deleteUI(window_error)
+                )
+
+    cmds.showWindow(window_error)
+
+"""def groupObject(object=None, offset=2):
+    empty_grp =createEmptyGroup(name='{}_off'.format(object))
+    cmds.parent( object,empty_grp)
+    #off = cmds.group(object, name='{}_off'.format(object), relative = True)
+    return empty_grp
+"""
+
+def createEmptyGroup(name=None):
+    emptygroup = cmds.spaceLocator(absolute=True, name=name)[0]
+    cmds.delete('{}Shape'.format(emptygroup))
+    return emptygroup

@@ -46,17 +46,30 @@ def lleg_ui(limb_name = None):
     clear_grid(grid='selected_grid')
     print("entramos")
     if constructor_limb_selected('lleg') == False:
+
+        type_foot_option_menu = cmds.optionMenu(label='Preset leg', parent='selected_grid')
+        cmds.menuItem(label="Select a option")
+        cmds.menuItem(label="Plantigrade(biped)")
+        cmds.menuItem(label="Digitigrade(Dog)")
+        cmds.menuItem(label="Ungualigrade(horses)")
+        cmds.menuItem(label="Invertebrate(Spider)")
+
+        cmds.checkBoxGrp('leg_ik_fk_flag', numberOfCheckBoxes=2, label='IK/FK',
+                         labelArray2=['BOTH', 'FK'], parent='selected_grid')
+
+        cmds.checkBoxGrp('leg_foot_flag', numberOfCheckBoxes=2, label='Foot?',
+                         labelArray2=['Yes', 'No'], parent='selected_grid')
+
         data_row_lleg = cmds.rowColumnLayout(numberOfColumns=2,
                                             columnWidth=[(1, 100), (2, 400)],
                                             columnOffset=[(1, 'left', 5), (2, 'both', 5)],
                                             columnAlign=[(1, 'left'), (2, 'center')],
                                             parent='selected_grid', rowSpacing=[1, 5])
 
-        cmds.checkBoxGrp('root_jnt', numberOfCheckBoxes=2, label='Root Jnt (Game)',
-                         labelArray2=['YES', 'NO'], parent='selected_grid')
+
 
         cmds.text(align='center', height=30, label='guide limb connection', parent=data_row_lleg)
-        hip_position = cmds.textField(height=30, text='chest01', parent=data_row_lleg) ### chest01 default connection to the body
+        hip_position = cmds.textField(height=30, text='C_COG_BIND_jnt', parent=data_row_lleg) ### chest01 default connection to the body
 
         cmds.text(align='center', height=30, label='limb_name', parent=data_row_lleg)
         hip_position = cmds.textField(height=30, text='{}'.format(limb_name), parent=data_row_lleg, enable = False)
@@ -69,6 +82,8 @@ def lleg_ui(limb_name = None):
 
         cmds.text(align='center', height=30, label='Function', parent=data_row_lleg)
         hip_function = cmds.textField(height=30, text='BIND', parent=data_row_lleg)
+
+
 
         cmds.button(label='{}'.format('Generate lleg Guide'), height=25, parent='selected_grid')
 
@@ -169,11 +184,11 @@ def build_data_frame(window, main_layout):
                                             parent=data_frame_general, rowSpacing=[1, 5])
     # File name
     cmds.text(align='center', height=30, label='Json name:', parent=data_row_general_seg_01)
-    json_file_name = cmds.textField(height=30, text='New json name...', parent=data_row_general_seg_01)
+    json_file_name = cmds.textField(height=30, text='file name', parent=data_row_general_seg_01)
 
     # Character name
     cmds.text(align='center', height=30, label='character name:', parent=data_row_general_seg_01)
-    char_name = cmds.textField(height=30, text='New name...', parent=data_row_general_seg_01)
+    char_name = cmds.textField(height=30, text='', parent=data_row_general_seg_01)
 
 
 
@@ -391,7 +406,7 @@ def build_data_frame(window, main_layout):
                                             columnAlign=[(1, 'left')],
                                             parent=data_frame_selected, rowSpacing=[1, 5])
 
-    cmds.button(label='Name', height=25, parent=selected_grid_layout)
+    #cmds.button(label='Name', height=25, parent=selected_grid_layout)
 
 
     #=================================================================================================================================
@@ -432,38 +447,22 @@ def build_data_frame(window, main_layout):
         if constructor_limb_selected('hip') == False:
 
             data_row_hip = cmds.rowColumnLayout(numberOfColumns=2,
-                                                columnWidth=[(1, 100), (2, 400)],
-                                                columnOffset=[(1, 'left', 5), (2, 'both', 5)],
-                                                columnAlign=[(1, 'left'), (2, 'center')],
+                                                columnWidth=[(1, 400), (2, 100)],
+                                                columnOffset=[(1, 'both', 5), (2, 'both', 5)],
+                                                columnAlign=[(1, 'center'), (2, 'center')],
                                                 parent='selected_grid', rowSpacing=[1, 5])
 
-            cmds.text(align='center', height=30, label='guide limb connection', parent=data_row_hip)
-            hip_position = cmds.textField(height=30, text='???',
-                                          parent=data_row_hip)  ### root01 default connection to the body
-
-            """cmds.checkBoxGrp('root_jnt', numberOfCheckBoxes=2, label='Root Jnt (Game)',
-                             labelArray2=[True, False], parent='selected_grid')"""
-
-            isForGame = cmds.optionMenu(label='Root Jnt (Game)', parent='selected_grid')
-            cmds.menuItem(label=True)
-            cmds.menuItem(label=False)
 
 
-            cmds.text(align='center', height=30, label='group name', parent=data_row_hip)
-            root_grp = cmds.textField(height=30, text='root', parent=data_row_hip)
+            cmds.button(label='{}'.format('Generate COG Guide'), height=25, parent=data_row_hip,
+                command=lambda x: controller_hip_guide())
+            cmds.button(label='{}'.format('Save'), height=25, parent=data_row_hip)
+
+            cmds.button(label='{}'.format('Generate Jnt Guide'), height=25, parent=data_row_hip,
+                        command=lambda x: controller_hip_guide())
+            cmds.button(label='{}'.format('Save'), height=25, parent=data_row_hip)
 
 
-            cmds.text(align='center', height=30, label='position', parent=data_row_hip)
-            hip_position = cmds.textField(height=30, text='C', parent=data_row_hip)
-
-            cmds.text(align='center', height=30, label='Body part', parent=data_row_hip)
-            hip_bodypart = cmds.textField(height=30, text='hip', parent=data_row_hip)
-
-            cmds.text(align='center', height=30, label='Function', parent=data_row_hip)
-            hip_function = cmds.textField(height=30, text='BIND', parent=data_row_hip)
-
-            cmds.button(label='{}'.format('Generate Hip Guide'), height=25, parent='selected_grid',
-                command=lambda x: controller_hip_guide(root_grp = root_grp, isForGame = isForGame))
 
     def controller_hip_guide(root_grp = None , isForGame = None):
 
@@ -515,58 +514,50 @@ def build_data_frame(window, main_layout):
 
             data_row_torso = cmds.rowColumnLayout(numberOfColumns=2,
                                                            columnWidth=[(1, 100), (2, 400)],
-                                                           columnOffset=[(1, 'left', 5), (2, 'both', 5)],
-                                                           columnAlign=[(1, 'left'), (2, 'center')],
+                                                           columnOffset=[(1, 'both', 5), (2, 'both', 5)],
+                                                           columnAlign=[(1, 'center'), (2, 'center')],
                                                            parent='selected_grid', rowSpacing=[1, 5])
 
-            cmds.text(align='center', height=30, label='parent', parent=data_row_torso)
-            hip_position = cmds.textField(height=30, text='hip01',
-                                          parent=data_row_torso)  ### hip01 default connection to the body
+
 
             cmds.text(align='center', height=30, label='number of spine:', parent=data_row_torso)
-            int_field_name = cmds.intField(minValue=3, maxValue=5, value=3, parent=data_row_torso )
+            #cmds.text(align='center', height=30, label='number of spine:', parent=data_row_torso)
+            int_field_name = cmds.intField(minValue=3, maxValue=5, value=3,step=1, parent=data_row_torso )
 
-            cmds.text(align='center', height=30, label='group name', parent=data_row_torso)
-            torso_grp = cmds.textField(height=30, text='torso', parent=data_row_torso)
-
-            cmds.text(align='center', height=30, label='position', parent=data_row_torso)
-            torso_position = cmds.textField(height=30, text='C', parent=data_row_torso)
-
-            cmds.text(align='center', height=30, label='Body part', parent=data_row_torso)
-            torso_bodypart = cmds.textField(height=30, text='torso', parent=data_row_torso)
-
-            cmds.text(align='center', height=30, label='Function', parent=data_row_torso)
-            torso_function = cmds.textField(height=30, text='BIND', parent=data_row_torso)
-
-            """cmds.button(label='{}'.format('Generate Hip Guide'), height=25, parent='selected_grid',
-                command=lambda x: generate_chain_guide(int_field_name,torso_grp))"""
-
-
-
-            data_row_torso02 = cmds.rowColumnLayout(numberOfColumns=2,
-                                                  columnWidth=[(1, 100), (2, 400)],
-                                                  columnOffset=[(1, 'left', 5), (2, 'both', 5)],
-                                                  columnAlign=[(1, 'left'), (2, 'center')],
+            data_row_torso01 = cmds.rowColumnLayout(numberOfColumns=2,
+                                                  columnWidth=[(1, 400), (2, 100)],
+                                                  columnOffset=[(1, 'both', 5), (2, 'both', 5)],
+                                                  columnAlign=[(1, 'center'), (2, 'center')],
                                                   parent='selected_grid', rowSpacing=[1, 5])
 
 
 
+            cmds.button(label='{}'.format('Generate torso Guides'), height=25, parent=data_row_torso01)
+            cmds.button(label='{}'.format('Update'), height=25, parent=data_row_torso01)
 
-            cmds.button(label='{}'.format('Generate torso jnt'), height=25, parent='selected_grid',
-                        command=lambda x: generate_chain_guide(int_field_name))
+            cmds.button(label='{}'.format('Generate torso jnt'), height=25, parent=data_row_torso01)
+            cmds.button(label='{}'.format('Update'), height=25, parent=data_row_torso01)
+
+            data_row_torso02 = cmds.rowColumnLayout(numberOfColumns=1,
+                                                    columnWidth=[(1, 500)],
+                                                    #columnOffset=[(1, 'left', 5), (2, 'both', 5)],
+                                                    columnAlign=[(1, 'center')],
+                                                    parent='selected_grid', rowSpacing=[1, 5])
 
 
 
-            option_menu = cmds.optionMenu(label="Select jnt orientation",parent='selected_grid')
+
+
+
+            option_menu = cmds.optionMenu(label="Select jnt orientation",parent=data_row_torso02)
             cmds.menuItem(label="Option 1")
             cmds.menuItem(label="Option 2")
             cmds.menuItem(label="Option 3")
 
-            cmds.button(label='{}'.format('change jnt orientation'), height=25, parent='selected_grid',
-                        command=lambda x: generate_chain_guide(int_field_name))
+            cmds.button(label='{}'.format('change jnt orientation'), height=25, parent=data_row_torso02)
 
-            cmds.checkBoxGrp('ctrl_level', numberOfCheckBoxes=3, label='Control level',
-                             labelArray3=['FK', 'FK/IK', 'TBA'], parent='selected_grid')
+            cmds.checkBoxGrp('ctrl_level', numberOfCheckBoxes=2, label='IK/FK',
+                             labelArray2=['Both', 'FK'], parent=data_row_torso02)
 
             data_row_torso03 = cmds.rowColumnLayout(numberOfColumns=2,
                                                     columnWidth=[(1, 100), (2, 400)],
@@ -577,8 +568,7 @@ def build_data_frame(window, main_layout):
             cmds.text(label="Pick a color:", parent=data_row_torso03)
             color_slider = cmds.colorSliderGrp(label="Color", rgb=(1.0, 0.0, 0.0), parent=data_row_torso03)
 
-            cmds.button(label='{}'.format('Generate controller'), height=25, parent='selected_grid',
-                        command=lambda x: generate_chain_guide(int_field_name))
+            cmds.button(label='{}'.format('Generate controller'), height=25, parent='selected_grid')
 
 
     def generate_chain_guide(name_field = None,torso_grp = None):
@@ -657,7 +647,7 @@ def NameInputUi(section_dir=None, dictionary=None):
     cmds.text(align='center', height=30, label='File Name:', parent=data_row)
     textfields = cmds.textField(height=30, parent=data_row)
     cmds.button(label='Save position', height=30, parent=data_row,
-                command=lambda x: uiutili.ScrollListFileManage(section_dir=section_dir, action='write',
+                command=lambda x: utili.ScrollListFileManage(section_dir=section_dir, action='write',
                                                                field=textfields, dictionary=dictionary,
                                                                windows=InputName))
 
