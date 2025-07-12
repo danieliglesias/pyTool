@@ -84,5 +84,6 @@ def controller_torso_guide():
     setAttr ($torsoGuide[0]+".overrideColor") 4;
     rename $torsoGuide[0] ("skips02_c_curve02_guide");
     """
+    ## commment
 
 
