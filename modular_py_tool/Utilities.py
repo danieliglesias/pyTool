@@ -8,10 +8,10 @@ import importlib
 
 def ScrollListFileManage(section_dir = None,action = None,field = None,dictionary = None,windows = None):
     if sys.platform == 'darwin':
-        local = '/Users/danieliglesiasvalenzuela/Library/Preferences/Autodesk/maya/2022/prefs/scripts/pyTool/guide/{}'.format(section_dir)
+        local = '/Users/danieliglesiasvalenzuela/Library/Preferences/Autodesk/maya/2026/prefs/scripts/pyTool/guide/{}'.format(section_dir)
 
     else:
-        local = 'C:/Users/danie/Documents/maya/2022/scripts/pyTool/modular_py_tool/save/'
+        local = 'C:/Users/danie/Documents/maya/2026/scripts/pyTool/modular_py_tool/save/'
 
     #####################################################################################################
 
@@ -239,3 +239,47 @@ def createEmptyGroup(name=None):
     emptygroup = cmds.spaceLocator(absolute=True, name=name)[0]
     cmds.delete('{}Shape'.format(emptygroup))
     return emptygroup
+
+"""
+def create_shader_guide():
+    shader_name = "shader_guide"
+
+    # Check if the shader already exists
+    if cmds.objExists(shader_name):
+        return shader_name  # Return the name if it already exists
+
+    # Create the Lambert shader
+    material_name = cmds.shadingNode('lambert', asShader=True)
+    print(material_name)
+    cmds.rename(material_name, shader_name)
+
+    # Set the color of the shader
+    cmds.setAttr(f"{shader_name}.color", 1, 0.3921, 0.4232, type="double3")  # Specific color
+
+    return shader_name  # Return the name of the newly created shader"""
+
+def create_shader_guide():
+    shader_name = "shader_guide"
+    shading_group_name = "shader_guideSG"
+
+    if cmds.objExists(shader_name) and cmds.objExists(shading_group_name):
+        return shader_name, shading_group_name
+
+    # Create the shader
+    shader = cmds.shadingNode('lambert', asShader=True, name=shader_name)
+
+    # Create the shading group and connect the shader to it
+    shading_group = cmds.sets(renderable=True, noSurfaceShader=True, empty=True, name=shading_group_name)
+    cmds.connectAttr(f"{shader}.outColor", f"{shading_group}.surfaceShader", force=True)
+
+    # Set the color
+    cmds.setAttr(f"{shader}.color", 1, 0.3921, 0.4232, type="double3")
+
+    return shader, shading_group
+
+def get_midpoint(position1=None, position2=None):
+
+    Xaxis = (cmds.getAttr('{}.translateX'.format(position1)) + cmds.getAttr('{}.translateX'.format(position2))) / 2
+    Yaxis = (cmds.getAttr('{}.translateY'.format(position1)) + cmds.getAttr('{}.translateY'.format(position2))) / 2
+    Zaxis = (cmds.getAttr('{}.translateZ'.format(position1)) + cmds.getAttr('{}.translateZ'.format(position2))) / 2
+    return [Xaxis, Yaxis, Zaxis]

@@ -35,7 +35,7 @@ class NestedDictionary:
             cmds.error('More than one object selected')
         else:
             #face.load_mainstructure_guide(file_name=file_name)
-            f = open('C:/Users/danie/Documents/maya/2022/scripts/pyTool/modular_py_tool/save/{}'.format(file_name[0]))
+            f = open('C:/Users/danie/Documents/maya/2026/scripts/pyTool/modular_py_tool/save/{}'.format(file_name[0]))
             loaded_dict = {}
             loaded_dict = json.load(f)
 
@@ -70,7 +70,7 @@ class NestedDictionary:
 
     def SaveDictionary(self):
 
-        directory = 'C:/Users/danie/Documents/maya/2022/scripts/pyTool/modular_py_tool/save/'
+        directory = 'C:/Users/danie/Documents/maya/2026/scripts/pyTool/modular_py_tool/save/'
         UiAutoRig.NameInputUi(section_dir=directory, dictionary=self.data)
         ##utili.errorMessage('Make sure that the selection is in hierarchy order from parent to children')
 

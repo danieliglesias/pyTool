@@ -1574,7 +1574,7 @@ def build_face_structure(name=None, guide_list=None, eye_guide_list=None):
     ### basic naming and parenting on a json file
     ### add more to the json if is necesary, also their parent is required
     f = open(
-        'C:/Users/danie/Documents/maya/2022/scripts/pyTool/guide/base/hierarchy/basic_face_structure_21072024.json')
+        '/guide/base/hierarchy/basic_face_structure_21072024.json')
     data = json.load(f)
 
     all_exist = True

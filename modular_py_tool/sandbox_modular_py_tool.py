@@ -3,6 +3,8 @@ import pyTool.modular_py_tool.UiAutoRig as auto_rig_ui
 import pyTool.modular_py_tool.Utilities as utili
 import importlib
 import pyTool.modular_py_tool.FileClass as FileClass
+import pyTool.modular_py_tool.auto_rig_torso as torso
+import pyTool.modular_py_tool.auto_rig_hip as hip
 #from  pyTool.modular_py_tool.nested_dictionary import NestedDictionary as dict
 import os
 import json
@@ -12,10 +14,31 @@ import sys
 importlib.reload(auto_rig_ui)    
 importlib.reload(utili)    
 importlib.reload(FileClass)
+importlib.reload(torso)
+importlib.reload(hip)
 
 
 
 auto_rig_ui.modular_ui()
+
+sphere_name = cmds.sphere(name='C_COG_BIND_guide', r=1)[0]
+shader_name = utili.create_shader_guide()
+# Step 5: Assign the material to the sphere
+#cmds.select(sphere_name)
+#cmds.hyperShade(assign='{}'.format(shader_name))
+shape = cmds.listRelatives(sphere_name, shapes=True, fullPath=True)[0]
+cmds.sets(shape, edit=True, forceElement='{}SG'.format(shader_name))
+
+
+distance_value = cmds.getAttr('heightDistance.distance') / 2
+cmds.move(0, distance_value, 0, sphere_name)
+annotate = cmds.annotate(sphere_name, tx='COG', p=(0, distance_value, 0))
+cmds.parent(annotate, sphere_name)
+# cmds.rename(annotate, "hip_annotation")
+cmds.setAttr(annotate + '.overrideEnabled', 1)
+cmds.setAttr(annotate + '.overrideColor', 6)
+    
+############################################################
 
 distance_shapes = cmds.ls(type='distanceDimShape')
 dist_shape = distance_shapes[0]

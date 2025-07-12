@@ -6,11 +6,14 @@ import pyTool.modular_py_tool.auto_rig_fundation as fundation
 #import pyTool.utilities as utili
 import pyTool.modular_py_tool.Utilities as utili
 import pyTool.modular_py_tool.FileClass as FileClass
+import pyTool.modular_py_tool.auto_rig_hip as hip
+import pyTool.modular_py_tool.auto_rig_torso as torso
 
 import importlib
 importlib.reload(fundation)
 importlib.reload(utili)
 importlib.reload(FileClass)
+importlib.reload(hip)
 
 
 
@@ -455,59 +458,19 @@ def build_data_frame(window, main_layout):
 
 
             cmds.button(label='{}'.format('Generate COG Guide'), height=25, parent=data_row_hip,
-                command=lambda x: controller_hip_guide())
+                command=lambda x: hip.controller_hip_guide())
             cmds.button(label='{}'.format('Save'), height=25, parent=data_row_hip)
 
             cmds.button(label='{}'.format('Generate Jnt Guide'), height=25, parent=data_row_hip,
-                        command=lambda x: controller_hip_guide())
+                        command=lambda x: hip.controller_hip_guide())
             cmds.button(label='{}'.format('Save'), height=25, parent=data_row_hip)
 
 
 
-    def controller_hip_guide(root_grp = None , isForGame = None):
-
-        group_value = cmds.textField(root_grp, query=True, text=True)
-        selected_item = cmds.optionMenu(isForGame, query=True, value=True)
-
-        print(group_value)
-        print(selected_item)
-
-        if selected_item:
-            for i in range(1,3):
-                print('{}{:02d}'.format(group_value,i))
-        else:
-            print('nothing')
-
-            sphere_name = cmds.sphere(name='hip_guide', r=1)[0]
-            shader_name = create_shader_guide()
-            # Step 5: Assign the material to the sphere
-            cmds.select(sphere_name)
-            cmds.hyperShade(assign='{}'.format(shader_name))
-
-            distance_value = cmds.getAttr('heightDistance.distance') / 2
-            cmds.move(0, distance_value, 0, sphere_name)
-            annotate = cmds.annotate(sphere_name, tx='hip', p=(0, distance_value, 0))
-            cmds.parent(annotate, sphere_name)
-            # cmds.rename(annotate, "hip_annotation")
-            cmds.setAttr(annotate + '.overrideEnabled', 1)
-            cmds.setAttr(annotate + '.overrideColor', 6)
 
 
-    def create_shader_guide():
-        shader_name = "shader_guide"
 
-        # Check if the shader already exists
-        if cmds.objExists(shader_name):
-            return shader_name  # Return the name if it already exists
 
-        # Create the Lambert shader
-        material_name = cmds.shadingNode('lambert', asShader=True)
-        cmds.rename(material_name, shader_name)
-
-        # Set the color of the shader
-        cmds.setAttr(f"{shader_name}.color", 1, 0.3921, 0.4232, type="double3")  # Specific color
-
-        return shader_name  # Return the name of the newly created shader
 
     def torso_ui():
         if constructor_limb_selected('torso') == False:
@@ -532,7 +495,7 @@ def build_data_frame(window, main_layout):
 
 
 
-            cmds.button(label='{}'.format('Generate torso Guides'), height=25, parent=data_row_torso01)
+            cmds.button(label='{}'.format('Generate torso Guides'), height=25, parent=data_row_torso01 , command=lambda x: torso.controller_torso_guide())
             cmds.button(label='{}'.format('Update'), height=25, parent=data_row_torso01)
 
             cmds.button(label='{}'.format('Generate torso jnt'), height=25, parent=data_row_torso01)
