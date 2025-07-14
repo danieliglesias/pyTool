@@ -60,7 +60,7 @@ def controller_torso_guide(spine_num = None):
 
 
 
-    list_curve_pos = ['C_chest_BIND_guide','C_skips02_guide','C_skips01_guide', 'C_COG_BIND_guide']
+    list_curve_pos = ['C_COG_BIND_guide','C_skips01_guide','C_skips02_guide','C_chest_BIND_guide']
     positions = [cmds.xform(obj, q=True, ws=True, translation=True) for obj in list_curve_pos]
     torso_curve = cmds.curve(d=3, p=positions, name='C_torso_curve_guide')
     curve_shape = cmds.listRelatives(torso_curve, shapes=True)[0]
@@ -71,8 +71,8 @@ def controller_torso_guide(spine_num = None):
     cmds.connectAttr('{}.translate'.format(loc), '{}.controlPoints[{}]'.format(shape, cv))
     """
     cmds.delete(loc)
-    cmds.connectAttr('{}.translate'.format(sphere_name_skip01), '{}.controlPoints[2]'.format(curve_shape))
-    cmds.connectAttr('{}.translate'.format(sphere_name_skip02), '{}.controlPoints[1]'.format(curve_shape))
+    cmds.connectAttr('{}.translate'.format(sphere_name_skip02), '{}.controlPoints[2]'.format(curve_shape))
+    cmds.connectAttr('{}.translate'.format(sphere_name_skip01), '{}.controlPoints[1]'.format(curve_shape))
 
 
     print(curve_shape)
@@ -98,9 +98,24 @@ def controller_torso_guide(spine_num = None):
 
 
 def controller_torso_jnt(spine_num = None):
-    position = 2 + 2
+    position = spine_num + 2
     value = 1 / (position - 1)
+    #for i in range(position,0,-1):
+    for i in range(1,position):
+        world_pos = utili.get_position_on_curve('C_torso_curve_guide', (i * value))
+        cmds.select(clear=True)
 
-    for i in range(0, position):
-        if i != 0 and i != (position - 1):
-            print(i * value)
+
+
+
+        if i == (position-1):
+            jnt = cmds.joint(p=world_pos, name='c_torso_BIND_jnt')
+            cmds.parent( 'c_torso_BIND_jnt','c_spine{}_BIND_jnt'.format(i-1))
+        else:
+            jnt = cmds.joint(p=world_pos, name='c_spine{}_BIND_jnt'.format(i))
+
+            if i >= 2:
+                cmds.parent(jnt,'c_spine{}_BIND_jnt'.format(i-1))
+
+    #cmds.joint(jnt_list[0], edit=True, zso=True, oj='xyz', secondaryAxisOrient='yup',children=True)
+    #cmds.joint(jnt_list[-1], edit=True, oj='none', children=True, zso=True)

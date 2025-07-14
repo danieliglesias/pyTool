@@ -503,7 +503,7 @@ def build_data_frame(window, main_layout):
             cmds.button(label='{}'.format('Generate torso Guides'), height=25, parent=data_row_torso01 , command=lambda x: torso.controller_torso_guide(cmds.intField(int_field_name, query=True, value=True) ))
             cmds.button(label='{}'.format('Update'), height=25, parent=data_row_torso01)
 
-            cmds.button(label='{}'.format('Generate torso jnt'), height=25, parent=data_row_torso01)
+            cmds.button(label='{}'.format('Generate torso jnt'), height=25, parent=data_row_torso01, command=lambda x: torso.controller_torso_jnt(cmds.intField(int_field_name, query=True, value=True) ))
             cmds.button(label='{}'.format('Update'), height=25, parent=data_row_torso01)
 
             data_row_torso02 = cmds.rowColumnLayout(numberOfColumns=1,
