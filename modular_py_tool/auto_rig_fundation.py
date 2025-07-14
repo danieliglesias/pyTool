@@ -2,9 +2,9 @@ import maya.cmds as cmds
 import os
 import json
 
-import pyTool.modular_py_tool.auto_rig_fundation as fundation
-import pyTool.modular_py_tool.Utilities as utili
-import pyTool.modular_py_tool.FileClass as FileClass
+import modular_py_tool.auto_rig_fundation as fundation
+import modular_py_tool.Utilities as utili
+import modular_py_tool.FileClass as FileClass
 
 import importlib
 importlib.reload(fundation)

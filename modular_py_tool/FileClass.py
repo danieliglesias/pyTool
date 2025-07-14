@@ -3,8 +3,8 @@ import json
 import os
 
 #import pyTool.utilities as utili
-import pyTool.modular_py_tool.UiAutoRig as UiAutoRig
-import pyTool.modular_py_tool.Utilities as utili
+import modular_py_tool.UiAutoRig as UiAutoRig
+import modular_py_tool.Utilities as utili
 import importlib
 importlib.reload(utili)
 importlib.reload(UiAutoRig)

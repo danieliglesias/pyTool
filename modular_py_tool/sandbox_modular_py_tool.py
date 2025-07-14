@@ -1,10 +1,10 @@
 import maya.cmds as cmds
-import pyTool.modular_py_tool.UiAutoRig as auto_rig_ui
-import pyTool.modular_py_tool.Utilities as utili
+import modular_py_tool.UiAutoRig as auto_rig_ui
+import modular_py_tool.Utilities as utili
 import importlib
-import pyTool.modular_py_tool.FileClass as FileClass
-import pyTool.modular_py_tool.auto_rig_torso as torso
-import pyTool.modular_py_tool.auto_rig_hip as hip
+import modular_py_tool.FileClass as FileClass
+import modular_py_tool.auto_rig_torso as torso
+import modular_py_tool.auto_rig_hip as hip
 #from  pyTool.modular_py_tool.nested_dictionary import NestedDictionary as dict
 import os
 import json
@@ -21,22 +21,52 @@ importlib.reload(hip)
 
 auto_rig_ui.modular_ui()
 
-sphere_name = cmds.sphere(name='C_COG_BIND_guide', r=1)[0]
-shader_name = utili.create_shader_guide()
-# Step 5: Assign the material to the sphere
-#cmds.select(sphere_name)
-#cmds.hyperShade(assign='{}'.format(shader_name))
-shape = cmds.listRelatives(sphere_name, shapes=True, fullPath=True)[0]
-cmds.sets(shape, edit=True, forceElement='{}SG'.format(shader_name))
+totalCtrlPoint = 3
+cmds.rebuildCurve('C_torso_curve_guide', ch=1, rpo=1, rt=0, end=1, kr=1, kcp=0, kep=1, kt=0, s=totalCtrlPoint, d=3, tol=0.01)
 
 
-distance_value = cmds.getAttr('heightDistance.distance') / 2
-cmds.move(0, distance_value, 0, sphere_name)
-annotate = cmds.annotate(sphere_name, tx='COG', p=(0, distance_value, 0))
-cmds.parent(annotate, sphere_name)
-# cmds.rename(annotate, "hip_annotation")
-cmds.setAttr(annotate + '.overrideEnabled', 1)
-cmds.setAttr(annotate + '.overrideColor', 6)
+cv_curve_list = ['C_chest_BIND_guide','C_skips02_guide','C_skips02_guide1','C_skips01_guide','C_COG_BIND_guide']
+positions = [cmds.xform(obj, q=True, ws=True, translation=True) for obj in cv_curve_list]
+positions_fixed = [positions[0]] * 2 + positions + [positions[-1]] * 2
+cmds.curve(d=3, p=positions_fixed, name='test')
+
+
+curve_name = 'test'  # Replace with your curve name
+mid_pos = utili.get_position_on_curve('C_torso_curve_guide', 0.66666)
+
+print(mid_pos)
+
+
+position = 2 +2
+test= 1/(position-1)
+
+
+
+
+for i in range(0, position):
+    if i != 0 and i != (position-1):    
+        print(i*test)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
 ############################################################
 

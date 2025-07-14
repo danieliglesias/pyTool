@@ -1,5 +1,5 @@
 import maya.cmds as cmds
-import pyTool.modular_py_tool.Utilities as utili
+import modular_py_tool.Utilities as utili
 
 import importlib
 importlib.reload(utili)

@@ -2,18 +2,19 @@ import maya.cmds as cmds
 import os
 import json
 
-import pyTool.modular_py_tool.auto_rig_fundation as fundation
+import modular_py_tool.auto_rig_fundation as fundation
 #import pyTool.utilities as utili
-import pyTool.modular_py_tool.Utilities as utili
-import pyTool.modular_py_tool.FileClass as FileClass
-import pyTool.modular_py_tool.auto_rig_hip as hip
-import pyTool.modular_py_tool.auto_rig_torso as torso
+import modular_py_tool.Utilities as utili
+import modular_py_tool.FileClass as FileClass
+import modular_py_tool.auto_rig_hip as hip
+import modular_py_tool.auto_rig_torso as torso
 
 import importlib
 importlib.reload(fundation)
 importlib.reload(utili)
 importlib.reload(FileClass)
 importlib.reload(hip)
+
 
 
 
@@ -495,7 +496,11 @@ def build_data_frame(window, main_layout):
 
 
 
-            cmds.button(label='{}'.format('Generate torso Guides'), height=25, parent=data_row_torso01 , command=lambda x: torso.controller_torso_guide())
+            cmds.button(label='{}'.format('Generate Chest guide'), height=25, parent=data_row_torso01,
+                        command=lambda x: torso.controller_chest_guide())
+            cmds.button(label='{}'.format('Update'), height=25, parent=data_row_torso01)
+
+            cmds.button(label='{}'.format('Generate torso Guides'), height=25, parent=data_row_torso01 , command=lambda x: torso.controller_torso_guide(cmds.intField(int_field_name, query=True, value=True) ))
             cmds.button(label='{}'.format('Update'), height=25, parent=data_row_torso01)
 
             cmds.button(label='{}'.format('Generate torso jnt'), height=25, parent=data_row_torso01)

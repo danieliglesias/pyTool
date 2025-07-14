@@ -283,3 +283,29 @@ def get_midpoint(position1=None, position2=None):
     Yaxis = (cmds.getAttr('{}.translateY'.format(position1)) + cmds.getAttr('{}.translateY'.format(position2))) / 2
     Zaxis = (cmds.getAttr('{}.translateZ'.format(position1)) + cmds.getAttr('{}.translateZ'.format(position2))) / 2
     return [Xaxis, Yaxis, Zaxis]
+
+
+
+def get_position_on_curve(curve, normalized_param):
+    # Get curve shape
+    shape = cmds.listRelatives(curve, s=True)[0]
+
+    # Total length of the curve
+    length = cmds.arclen(curve)
+
+    # Create a pointOnCurveInfo node
+    poc = cmds.createNode('pointOnCurveInfo')
+    curve_shape = cmds.listRelatives(curve, shapes=True)[0]
+    cmds.connectAttr(f'{curve_shape}.worldSpace[0]', f'{poc}.inputCurve')
+
+    # Enable parameter by length and set normalized position
+    cmds.setAttr(f'{poc}.turnOnPercentage', 1)
+    cmds.setAttr(f'{poc}.parameter', normalized_param)
+
+    # Query world position
+    position = cmds.getAttr(f'{poc}.position')[0]
+
+    # Clean up
+    cmds.delete(poc)
+
+    return position
