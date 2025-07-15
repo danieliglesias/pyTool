@@ -8,12 +8,15 @@ import modular_py_tool.Utilities as utili
 import modular_py_tool.FileClass as FileClass
 import modular_py_tool.auto_rig_hip as hip
 import modular_py_tool.auto_rig_torso as torso
+import modular_py_tool.auto_rig_leg as leg
 
 import importlib
 importlib.reload(fundation)
 importlib.reload(utili)
 importlib.reload(FileClass)
 importlib.reload(hip)
+importlib.reload(leg)
+importlib.reload(torso)
 
 
 
@@ -78,14 +81,14 @@ def lleg_ui(limb_name = None):
         cmds.text(align='center', height=30, label='limb_name', parent=data_row_lleg)
         hip_position = cmds.textField(height=30, text='{}'.format(limb_name), parent=data_row_lleg, enable = False)
 
-        cmds.text(align='center', height=30, label='position', parent=data_row_lleg)
-        hip_position = cmds.textField(height=30, text='L', parent=data_row_lleg)
 
-        cmds.text(align='center', height=30, label='Body part', parent=data_row_lleg)
-        hip_bodypart = cmds.textField(height=30, text='leg', parent=data_row_lleg)
+        cmds.button(label='{}'.format('Generate guide'), height=25, parent=data_row_lleg,
+                    command=lambda x: leg.controller_leg_guide())
+        cmds.button(label='{}'.format('Save'), height=25, parent=data_row_lleg)
 
-        cmds.text(align='center', height=30, label='Function', parent=data_row_lleg)
-        hip_function = cmds.textField(height=30, text='BIND', parent=data_row_lleg)
+        cmds.button(label='{}'.format('Generate Jnt from guide'), height=25, parent=data_row_lleg,
+                    command=lambda x: leg.controller_leg_jnt())
+        cmds.button(label='{}'.format('Save'), height=25, parent=data_row_lleg)
 
 
 
@@ -462,8 +465,8 @@ def build_data_frame(window, main_layout):
                 command=lambda x: hip.controller_hip_guide())
             cmds.button(label='{}'.format('Save'), height=25, parent=data_row_hip)
 
-            cmds.button(label='{}'.format('Generate Jnt Guide'), height=25, parent=data_row_hip,
-                        command=lambda x: hip.controller_hip_guide())
+            cmds.button(label='{}'.format('Generate Jnt from guide'), height=25, parent=data_row_hip,
+                        command=lambda x: hip.controller_hip_jnt())
             cmds.button(label='{}'.format('Save'), height=25, parent=data_row_hip)
 
 
@@ -486,7 +489,7 @@ def build_data_frame(window, main_layout):
 
             cmds.text(align='center', height=30, label='number of spine:', parent=data_row_torso)
             #cmds.text(align='center', height=30, label='number of spine:', parent=data_row_torso)
-            int_field_name = cmds.intField(minValue=3, maxValue=5, value=3,step=1, parent=data_row_torso )
+            int_field_name = cmds.intField(minValue=1, maxValue=5, value=3,step=1, parent=data_row_torso )
 
             data_row_torso01 = cmds.rowColumnLayout(numberOfColumns=2,
                                                   columnWidth=[(1, 400), (2, 100)],
@@ -498,7 +501,7 @@ def build_data_frame(window, main_layout):
 
             cmds.button(label='{}'.format('Generate Chest guide'), height=25, parent=data_row_torso01,
                         command=lambda x: torso.controller_chest_guide())
-            cmds.button(label='{}'.format('Update'), height=25, parent=data_row_torso01)
+            cmds.button(label='{}'.format('Update'), height=25, parent=data_row_torso01 , command=lambda x: _nested_dict_instance.GuideNumber())
 
             cmds.button(label='{}'.format('Generate torso Guides'), height=25, parent=data_row_torso01 , command=lambda x: torso.controller_torso_guide(cmds.intField(int_field_name, query=True, value=True) ))
             cmds.button(label='{}'.format('Update'), height=25, parent=data_row_torso01)

@@ -4,14 +4,15 @@ import math
 import json
 import sys
 import os
+import re
 import importlib
 
 def ScrollListFileManage(section_dir = None,action = None,field = None,dictionary = None,windows = None):
     if sys.platform == 'darwin':
-        local = '/Users/danieliglesiasvalenzuela/Library/Preferences/Autodesk/maya/2026/prefs/scripts/pyTool/guide/{}'.format(section_dir)
+        local = '/Users/danieliglesiasvalenzuela/Library/Preferences/Autodesk/maya/2026/prefs/scripts/guide/{}'.format(section_dir)
 
     else:
-        local = 'C:/Users/danie/Documents/maya/2026/scripts/pyTool/modular_py_tool/save/'
+        local = 'C:/Users/danie/Documents/maya/2026/scripts/modular_py_tool/save/'
 
     #####################################################################################################
 
@@ -309,3 +310,19 @@ def get_position_on_curve(curve, normalized_param):
     cmds.delete(poc)
 
     return position
+
+
+def find_named_objects(name_patterns, suffix="_jnt", node_types=("joint", "transform")):
+    # Get all objects of the specified types
+    all_objects = []
+    for node_type in node_types:
+        all_objects.extend(cmds.ls(type=node_type) or [])
+
+    # Join patterns and build regex
+    name_group = "|".join(name_patterns)
+    escaped_suffix = re.escape(suffix)
+    pattern = re.compile(rf".*({name_group})\d*.*{escaped_suffix}$", re.IGNORECASE)
+
+    # Filter by name pattern and suffix
+    matching = [obj for obj in all_objects if pattern.match(obj)]
+    return matching

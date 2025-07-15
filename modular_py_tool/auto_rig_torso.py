@@ -1,6 +1,6 @@
 import maya.cmds as cmds
 import modular_py_tool.Utilities as utili
-
+import re
 import importlib
 importlib.reload(utili)
 
@@ -29,9 +29,10 @@ def controller_chest_guide():
 
 def controller_torso_guide(spine_num = None):
 
-    print(spine_num)
-    print(cmds.getAttr('heightDistance.distance'))
-    print(cmds.getAttr('heightDistance.distance') / spine_num )
+    if cmds.objExists("C_COG_BIND_guide"):
+        cog_object = 'C_COG_BIND_guide'
+    if cmds.objExists("C_COG_BIND_jnt"):
+        cog_object = 'C_COG_BIND_jnt'
 
 
     #############################################################################################
@@ -46,7 +47,7 @@ def controller_torso_guide(spine_num = None):
 
 
 
-    mid_pos = utili.get_midpoint('C_chest_BIND_guide','C_COG_BIND_guide')
+    mid_pos = utili.get_midpoint('C_chest_BIND_guide',cog_object)
 
     loc = cmds.spaceLocator(absolute=True, name='mid_guide_loc')[0]
     #guidePos = cmds.xform(loc, t=True, ws=True, q=True)
@@ -55,12 +56,12 @@ def controller_torso_guide(spine_num = None):
     top_mid_pos = utili.get_midpoint('C_chest_BIND_guide', 'mid_guide_loc')
     cmds.xform(sphere_name_skip02, t=top_mid_pos)
 
-    bot_mid_pos = utili.get_midpoint('mid_guide_loc', 'C_COG_BIND_guide')
+    bot_mid_pos = utili.get_midpoint('mid_guide_loc', cog_object)
     cmds.xform(sphere_name_skip01, t=bot_mid_pos)
 
 
 
-    list_curve_pos = ['C_COG_BIND_guide','C_skips01_guide','C_skips02_guide','C_chest_BIND_guide']
+    list_curve_pos = [cog_object,'C_skips01_guide','C_skips02_guide','C_chest_BIND_guide']
     positions = [cmds.xform(obj, q=True, ws=True, translation=True) for obj in list_curve_pos]
     torso_curve = cmds.curve(d=3, p=positions, name='C_torso_curve_guide')
     curve_shape = cmds.listRelatives(torso_curve, shapes=True)[0]
@@ -98,6 +99,7 @@ def controller_torso_guide(spine_num = None):
 
 
 def controller_torso_jnt(spine_num = None):
+
     position = spine_num + 2
     value = 1 / (position - 1)
     #for i in range(position,0,-1):
@@ -109,13 +111,18 @@ def controller_torso_jnt(spine_num = None):
 
 
         if i == (position-1):
-            jnt = cmds.joint(p=world_pos, name='c_torso_BIND_jnt')
-            cmds.parent( 'c_torso_BIND_jnt','c_spine{}_BIND_jnt'.format(i-1))
+            jnt = cmds.joint(p=world_pos, name='c_chest_BIND_jnt')
+            cmds.parent( 'c_chest_BIND_jnt','c_spine{:02d}_BIND_jnt'.format(i-1))
         else:
-            jnt = cmds.joint(p=world_pos, name='c_spine{}_BIND_jnt'.format(i))
+            jnt = cmds.joint(p=world_pos, name='c_spine{:02d}_BIND_jnt'.format(i))
 
             if i >= 2:
-                cmds.parent(jnt,'c_spine{}_BIND_jnt'.format(i-1))
+                cmds.parent(jnt,'c_spine{:02d}_BIND_jnt'.format(i-1))
 
+    cmds.delete('C_chest_BIND_guide')
+    cmds.delete('C_skips01_guide')
+    cmds.delete('C_skips02_guide')
+    cmds.delete('C_torso_curve_guide')
+    #cmds.joint("rootJoint", edit=True, orientJoint="xyz", secondaryAxisOrient="yup", children=True)
     #cmds.joint(jnt_list[0], edit=True, zso=True, oj='xyz', secondaryAxisOrient='yup',children=True)
     #cmds.joint(jnt_list[-1], edit=True, oj='none', children=True, zso=True)

@@ -31,3 +31,12 @@ def controller_hip_guide():
 
 
 
+def controller_hip_jnt():
+    quide_pos = cmds.xform('C_COG_BIND_guide', t=True, ws=True, q=True)
+    cmds.select(clear=True)
+    cmds.joint(p=quide_pos, name='C_COG_BIND_jnt')
+
+    cmds.delete('C_COG_BIND_guide')
+
+
+

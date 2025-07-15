@@ -21,42 +21,25 @@ importlib.reload(hip)
 
 auto_rig_ui.modular_ui()
 
-totalCtrlPoint = 3
-cmds.rebuildCurve('C_torso_curve_guide', ch=1, rpo=1, rt=0, end=1, kr=1, kcp=0, kep=1, kt=0, s=totalCtrlPoint, d=3, tol=0.01)
+
+list = cmds.listRelatives('c_spine1_BIND_jnt', ad=True, type="joint")
+
+for item in list:
+    print(item)
 
 
-cv_curve_list = ['C_chest_BIND_guide','C_skips02_guide','C_skips02_guide1','C_skips01_guide','C_COG_BIND_guide']
-positions = [cmds.xform(obj, q=True, ws=True, translation=True) for obj in cv_curve_list]
-positions_fixed = [positions[0]] * 2 + positions + [positions[-1]] * 2
-cmds.curve(d=3, p=positions_fixed, name='test')
+_nested_dict_instance.GuideNumber(limb_name = 'general')
 
+keys = [k for k in _nested_dict_instance.data['general'] if k != 'general']
 
-curve_name = 'test'  # Replace with your curve name
-mid_pos = utili.get_position_on_curve('C_torso_curve_guide', 0.66666)
+print(keys)
 
-print(mid_pos)
+for item in keys:
+    print(keys)
+print(_nested_dict_instance.data['general']['file']['position'])
 
-
-position = 2 +2
-test= 1/(position-1)
-
-
-
-
-for i in range(0, position):
-    if i != 0 and i != (position-1):    
-        print(i*test)
-
-
-
-
-
-
-
-
-
-
-
+global _nested_dict_instance
+_nested_dict_instance = FileClass.NestedDictionary()
 
 
 

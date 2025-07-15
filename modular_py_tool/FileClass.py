@@ -35,7 +35,7 @@ class NestedDictionary:
             cmds.error('More than one object selected')
         else:
             #face.load_mainstructure_guide(file_name=file_name)
-            f = open('C:/Users/danie/Documents/maya/2026/scripts/pyTool/modular_py_tool/save/{}'.format(file_name[0]))
+            f = open('C:/Users/danie/Documents/maya/2026/scripts/modular_py_tool/save/{}'.format(file_name[0]))
             loaded_dict = {}
             loaded_dict = json.load(f)
 
@@ -70,7 +70,7 @@ class NestedDictionary:
 
     def SaveDictionary(self):
 
-        directory = 'C:/Users/danie/Documents/maya/2026/scripts/pyTool/modular_py_tool/save/'
+        directory = 'C:/Users/danie/Documents/maya/2026/scripts/modular_py_tool/save/'
         UiAutoRig.NameInputUi(section_dir=directory, dictionary=self.data)
         ##utili.errorMessage('Make sure that the selection is in hierarchy order from parent to children')
 
@@ -80,8 +80,8 @@ class NestedDictionary:
 
 
         for item in keys:
-            print(keys)
-            print(self.data['torso01'][keys]['position'])
+            print(item)
+            print(self.data['torso01'][item]['position'])
 
 
     def GuidePositioner(self):
@@ -93,9 +93,23 @@ class NestedDictionary:
 
         return 0
 
-    def UpdateLimb(self):
+    def UpdateLimb(list = None , suffix = None):
 
-        return 0
+        components = utili.find_named_objects(name_patterns=["skips", "torso"], suffix="_guide")
+
+
+        nested_dict = {}
+
+        for comp in components.split('_')[1]:
+            nested_dict[comp] = {}
+            for i in range(1, 4):  # Let's say 3 guides per component
+                guide_name = f"guide{i}"
+                nested_dict[comp][guide_name] = {
+                    "position": [i, 0, 0],  # just sample positions
+                    "bone_ori": "XYZ",
+                    "parent": f"guide{i - 1}" if i > 1 else "hip01",
+                    "bone_name": f"{comp}_joint{i}_BIND"
+                }
 
     def ValidationValues(self):
 
