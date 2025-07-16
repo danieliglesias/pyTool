@@ -1,0 +1,81 @@
+{
+	"general": {
+		"file": "Nombre Json Array",
+		"char_name": "Character Name"
+	},
+	"fundation": {
+		"general": {
+			"parent": "Game",
+			"type": "jnt",
+			"rebuild_priority": null
+		},
+		"root_jnt": {
+			"position": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"bone_ori": "xyz",
+			"parent": null,
+			"bone_name": "root_jnt"
+		}
+	},
+	"COG": {
+		"general": {
+			"parent": null,
+			"type": "jnt",
+			"rebuild_priority": null
+		},
+		"C_COG_BIND_jnt": {
+			"position": [
+				0.0,
+				100.15691798492965,
+				0.0
+			],
+			"bone_ori": "xyz",
+			"parent": null,
+			"bone_name": "C_COG_BIND_jnt"
+		}
+	},
+	"torso": {
+		"general": {
+			"parent": "C_COG_BIND_jnt",
+			"type": "jnt",
+			"rebuild_priority": null
+		},
+		"c_chest_BIND_jnt": {
+			"position": [
+				0.0,
+				154.087566130661,
+				0.0
+			],
+			"bone_ori": "xyz",
+			"parent": [
+				"c_spine02_BIND_jnt"
+			],
+			"bone_name": "c_chest_BIND_jnt"
+		},
+		"c_spine01_BIND_jnt": {
+			"position": [
+				0.0,
+				117.13508499377104,
+				0.0
+			],
+			"bone_ori": "xyz",
+			"parent": null,
+			"bone_name": "c_spine01_BIND_jnt"
+		},
+		"c_spine02_BIND_jnt": {
+			"position": [
+				0.0,
+				137.10939912181965,
+				0.0
+			],
+			"bone_ori": "xyz",
+			"parent": [
+				"c_spine01_BIND_jnt"
+			],
+			"bone_name": "c_spine02_BIND_jnt"
+		}
+	}
+}

@@ -36,14 +36,10 @@ def controller_torso_guide(spine_num = None):
 
 
     #############################################################################################
-    sphere_name_skip01 = cmds.sphere(name='C_skips01_guide', r=1)[0]
-    """shape = cmds.listRelatives(sphere_name_skip01, shapes=True, fullPath=True)[0]
-    cmds.sets(shape, edit=True, forceElement=shading_group)"""
+    sphere_name_spine01 = cmds.sphere(name='C_spine01_guide', r=1)[0]
 
     #############################################################################################
-    sphere_name_skip02 = cmds.sphere(name='C_skips02_guide', r=1)[0]
-    """shape = cmds.listRelatives(sphere_name_skip02, shapes=True, fullPath=True)[0]
-    cmds.sets(shape, edit=True, forceElement=shading_group)"""
+    sphere_name_spine02 = cmds.sphere(name='C_spine02_guide', r=1)[0]
 
 
 
@@ -54,48 +50,22 @@ def controller_torso_guide(spine_num = None):
     cmds.xform(loc, t=mid_pos)
 
     top_mid_pos = utili.get_midpoint('C_chest_BIND_guide', 'mid_guide_loc')
-    cmds.xform(sphere_name_skip02, t=top_mid_pos)
+    cmds.xform(sphere_name_spine02, t=top_mid_pos)
 
     bot_mid_pos = utili.get_midpoint('mid_guide_loc', cog_object)
-    cmds.xform(sphere_name_skip01, t=bot_mid_pos)
+    cmds.xform(sphere_name_spine01, t=bot_mid_pos)
 
 
-
-    list_curve_pos = [cog_object,'C_skips01_guide','C_skips02_guide','C_chest_BIND_guide']
+    list_curve_pos = [cog_object,'C_spine01_guide','C_spine02_guide','C_chest_BIND_guide']
     positions = [cmds.xform(obj, q=True, ws=True, translation=True) for obj in list_curve_pos]
     torso_curve = cmds.curve(d=3, p=positions, name='C_torso_curve_guide')
     curve_shape = cmds.listRelatives(torso_curve, shapes=True)[0]
 
 
-
-    """ sphere_name = cmds.sphere(name='C_chest_BIND_guide', r=1)[0]
-    cmds.connectAttr('{}.translate'.format(loc), '{}.controlPoints[{}]'.format(shape, cv))
-    """
     cmds.delete(loc)
-    cmds.connectAttr('{}.translate'.format(sphere_name_skip02), '{}.controlPoints[2]'.format(curve_shape))
-    cmds.connectAttr('{}.translate'.format(sphere_name_skip01), '{}.controlPoints[1]'.format(curve_shape))
+    cmds.connectAttr('{}.translate'.format(sphere_name_spine02), '{}.controlPoints[2]'.format(curve_shape))
+    cmds.connectAttr('{}.translate'.format(sphere_name_spine01), '{}.controlPoints[1]'.format(curve_shape))
 
-
-    print(curve_shape)
-    """
-    float $cvPos[] = `xform -q -ws -t "curve1.cv[1]"`;
-    string $torsoGuide[] = `sphere -radius 0.5`;
-    print $torsoGuide[0];
-    move -rpr $cvPos[0] $cvPos[1] $cvPos[2];
-    connectAttr -f ($torsoGuide[0] +".translate")  curveShape1.controlPoints[1];
-    setAttr ($torsoGuide[0]+".overrideEnabled") 1;
-    setAttr ($torsoGuide[0]+".overrideColor") 4;
-    rename $torsoGuide[0] ("skips01_c_curve01_guide");
-    
-    float $cvPos2[] = `xform -q -ws -t "curve1.cv[2]"`;
-    string $torsoGuide[] = `sphere -radius 0.5`;
-    move -rpr $cvPos2[0] $cvPos2[1] $cvPos2[2];
-    connectAttr -f ($torsoGuide[0] +".translate")  curveShape1.controlPoints[2];
-    setAttr ($torsoGuide[0]+".overrideEnabled") 1;
-    setAttr ($torsoGuide[0]+".overrideColor") 4;
-    rename $torsoGuide[0] ("skips02_c_curve02_guide");
-    """
-    ## commment
 
 
 def controller_torso_jnt(spine_num = None):
@@ -120,9 +90,12 @@ def controller_torso_jnt(spine_num = None):
                 cmds.parent(jnt,'c_spine{:02d}_BIND_jnt'.format(i-1))
 
     cmds.delete('C_chest_BIND_guide')
-    cmds.delete('C_skips01_guide')
-    cmds.delete('C_skips02_guide')
+    cmds.delete('C_spine01_guide')
+    cmds.delete('C_spine02_guide')
     cmds.delete('C_torso_curve_guide')
     #cmds.joint("rootJoint", edit=True, orientJoint="xyz", secondaryAxisOrient="yup", children=True)
     #cmds.joint(jnt_list[0], edit=True, zso=True, oj='xyz', secondaryAxisOrient='yup',children=True)
     #cmds.joint(jnt_list[-1], edit=True, oj='none', children=True, zso=True)
+
+def controller_torso_jnt_rebuild():
+    return 0

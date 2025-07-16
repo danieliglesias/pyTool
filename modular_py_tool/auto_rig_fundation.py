@@ -2,12 +2,12 @@ import maya.cmds as cmds
 import os
 import json
 
-import modular_py_tool.auto_rig_fundation as fundation
+import modular_py_tool.UiAutoRig as auto_rig_ui
 import modular_py_tool.Utilities as utili
 import modular_py_tool.FileClass as FileClass
 
 import importlib
-importlib.reload(fundation)
+importlib.reload(auto_rig_ui)
 importlib.reload(utili)
 importlib.reload(FileClass)
 
@@ -20,6 +20,7 @@ def CreateBasicRigStructure(character_name='Character'):
 
     # Sub groups
     geo_grp         = cmds.group(em=True, name='GEO_GRP', parent=root_grp)
+    move_geometry_to_group(geo_grp)
     rig_grp         = cmds.group(em=True, name='RIG_GRP', parent=root_grp)
     jnt_grp         = cmds.group(em=True, name='JNT_GRP', parent=rig_grp)
     ik_grp          = cmds.group(em=True, name='IK_GRP', parent=rig_grp)
@@ -40,20 +41,20 @@ def CreateBasicRigStructure(character_name='Character'):
     no_touch_grp    = cmds.group(em=True, name='NO_TOUCH_GRP', parent=root_grp)
 
 
-def type_rig_option_menu_change(type = None,char_name = None):
+def type_rig_option_menu_change(type_rig = None,char_name = None):
 
-    #check for character name
-
-    #lets create basic structure
+    #auto_rig_ui._nested_dict_instance.update_limb(limb_name='general', list=['spine', 'chest'], suffix='jnt')
 
     #game
-    if type == 'Game':
+    if type_rig == 'Game':
         CreateBasicRigStructure(char_name)
-        guide = cmds.sphere(radius=1, name='{}_root_guide'.format(char_name))
+        #guide = cmds.sphere(radius=1, name='{}_root_guide'.format(char_name))\
+        cmds.select(clear=True)
+        jnt = cmds.joint(p=[0,0,0], name='root_jnt')
 
 
 
-    print(type)
+    auto_rig_ui._nested_dict_instance.update_limb(limb_name='fundation',parent = type_rig, list=['root'], suffix='jnt')
 
 
 def ToolBasicSetup(rig_type = None):
@@ -63,3 +64,28 @@ def ToolBasicSetup(rig_type = None):
 
 
         return 0
+
+
+
+def move_geometry_to_group(group_name):
+    # Find all mesh shape nodes
+    geometry = cmds.ls(type='mesh', long=True)
+    if not geometry:
+        print('No geometry found.')
+        return
+
+    # Get the parent transform nodes of each mesh shape
+    geometry_transforms = list(set(cmds.listRelatives(geometry, parent=True, fullPath=True)))
+
+    # Create the group if it doesn't exist
+    if not cmds.objExists(group_name):
+        group_name = cmds.group(empty=True, name=group_name)
+
+    # Parent each geometry transform under the group
+    for geo in geometry_transforms:
+        try:
+            cmds.parent(geo, group_name)
+        except RuntimeError:
+            print('Could not parent {} (may cause cycle or already parented)'.format(geo))
+
+    print('Moved {} geometries to group \'{}\'.'.format(len(geometry_transforms), group_name))

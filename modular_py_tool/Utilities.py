@@ -40,7 +40,7 @@ def ScrollListFileManage(section_dir = None,action = None,field = None,dictionar
         return data"""
 
 
-def generate_height_guides():
+def generate_height_guides(pos1 = [0, 0, 0],pos2 = [0, 200, 0]):
     ### first we check to make sure that the unit scale in maya is the best one
     linear_units = cmds.currentUnit(query=True, linear=True)
     if linear_units != 'cm':
@@ -48,22 +48,22 @@ def generate_height_guides():
     else:
         ### lets validate if guide already exist.
         if cmds.objExists('height') == True:
-            errorMessage('height guide already exist')
-        else:
-            ### if the scale is in centimeters then we create a distance tool, this will provide scale to controllers
-            distance_shape = cmds.distanceDimension(sp=(0, 0, 0), ep=(0, 2, 0))
-            transform_node = cmds.listRelatives(distance_shape, parent=True)[0]
-            locators = cmds.listConnections(distance_shape, type='locator')
-            print(cmds.listConnections(distance_shape, type='distanceDimShape'))
-            cmds.rename(transform_node, 'heightDistance')
-            for i, loc in enumerate(locators):
-                if i == 0:
-                    cmds.rename(loc, 'heightLocA')
-                else:
-                    cmds.rename(loc, 'heightLocB')
+            cmds.delete('height')
 
-            emptyGrp = createEmptyGroup(name='height')
-            [cmds.parent(object1, emptyGrp) for object1 in ('heightDistance', 'heightLocA', 'heightLocB')]
+        ### if the scale is in centimeters then we create a distance tool, this will provide scale to controllers
+        distance_shape = cmds.distanceDimension(sp=(pos1[0], pos1[1], pos1[2]), ep=(pos2[0], pos2[1], pos2[2]))
+        transform_node = cmds.listRelatives(distance_shape, parent=True)[0]
+        locators = cmds.listConnections(distance_shape, type='locator')
+        print(cmds.listConnections(distance_shape, type='distanceDimShape'))
+        cmds.rename(transform_node, 'heightDistance')
+        for i, loc in enumerate(locators):
+            if i == 0:
+                cmds.rename(loc, 'heightLocA')
+            else:
+                cmds.rename(loc, 'heightLocB')
+
+        emptyGrp = createEmptyGroup(name='height')
+        [cmds.parent(object1, emptyGrp) for object1 in ('heightDistance', 'heightLocA', 'heightLocB')]
 
 
 
@@ -312,17 +312,40 @@ def get_position_on_curve(curve, normalized_param):
     return position
 
 
+
 def find_named_objects(name_patterns, suffix="_jnt", node_types=("joint", "transform")):
     # Get all objects of the specified types
+
+    print('inside find_named_objects')
     all_objects = []
     for node_type in node_types:
         all_objects.extend(cmds.ls(type=node_type) or [])
 
     # Join patterns and build regex
     name_group = "|".join(name_patterns)
-    escaped_suffix = re.escape(suffix)
+    escaped_suffix = re.escape('_{}'.format(suffix))
     pattern = re.compile(rf".*({name_group})\d*.*{escaped_suffix}$", re.IGNORECASE)
 
     # Filter by name pattern and suffix
     matching = [obj for obj in all_objects if pattern.match(obj)]
     return matching
+
+
+def check_existing_joints(data):
+    ### this get back all joint or guide that already exist
+    existing_joints = []
+
+    for component_name, component_data in data.items():
+        if component_name == 'general':
+            continue  # Skip global metadata
+
+        for joint_key, joint_info in component_data.items():
+            if joint_key == 'general':
+                continue  # Skip per-component metadata
+
+            bone_name = joint_info.get('bone_name')
+            print(bone_name)
+            if bone_name and cmds.objExists(bone_name):
+                existing_joints.append(bone_name)
+
+    return existing_joints

@@ -22,32 +22,30 @@ importlib.reload(hip)
 auto_rig_ui.modular_ui()
 
 
-list = cmds.listRelatives('c_spine1_BIND_jnt', ad=True, type="joint")
 
-for item in list:
-    print(item)
-
-
-_nested_dict_instance.GuideNumber(limb_name = 'general')
-
-keys = [k for k in _nested_dict_instance.data['general'] if k != 'general']
-
-print(keys)
-
-for item in keys:
-    print(keys)
-print(_nested_dict_instance.data['general']['file']['position'])
-
-global _nested_dict_instance
-_nested_dict_instance = FileClass.NestedDictionary()
+auto_rig_ui._nested_dict_instance.update_limb( limb_name = 'torso', list = ['spine','chest'],suffix = 'jnt')
 
 
 
+auto_rig_ui._nested_dict_instance.show_dictionary()
 
 
+auto_rig_ui._nested_dict_instance.data['torso'] = {}
+
+component =auto_rig_ui._nested_dict_instance.data['torso']
 
 
+auto_rig_ui._nested_dict_instance.create_joints_from_limb()
 
+
+print(auto_rig_ui._nested_dict_instance.data['COG']['general']['type'])
+
+
+result = utili.check_existing_joints(auto_rig_ui._nested_dict_instance.data)
+
+print( result)
+
+self.data.keys()
 
 
     
