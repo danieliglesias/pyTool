@@ -8,7 +8,7 @@ importlib.reload(ui_autorig)
 
 def controller_chest_guide(char_name = None,parent_name = None,rebuild=False):
     #############################################################################################
-    sphere_name = cmds.sphere(name='C_chest_BIND_guide', r=1)[0]
+    sphere_name = cmds.sphere(name='{}_C_chest_BIND_guide'.format(char_name), r=1)[0]
     shader, shading_group = utili.create_shader_guide()
     shape = cmds.listRelatives(sphere_name, shapes=True, fullPath=True)[0]
     cmds.sets(shape, edit=True, forceElement=shading_group)
@@ -41,25 +41,25 @@ def controller_chest_guide(char_name = None,parent_name = None,rebuild=False):
 
 def controller_torso_guide(char_name = None,parent_name = None, spine_num = None, rebuild=False):
     cog_object = None
-    if cmds.objExists("C_COG_BIND_jnt"):
-        cog_object = "C_COG_BIND_jnt"
-    elif cmds.objExists("C_COG_BIND_guide"):
-        cog_object = "C_COG_BIND_guide"
+    if cmds.objExists('{}_C_COG_BIND_jnt'.format(char_name)):
+        cog_object = '{}_C_COG_BIND_jnt'.format(char_name)
+    elif cmds.objExists('{}_C_COG_BIND_guide'.format(char_name)):
+        cog_object = '{}_C_COG_BIND_guide'.format(char_name)
 
     if cog_object:
         #############################################################################################
-        sphere_name_spine01 = cmds.sphere(name='C_spine01_guide', r=1)[0]
+        sphere_name_spine01 = cmds.sphere(name='{}_C_spine01_guide'.format(char_name), r=1)[0]
 
         #############################################################################################
-        sphere_name_spine02 = cmds.sphere(name='C_spine02_guide', r=1)[0]
+        sphere_name_spine02 = cmds.sphere(name='{}_C_spine02_guide'.format(char_name), r=1)[0]
 
-        mid_pos = utili.get_midpoint('C_chest_BIND_guide',cog_object)
+        mid_pos = utili.get_midpoint('{}_C_chest_BIND_guide'.format(char_name),cog_object)
 
         loc = cmds.spaceLocator(absolute=True, name='mid_guide_loc')[0]
         #guidePos = cmds.xform(loc, t=True, ws=True, q=True)
         cmds.xform(loc, t=mid_pos)
 
-        top_mid_pos = utili.get_midpoint('C_chest_BIND_guide', 'mid_guide_loc')
+        top_mid_pos = utili.get_midpoint('{}_C_chest_BIND_guide'.format(char_name), 'mid_guide_loc')
         cmds.xform(sphere_name_spine02, t=top_mid_pos)
 
         bot_mid_pos = utili.get_midpoint('mid_guide_loc', cog_object)
@@ -67,9 +67,9 @@ def controller_torso_guide(char_name = None,parent_name = None, spine_num = None
         cmds.delete(loc)
 
 
-        list_curve_pos = [cog_object,'C_spine01_guide','C_spine02_guide','C_chest_BIND_guide']
+        list_curve_pos = [cog_object,'{}_C_spine01_guide'.format(char_name),'{}_C_spine02_guide'.format(char_name),'{}_C_chest_BIND_guide'.format(char_name)]
         positions = [cmds.xform(obj, q=True, ws=True, translation=True) for obj in list_curve_pos]
-        torso_curve = cmds.curve(d=3, p=positions, name='C_torso_curve_guide')
+        torso_curve = cmds.curve(d=3, p=positions, name='{}_C_torso_curve'.format(char_name))
         curve_shape = cmds.listRelatives(torso_curve, shapes=True)[0]
 
 
@@ -78,9 +78,9 @@ def controller_torso_guide(char_name = None,parent_name = None, spine_num = None
 
         if rebuild == True:
 
-            pos1 = ui_autorig._nested_dict_instance.data['torso']['C_spine01_guide']['position']
+            pos1 = ui_autorig._nested_dict_instance.data['torso']['{}_C_spine01_guide'.format(char_name)]['position']
             cmds.xform(sphere_name_spine01, t= pos1)
-            pos2 = ui_autorig._nested_dict_instance.data['torso']['C_spine02_guide']['position']
+            pos2 = ui_autorig._nested_dict_instance.data['torso']['{}_C_spine02_guide'.format(char_name)]['position']
             cmds.xform(sphere_name_spine02, t= pos2)
         else:
             ui_autorig._nested_dict_instance.update_limb(limb_name='torso',
