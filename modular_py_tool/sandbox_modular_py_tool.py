@@ -5,6 +5,7 @@ import importlib
 import modular_py_tool.FileClass as FileClass
 import modular_py_tool.auto_rig_torso as torso
 import modular_py_tool.auto_rig_hip as hip
+import modular_py_tool.auto_rig_leg as leg
 #from  pyTool.modular_py_tool.nested_dictionary import NestedDictionary as dict
 import os
 import json
@@ -16,10 +17,27 @@ importlib.reload(utili)
 importlib.reload(FileClass)
 importlib.reload(torso)
 importlib.reload(hip)
+importlib.reload(leg)
 
 
 
 auto_rig_ui.modular_ui()
+
+limb_name = 'lleg01'
+
+joint_list = [['{}_upperleg_guide'.format(limb_name[1]),0,0],
+                  ['{}_lowerleg_guide'.format(limb_name[1]),2,0],
+                  ['{}_ankle_guide'.format(limb_name[1]),10,0],
+                  ['{}_ball_guide'.format(limb_name[1]),0,10],
+                  ['{}_toe_guide'.format(limb_name[1]),0,9]]
+
+for index, item in enumerate(joint_list):
+    print(item[1])
+    
+    
+
+for i in range(1):
+    print(i)
 
 
 

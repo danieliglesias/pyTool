@@ -7,6 +7,7 @@ import modular_py_tool.UiAutoRig as ui_autorig
 import modular_py_tool.Utilities as utili
 import modular_py_tool.auto_rig_hip as hip
 import modular_py_tool.auto_rig_fundation as fundation
+import modular_py_tool.auto_rig_torso as torso
 import importlib
 importlib.reload(utili)
 importlib.reload(hip)
@@ -21,26 +22,8 @@ class NestedDictionary:
                 'char_name': 'Character Name',
                 'dist_loc1': [0, 0, 0],
                 'dist_loc2': [0, 200, 0]
-            },"torso01": {
-            "general": {
-            "parent": "??"
-            },"guide1": {
-            "position": [1, 0, 0],
-            "bone_ori": "XYZ",
-            "parent": "hip01",
-            "bone_name": "spine01_BIND"
-            },"guide2": {
-            "position": [1, 0, 0],
-            "bone_ori": "XYZ",
-            "parent": "Guide1",
-            "bone_name": "spine02_BIND"
-            },"guide3": {
-            "position": [1, 0, 0],
-            "bone_ori": "XYZ",
-            "parent": "Guide2",
-            "bone_name": "chest01_BIND"
             }
-            }
+
         }
 
 
@@ -69,9 +52,6 @@ class NestedDictionary:
             else:
                 print("{0}{1}: {2}".format(spacing * indent, key, value))
 
-    def PrintTest(self):
-
-        return list(self.data.keys())
 
     def LoadDictionary(self, file_name):
 
@@ -104,7 +84,7 @@ class NestedDictionary:
         existing = utili.check_existing_joints(self.data)
         print('inside rebuild_from_json')
         if existing:
-            print('The following joints already exist in the scene and need to be deleted to rebuild the rig:')
+            print('The following joints or guide already exist in the scene and need to be deleted to rebuild the rig:')
             for joint in existing:
                 print('  - {}'.format(joint))
         else:
@@ -131,7 +111,7 @@ class NestedDictionary:
                         char_name = self.data['general']['char_name']
                         fundation.type_rig_option_menu_change(type_rig = type_rig,char_name = char_name)
 
-                        # also create the group structure
+
 
 
                     if limb == 'COG':
@@ -142,7 +122,21 @@ class NestedDictionary:
                         # check for joint or guide type
                         # for now fundation is just for games
                     if limb == 'torso':
-                        print('inside torso rebuild')
+                        if type_rebuild == 'jnt':
+                            torso.controller_torso_jnt(rebuild=True)
+                        if type_rebuild == 'guide':
+                            torso_guides = self.data.get("torso", {})
+
+                            spine_joints = [k for k in torso_guides if "spine" in k.lower()]
+                            chest_joints = [k for k in torso_guides if "chest" in k.lower()]
+
+                            if chest_joints:
+                                torso.controller_chest_guide(rebuild=True)
+
+                            if spine_joints:
+                                torso.controller_torso_guide(rebuild=True)
+
+
                         # check for joint or guide type
                     if limb.startswith('leg') and limb[3:].isdigit():
                         print('inside leg rebuild')
@@ -150,11 +144,20 @@ class NestedDictionary:
 
 
 
-    def SaveDictionary(self):
+    def SaveDictionary(self,file_name = None, char_name = None):
+
+        ###lets update general variables
+        self.data['general']['file'] = "updated_file.json"
+        self.data['general']['char_name'] = "new_character_name"
+        self.data['general']['dist_loc1'] = cmds.xform('heightLocA', t=True, ws=True, q=True)
+        self.data['general']['dist_loc2'] = cmds.xform('heightLocB', t=True, ws=True, q=True)
+
 
         directory = 'C:/Users/danie/Documents/maya/2026/scripts/modular_py_tool/save/'
         ui_autorig.NameInputUi(section_dir=directory, dictionary=self.data)
         ##utili.errorMessage('Make sure that the selection is in hierarchy order from parent to children')
+
+
 
     def GuideNumber(self, limb_name = 'torso01'):
 
@@ -175,7 +178,8 @@ class NestedDictionary:
 
         return 0
 
-    def update_limb(self, limb_name = None,parent = None, list = None , suffix = None,priority = None):
+    def update_limb(self, limb_name = None,parent = None, list = None , suffix = None,priority = None,
+                    kinematic_mode = None,limb_type = None,limb_end = None):
 
         guides = utili.find_named_objects(name_patterns=list, suffix=suffix)
 
@@ -185,11 +189,14 @@ class NestedDictionary:
         self.data[limb_name]['general'] = {
             'parent': parent,
             'type': suffix,
-            'rebuild_priority': priority
+            'rebuild_priority': priority,
+            'kinematic_mode': kinematic_mode, ### IK FK controller
+            'limb_type': limb_type, ### this could be a humand feet or a horse or dog leg etc
+            'limb_end': limb_end ### Do we include feet or hands?
         }
         ###join or guide list
 
-
+        print('updating limb before loop')
         for guide_name in guides:  # Let's say 3 guides per component
             if cmds.objectType(guide_name) == 'joint':
                 rotate_orders = ['xyz', 'yzx', 'zxy', 'xzy', 'yxz', 'zyx']
@@ -203,7 +210,7 @@ class NestedDictionary:
                 'parent': cmds.listRelatives(guide_name, parent=True),
                 'bone_name': guide_name
             }
-
+        print('updating limb after loop')
         ####finally we print the result on the console
         self.show_dictionary(limb=limb_name)
 

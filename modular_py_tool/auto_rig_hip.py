@@ -8,7 +8,7 @@ importlib.reload(auto_rig_ui)
 
 
 
-def controller_hip_guide(rebuild = False):
+def controller_hip_guide(parent_name = None, rebuild = False):
 
     # Create guide sphere
     sphere_name = cmds.sphere(name='C_COG_BIND_guide', r=1)[0]
@@ -25,14 +25,11 @@ def controller_hip_guide(rebuild = False):
         cmds.xform(sphere_name, ws=True, t=final_position)
 
     else:
-        # Use default distance from heightDistance
-        try:
-            final_position = [0, (cmds.getAttr('heightDistance.distance') / 2.0), 0]
-        except:
-            distance_value = 10  # fallback if node doesn't exist
-            print('Warning: heightDistance node not found, using default value 10')
 
+        final_position = [0, (cmds.getAttr('heightDistance.distance') / 2.0), 0]
         cmds.move(final_position[0],final_position[1],final_position[2], sphere_name)
+        ##### update dictionary #####
+        auto_rig_ui._nested_dict_instance.update_limb(limb_name='COG', parent=parent_name, list=['COG'], suffix='guide')
 
 
     # Create annotation
@@ -45,12 +42,10 @@ def controller_hip_guide(rebuild = False):
     cmds.setAttr(annotate + '.overrideEnabled', 1)
     cmds.setAttr(annotate + '.overrideColor', 6)
 
-    ##### update dictionary #####
-    parent_name = cmds.textField('cog_parent_name', query=True, text=True)
-    auto_rig_ui._nested_dict_instance.update_limb(limb_name='COG',parent = parent_name, list=['COG'], suffix='guide')
 
 
-def controller_hip_jnt(rebuild = False):
+
+def controller_hip_jnt(parent_name = None, rebuild = False):
 
     if rebuild:
         position = auto_rig_ui._nested_dict_instance.data['COG']['C_COG_BIND_jnt']['position']
@@ -61,10 +56,9 @@ def controller_hip_jnt(rebuild = False):
         cmds.select(clear=True)
         cmds.joint(p=position, name='C_COG_BIND_jnt')
         cmds.delete('C_COG_BIND_guide')
+        auto_rig_ui._nested_dict_instance.update_limb(limb_name='COG', parent=parent_name, list=['COG'], suffix='jnt')
 
     ##### update dictionary #####
-    parent_name = cmds.textField('cog_parent_name', query=True, text=True)
-    auto_rig_ui._nested_dict_instance.update_limb(limb_name='COG', parent =parent_name, list=['COG'], suffix='jnt')
 
 
 
