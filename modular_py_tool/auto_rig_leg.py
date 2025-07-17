@@ -26,11 +26,11 @@ def controller_leg_guide(char_name = None,rebuild = False,limb_name = None,leg_t
 
 
     ### [0] name, [1] Y offset, [2] Z offset
-    joint_list = [['{}_upperleg{}_guide'.format(limb_name[1],limb_name[-2:]),0,0],
-                  ['{}_lowerleg{}_guide'.format(limb_name[1],limb_name[-2:]),2,0],
-                  ['{}_ankle{}_guide'.format(limb_name[1],limb_name[-2:]),10,0],
-                  ['{}_ball{}_guide'.format(limb_name[1],limb_name[-2:]),100,10],
-                  ['{}_toe{}_guide'.format(limb_name[1],limb_name[-2:]),100,6]]
+    joint_list = [['{}_{}_upperleg{}_guide'.format(char_name,limb_name[1].upper(),limb_name[-2:]),0,0],
+                  ['{}_{}_lowerleg{}_guide'.format(char_name,limb_name[1].upper(),limb_name[-2:]),2,0],
+                  ['{}_{}_ankle{}_guide'.format(char_name,limb_name[1].upper(),limb_name[-2:]),10,0],
+                  ['{}_{}_ball{}_guide'.format(char_name,limb_name[1].upper(),limb_name[-2:]),100,10],
+                  ['{}_{}_toe{}_guide'.format(char_name,limb_name[1].upper(),limb_name[-2:]),100,6]]
 
 
     final_position = None
