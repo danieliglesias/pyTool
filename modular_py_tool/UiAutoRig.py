@@ -94,12 +94,12 @@ def leg_ui(limb_name = None,):
 
 
         cmds.button(label='{}'.format('Generate guide'), height=25, parent=data_row_lleg_a,
-                    command=lambda x: leg.controller_leg_guide(limb_name = limb_name, leg_type = cmds.optionMenu('optionmenu_{}'.format(limb_name),q=True, v=True),limb_connection =  cmds.textField('name_limb_connection_{}'.format(limb_name), query=True, text=True) ,
+                    command=lambda x: leg.controller_leg_guide(char_name = cmds.textField(char_name, query=True, text=True),limb_name = limb_name, leg_type = cmds.optionMenu('optionmenu_{}'.format(limb_name),q=True, v=True),limb_connection =  cmds.textField('name_limb_connection_{}'.format(limb_name), query=True, text=True) ,
                                                                kinematic_mode = cmds.checkBoxGrp('leg_ik_fk_flag_{}'.format(limb_name), query=True, valueArray2=True), limb_end = cmds.checkBoxGrp('leg_foot_flag_{}'.format(limb_name), query=True, valueArray2=True) ))
         cmds.button(label='{}'.format('Update'), height=25, parent=data_row_lleg_a)
 
         cmds.button(label='{}'.format('Generate Jnt from guide'), height=25, parent=data_row_lleg_a,
-                    command=lambda x: leg.controller_leg_jnt(limb_name = limb_name, leg_type = cmds.optionMenu('optionmenu_{}'.format(limb_name),q=True, v=True),limb_connection =  cmds.textField('name_limb_connection_{}'.format(limb_name), query=True, text=True) ,
+                    command=lambda x: leg.controller_leg_jnt(char_name = cmds.textField(char_name, query=True, text=True),limb_name = limb_name, leg_type = cmds.optionMenu('optionmenu_{}'.format(limb_name),q=True, v=True),limb_connection =  cmds.textField('name_limb_connection_{}'.format(limb_name), query=True, text=True) ,
                                                              kinematic_mode = cmds.checkBoxGrp('leg_ik_fk_flag_{}'.format(limb_name), query=True, valueArray2=True), limb_end = cmds.checkBoxGrp('leg_foot_flag_{}'.format(limb_name), query=True, valueArray2=True) ))
         cmds.button(label='{}'.format('Update'), height=25, parent=data_row_lleg_a)
 
@@ -500,12 +500,12 @@ def build_data_frame(window, main_layout):
 
 
             cmds.button(label='{}'.format('Generate COG Guide'), height=25, parent=data_row_hip,
-                command=lambda x: hip.controller_hip_guide(parent_name = cmds.textField('cog_parent_name', query=True, text=True)))
-            cmds.button(label='{}'.format('Update'), height=25, parent=data_row_hip, command=lambda x: _nested_dict_instance.update_limb( limb_name = 'COG',parent = cmds.textField(parent_name, query=True, text=True), list = ['COG'],suffix = 'guide'))
+                command=lambda x: hip.controller_hip_guide(char_name = cmds.textField(char_name, query=True, text=True),parent_name = cmds.textField('cog_parent_name', query=True, text=True)))
+            cmds.button(label='{}'.format('Update'), height=25, parent=data_row_hip, command=lambda x: _nested_dict_instance.update_limb(char_name = cmds.textField(char_name, query=True, text=True), limb_name = 'COG',parent = cmds.textField(parent_name, query=True, text=True), list = ['COG'],suffix = 'guide'))
 
             cmds.button(label='{}'.format('Generate Jnt from guide'), height=25, parent=data_row_hip,
-                        command=lambda x: hip.controller_hip_jnt(parent_name = cmds.textField('cog_parent_name', query=True, text=True)))
-            cmds.button(label='{}'.format('Update'), height=25, parent=data_row_hip, command=lambda x: _nested_dict_instance.update_limb( limb_name = 'COG',parent = cmds.textField(parent_name, query=True, text=True), list = ['COG'],suffix = 'jnt'))
+                        command=lambda x: hip.controller_hip_jnt(char_name = cmds.textField(char_name, query=True, text=True),parent_name = cmds.textField('cog_parent_name', query=True, text=True)))
+            cmds.button(label='{}'.format('Update'), height=25, parent=data_row_hip, command=lambda x: _nested_dict_instance.update_limb(char_name = cmds.textField(char_name, query=True, text=True), limb_name = 'COG',parent = cmds.textField(parent_name, query=True, text=True), list = ['COG'],suffix = 'jnt'))
 
 
 
@@ -544,14 +544,14 @@ def build_data_frame(window, main_layout):
 
 
             cmds.button(label='{}'.format('Generate Chest guide'), height=25, parent=data_row_torso01,
-                        command=lambda x: torso.controller_chest_guide(parent_name = cmds.textField(parent_name, query=True, text=True)))
-            cmds.button(label='{}'.format('Update'), height=25, parent=data_row_torso01, command=lambda x: _nested_dict_instance.update_limb( limb_name = 'torso',parent = cmds.textField(parent_name, query=True, text=True), list = ['spine','chest'],suffix = 'guide'))
+                        command=lambda x: torso.controller_chest_guide(char_name = cmds.textField(char_name, query=True, text=True),parent_name = cmds.textField(parent_name, query=True, text=True)))
+            cmds.button(label='{}'.format('Update'), height=25, parent=data_row_torso01, command=lambda x: _nested_dict_instance.update_limb(char_name = cmds.textField(char_name, query=True, text=True), limb_name = 'torso',parent = cmds.textField(parent_name, query=True, text=True), list = ['spine','chest'],suffix = 'guide'))
 
-            cmds.button(label='{}'.format('Generate torso Guides'), height=25, parent=data_row_torso01 , command=lambda x: torso.controller_torso_guide(parent_name = cmds.textField(parent_name, query=True, text=True),spine_num = cmds.intField(int_field_name, query=True, value=True) ))
-            cmds.button(label='{}'.format('Update'), height=25, parent=data_row_torso01, command=lambda x: _nested_dict_instance.update_limb( limb_name = 'torso',parent = cmds.textField(parent_name, query=True, text=True), list = ['spine','chest'],suffix = 'guide'))
+            cmds.button(label='{}'.format('Generate torso Guides'), height=25, parent=data_row_torso01 , command=lambda x: torso.controller_torso_guide(char_name = cmds.textField(char_name, query=True, text=True),parent_name = cmds.textField(parent_name, query=True, text=True),spine_num = cmds.intField(int_field_name, query=True, value=True) ))
+            cmds.button(label='{}'.format('Update'), height=25, parent=data_row_torso01, command=lambda x: _nested_dict_instance.update_limb(char_name = cmds.textField(char_name, query=True, text=True), limb_name = 'torso',parent = cmds.textField(parent_name, query=True, text=True), list = ['spine','chest'],suffix = 'guide'))
 
-            cmds.button(label='{}'.format('Generate torso jnt'), height=25, parent=data_row_torso01, command=lambda x: torso.controller_torso_jnt(parent_name = cmds.textField(parent_name, query=True, text=True),spine_num = cmds.intField(int_field_name, query=True, value=True) ))
-            cmds.button(label='{}'.format('Update'), height=25, parent=data_row_torso01, command=lambda x: _nested_dict_instance.update_limb( limb_name = 'torso',parent = cmds.textField(parent_name, query=True, text=True), list = ['spine','chest'],suffix = 'jnt'))
+            cmds.button(label='{}'.format('Generate torso jnt'), height=25, parent=data_row_torso01, command=lambda x: torso.controller_torso_jnt(char_name = cmds.textField(char_name, query=True, text=True),parent_name = cmds.textField(parent_name, query=True, text=True),spine_num = cmds.intField(int_field_name, query=True, value=True) ))
+            cmds.button(label='{}'.format('Update'), height=25, parent=data_row_torso01, command=lambda x: _nested_dict_instance.update_limb(char_name = cmds.textField(char_name, query=True, text=True), limb_name = 'torso',parent = cmds.textField(parent_name, query=True, text=True), list = ['spine','chest'],suffix = 'jnt'))
 
             data_row_torso02 = cmds.rowColumnLayout(numberOfColumns=1,
                                                     columnWidth=[(1, 500)],
