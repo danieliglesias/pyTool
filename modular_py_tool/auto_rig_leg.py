@@ -6,7 +6,7 @@ import importlib
 importlib.reload(utili)
 importlib.reload(ui_autorig)
 
-def controller_leg_guide(rebuild = False,limb_name = None,leg_type = None, limb_connection = None, kinematic_mode = None, limb_end = None):
+def controller_leg_guide(char_name = None,rebuild = False,limb_name = None,leg_type = None, limb_connection = None, kinematic_mode = None, limb_end = None):
 
     if kinematic_mode[0] == True:
         kinematic = 'ikfk'
@@ -78,7 +78,7 @@ def controller_leg_guide(rebuild = False,limb_name = None,leg_type = None, limb_
                                                        '{}_toe{}'.format(limb_name[1],limb_name[-2:])], suffix='guide',
                                                  kinematic_mode = kinematic, limb_end = limb_end_leg,limb_type = leg_type)
 
-def controller_leg_jnt(limb_name = None,leg_type = None, limb_connection = None, ikfk = None, leg = None):
+def controller_leg_jnt(char_name = None,limb_name = None,leg_type = None, limb_connection = None, ikfk = None, leg = None):
 
     print('Here we enter the controller jnt //// {}'.format(limb_name))
     print('leg type:  {}'.format(leg_type))
