@@ -178,7 +178,7 @@ class NestedDictionary:
 
         return 0
 
-    def update_limb(self, limb_name = None,parent = None, list = None , suffix = None,priority = None,
+    def update_limb(self,char_name = None, limb_name = None,parent = None, list = None , suffix = None,priority = None,
                     kinematic_mode = None,limb_type = None,limb_end = None):
 
         guides = utili.find_named_objects(name_patterns=list, suffix=suffix)
