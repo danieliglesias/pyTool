@@ -50,7 +50,7 @@ def type_rig_option_menu_change(type_rig = None,char_name = None):
         CreateBasicRigStructure(char_name)
         #guide = cmds.sphere(radius=1, name='{}_root_guide'.format(char_name))\
         cmds.select(clear=True)
-        jnt = cmds.joint(p=[0,0,0], name='root_jnt')
+        jnt = cmds.joint(p=[0,0,0], name='{}_root_jnt'.format(char_name))
     
 
 
