@@ -8,7 +8,7 @@ importlib.reload(auto_rig_ui)
 
 
 
-def controller_hip_guide(parent_name = None, rebuild = False):
+def controller_hip_guide(char_name = None,parent_name = None, rebuild = False):
 
     # Create guide sphere
     sphere_name = cmds.sphere(name='C_COG_BIND_guide', r=1)[0]
@@ -45,7 +45,7 @@ def controller_hip_guide(parent_name = None, rebuild = False):
 
 
 
-def controller_hip_jnt(parent_name = None, rebuild = False):
+def controller_hip_jnt(char_name = None,parent_name = None, rebuild = False):
 
     if rebuild:
         position = auto_rig_ui._nested_dict_instance.data['COG']['C_COG_BIND_jnt']['position']
