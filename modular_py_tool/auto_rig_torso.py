@@ -6,7 +6,7 @@ import importlib
 importlib.reload(utili)
 importlib.reload(ui_autorig)
 
-def controller_chest_guide(parent_name = None,rebuild=False):
+def controller_chest_guide(char_name = None,parent_name = None,rebuild=False):
     #############################################################################################
     sphere_name = cmds.sphere(name='C_chest_BIND_guide', r=1)[0]
     shader, shading_group = utili.create_shader_guide()
@@ -39,7 +39,7 @@ def controller_chest_guide(parent_name = None,rebuild=False):
 
 
 
-def controller_torso_guide(parent_name = None, spine_num = None, rebuild=False):
+def controller_torso_guide(char_name = None,parent_name = None, spine_num = None, rebuild=False):
     cog_object = None
     if cmds.objExists("C_COG_BIND_jnt"):
         cog_object = "C_COG_BIND_jnt"
@@ -89,7 +89,7 @@ def controller_torso_guide(parent_name = None, spine_num = None, rebuild=False):
 
 
 
-def controller_torso_jnt(parent_name = None,rebuild = False, spine_num = None):
+def controller_torso_jnt(char_name = None,parent_name = None,rebuild = False, spine_num = None):
 
     if rebuild == False:
 
