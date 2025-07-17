@@ -16,7 +16,7 @@ def CreateBasicRigStructure(char_name='Character'):
 
 
     # Top group
-    root_grp = cmds.group(em=True, name=f'{character_name}_Root_GRP')
+    root_grp = cmds.group(em=True, name='{}_Root_GRP'.format(char_name))
 
     # Sub groups
     geo_grp         = cmds.group(em=True, name='GEO_GRP', parent=root_grp)
@@ -29,7 +29,7 @@ def CreateBasicRigStructure(char_name='Character'):
 
     ctrl_grp        = cmds.group(em=True, name='CTRL_GRP', parent=root_grp)
     #main_ctrl       = cmds.circle(name='Main_CTRL', normal=[1, 0, 0], radius=5)[0]
-    main_ctrl       = utili.createController(name='{}_root'.format(character_name), character_name=None, shape='circle', target=None, contraint_target=None,
+    main_ctrl       = utili.createController(name='{}_root'.format(char_name), char_name=None, shape='circle', target=None, contraint_target=None,
                          facing='y',type='simple', size='root')
 
     cmds.parent('{}_root_off'.format(character_name), ctrl_grp)
