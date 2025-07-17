@@ -11,7 +11,7 @@ importlib.reload(auto_rig_ui)
 def controller_hip_guide(char_name = None,parent_name = None, rebuild = False):
 
     # Create guide sphere
-    sphere_name = cmds.sphere(name='C_COG_BIND_guide', r=1)[0]
+    sphere_name = cmds.sphere(name='{}_C_COG_BIND_guide'.format(char_name), r=1)[0]
 
     # Apply shader
     shader, shading_group = utili.create_shader_guide()
@@ -21,7 +21,7 @@ def controller_hip_guide(char_name = None,parent_name = None, rebuild = False):
     # Set position
     if rebuild:
         # Use custom position
-        final_position = auto_rig_ui._nested_dict_instance['COG']['C_COG_BIND_guide']['position']
+        final_position = auto_rig_ui._nested_dict_instance['COG']['{}_C_COG_BIND_guide'.format(char_name)]['position']
         cmds.xform(sphere_name, ws=True, t=final_position)
 
     else:
@@ -48,14 +48,14 @@ def controller_hip_guide(char_name = None,parent_name = None, rebuild = False):
 def controller_hip_jnt(char_name = None,parent_name = None, rebuild = False):
 
     if rebuild:
-        position = auto_rig_ui._nested_dict_instance.data['COG']['C_COG_BIND_jnt']['position']
+        position = auto_rig_ui._nested_dict_instance.data['COG']['{}_C_COG_BIND_jnt'.format(char_name)]['position']
         cmds.select(clear=True)
-        cmds.joint(p=position, name='C_COG_BIND_jnt')
+        cmds.joint(p=position, name='{}_C_COG_BIND_jnt'.format(char_name))
     else:
-        position = cmds.xform('C_COG_BIND_guide', t=True, ws=True, q=True)
+        position = cmds.xform('{}_C_COG_BIND_guide'.format(char_name), t=True, ws=True, q=True)
         cmds.select(clear=True)
-        cmds.joint(p=position, name='C_COG_BIND_jnt')
-        cmds.delete('C_COG_BIND_guide')
+        cmds.joint(p=position, name='{}_C_COG_BIND_jnt'.format(char_name))
+        cmds.delete('{}_C_COG_BIND_guide'.format(char_name))
         auto_rig_ui._nested_dict_instance.update_limb(limb_name='COG', parent=parent_name, list=['COG'], suffix='jnt')
 
     ##### update dictionary #####
