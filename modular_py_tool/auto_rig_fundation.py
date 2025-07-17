@@ -41,7 +41,7 @@ def CreateBasicRigStructure(character_name='Character'):
     no_touch_grp    = cmds.group(em=True, name='NO_TOUCH_GRP', parent=root_grp)
 
 
-def type_rig_option_menu_change(type_rig = None,char_name = None):
+def type_rig_option_menu_change(char_name = None,type_rig = None,char_name = None):
 
     #auto_rig_ui._nested_dict_instance.update_limb(limb_name='general', list=['spine', 'chest'], suffix='jnt')
 
@@ -51,6 +51,7 @@ def type_rig_option_menu_change(type_rig = None,char_name = None):
         #guide = cmds.sphere(radius=1, name='{}_root_guide'.format(char_name))\
         cmds.select(clear=True)
         jnt = cmds.joint(p=[0,0,0], name='root_jnt')
+    
 
 
 
