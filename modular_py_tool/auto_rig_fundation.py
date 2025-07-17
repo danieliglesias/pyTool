@@ -12,7 +12,7 @@ importlib.reload(utili)
 importlib.reload(FileClass)
 
 
-def CreateBasicRigStructure(character_name='Character'):
+def CreateBasicRigStructure(char_name='Character'):
 
 
     # Top group
