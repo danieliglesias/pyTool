@@ -97,23 +97,23 @@ def controller_torso_jnt(char_name = None,parent_name = None,rebuild = False, sp
         value = 1 / (position - 1)
         #for i in range(position,0,-1):
         for i in range(1,position):
-            world_pos = utili.get_position_on_curve('C_torso_curve_guide', (i * value))
+            world_pos = utili.get_position_on_curve('{}_C_torso_curve_guide'.format(char_name), (i * value))
             cmds.select(clear=True)
 
 
             if i == (position-1):
-                jnt = cmds.joint(p=world_pos, name='c_chest_BIND_jnt')
-                cmds.parent( 'c_chest_BIND_jnt','c_spine{:02d}_BIND_jnt'.format(i-1))
+                jnt = cmds.joint(p=world_pos, name='{}_C_chest_BIND_jnt'.format(char_name))
+                cmds.parent( '{}_C_chest_BIND_jnt'.format(char_name),'{}_C_spine{:02d}_BIND_jnt'.format(char_name,i-1))
             else:
-                jnt = cmds.joint(p=world_pos, name='c_spine{:02d}_BIND_jnt'.format(i))
+                jnt = cmds.joint(p=world_pos, name='{}_C_spine{:02d}_BIND_jnt'.format(char_name,i))
 
                 if i >= 2:
-                    cmds.parent(jnt,'c_spine{:02d}_BIND_jnt'.format(i-1))
+                    cmds.parent(jnt,'{}_C_spine{:02d}_BIND_jnt'.format(char_name,i-1))
 
-        cmds.delete('C_chest_BIND_guide')
-        cmds.delete('C_spine01_guide')
-        cmds.delete('C_spine02_guide')
-        cmds.delete('C_torso_curve_guide')
+        cmds.delete('{}_C_chest_BIND_guide'.format(char_name))
+        cmds.delete('{}_C_spine01_guide'.format(char_name))
+        cmds.delete('{}_C_spine02_guide'.format(char_name))
+        cmds.delete('{}_C_torso_curve_guide'.format(char_name))
         #cmds.joint("rootJoint", edit=True, orientJoint="xyz", secondaryAxisOrient="yup", children=True)
         #cmds.joint(jnt_list[0], edit=True, zso=True, oj='xyz', secondaryAxisOrient='yup',children=True)
         #cmds.joint(jnt_list[-1], edit=True, oj='none', children=True, zso=True)
