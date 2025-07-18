@@ -49,7 +49,7 @@ def constructor_limb_selected(limb_selected=None):
 def arm_ui(limb_name = None,):
     clear_grid(grid='selected_grid')
 
-    if constructor_limb_selected('lleg') == False:
+    if constructor_limb_selected('larm') == False:
 
         type_arm_option_menu = cmds.optionMenu('optionmenu_{}'.format(limb_name), label='Preset leg', parent='selected_grid')
         cmds.menuItem(label="human")
@@ -67,7 +67,7 @@ def arm_ui(limb_name = None,):
         cmds.checkBoxGrp('arm_hand_metacarpal_{}'.format(limb_name), numberOfCheckBoxes=2, label='Foot?',
                          labelArray2=['no', 'basic'], parent='selected_grid',value1=True, value2=False)
 
-        data_row_lleg = cmds.rowColumnLayout(numberOfColumns=2,
+        data_row_larm= cmds.rowColumnLayout(numberOfColumns=2,
                                             columnWidth=[(1, 100), (2, 400)],
                                             columnOffset=[(1, 'left', 5), (2, 'both', 5)],
                                             columnAlign=[(1, 'left'), (2, 'center')],
@@ -75,19 +75,19 @@ def arm_ui(limb_name = None,):
 
 
 
-        cmds.text(align='center', height=30, label='name limb connection', parent=data_row_lleg)
+        cmds.text(align='center', height=30, label='name limb connection', parent=data_row_larm)
         
-        arm_cog_data = _nested_dict_instance.data.get('COG', {})
-        arm_cog_keys = [key for key in arm_cog_data if key != 'general']
+        arm_cog_data = _nested_dict_instance.data.get('torso', {})
+        arm_cog_keys = [key for key in arm_cog_data if 'chest' in key.lower() ]
         default_parent = arm_cog_keys[0] if arm_cog_keys else 'None'
-        hip_position = cmds.textField('name_limb_connection_{}'.format(limb_name) ,height=30, text=default_parent, parent=data_row_lleg) ### chest01 default connection to the body
+        hip_position = cmds.textField('name_limb_connection_{}'.format(limb_name) ,height=30, text=default_parent, parent=data_row_larm) ### chest01 default connection to the body
 
-        cmds.text(align='center', height=30, label='limb_name', parent=data_row_lleg)
-        hip_position = cmds.textField(height=30, text='{}'.format(limb_name), parent=data_row_lleg, enable = False)
+        cmds.text(align='center', height=30, label='limb_name', parent=data_row_larm)
+        hip_position = cmds.textField(height=30, text='{}'.format(limb_name), parent=data_row_larm, enable = False)
 
 
 
-        data_row_lleg_a = cmds.rowColumnLayout(numberOfColumns=2,
+        data_row_larm_a = cmds.rowColumnLayout(numberOfColumns=2,
                                                 columnWidth=[(1, 400), (2, 100)],
                                                 columnOffset=[(1, 'both', 5), (2, 'both', 5)],
                                                 columnAlign=[(1, 'center'), (2, 'center')],
@@ -98,15 +98,15 @@ def arm_ui(limb_name = None,):
 
 
 
-        cmds.button(label='{}'.format('Generate guide'), height=25, parent=data_row_lleg_a,
+        cmds.button(label='{}'.format('Generate guide'), height=25, parent=data_row_larm_a,
                     command=lambda x: leg.controller_leg_guide(char_name = cmds.textField('charactername', query=True, text=True),limb_name = limb_name, leg_type = cmds.optionMenu('optionmenu_{}'.format(limb_name),q=True, v=True),limb_connection =  cmds.textField('name_limb_connection_{}'.format(limb_name), query=True, text=True) ,
                                                                kinematic_mode = cmds.checkBoxGrp('leg_ik_fk_flag_{}'.format(limb_name), query=True, valueArray2=True), limb_end = cmds.checkBoxGrp('leg_foot_flag_{}'.format(limb_name), query=True, valueArray2=True) ))
-        cmds.button(label='{}'.format('Update'), height=25, parent=data_row_lleg_a)
+        cmds.button(label='{}'.format('Update'), height=25, parent=data_row_larm_a)
 
-        cmds.button(label='{}'.format('Generate Jnt from guide'), height=25, parent=data_row_lleg_a,
+        cmds.button(label='{}'.format('Generate Jnt from guide'), height=25, parent=data_row_larm_a,
                     command=lambda x: leg.controller_leg_jnt(char_name = cmds.textField('charactername', query=True, text=True),limb_name = limb_name, leg_type = cmds.optionMenu('optionmenu_{}'.format(limb_name),q=True, v=True),limb_connection =  cmds.textField('name_limb_connection_{}'.format(limb_name), query=True, text=True) ,
                                                              kinematic_mode = cmds.checkBoxGrp('leg_ik_fk_flag_{}'.format(limb_name), query=True, valueArray2=True), limb_end = cmds.checkBoxGrp('leg_foot_flag_{}'.format(limb_name), query=True, valueArray2=True) ))
-        cmds.button(label='{}'.format('Update'), height=25, parent=data_row_lleg_a)
+        cmds.button(label='{}'.format('Update'), height=25, parent=data_row_larm_a)
 
 
 
