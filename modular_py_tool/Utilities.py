@@ -313,7 +313,7 @@ def get_position_on_curve(curve, normalized_param):
 
 
 
-def find_named_objects(name_patterns, suffix="_jnt", node_types=("joint", "transform")):
+def find_named_objects(char_name = None, name_patterns =None, suffix="_jnt", node_types=("joint", "transform")):
     # Get all objects of the specified types
 
     print('inside find_named_objects')
@@ -324,7 +324,9 @@ def find_named_objects(name_patterns, suffix="_jnt", node_types=("joint", "trans
     # Join patterns and build regex
     name_group = "|".join(name_patterns)
     escaped_suffix = re.escape('_{}'.format(suffix))
-    pattern = re.compile(rf".*({name_group})\d*.*{escaped_suffix}$", re.IGNORECASE)
+    escaped_char_name = re.escape(char_name)
+    pattern_str = r'^{}.*(?:{}).*{}$'.format(escaped_char_name, name_group, escaped_suffix)
+    pattern = re.compile(pattern_str, re.IGNORECASE)
 
     # Filter by name pattern and suffix
     matching = [obj for obj in all_objects if pattern.match(obj)]

@@ -29,7 +29,7 @@ def controller_hip_guide(char_name = None,parent_name = None, rebuild = False):
         final_position = [0, (cmds.getAttr('heightDistance.distance') / 2.0), 0]
         cmds.move(final_position[0],final_position[1],final_position[2], sphere_name)
         ##### update dictionary #####
-        auto_rig_ui._nested_dict_instance.update_limb(limb_name='COG', parent=parent_name, list=['COG'], suffix='guide')
+        auto_rig_ui._nested_dict_instance.update_limb(char_name = char_name, limb_name='COG', parent=parent_name, list=['COG'], suffix='guide')
 
 
     # Create annotation
@@ -56,7 +56,7 @@ def controller_hip_jnt(char_name = None,parent_name = None, rebuild = False):
         cmds.select(clear=True)
         cmds.joint(p=position, name='{}_C_COG_BIND_jnt'.format(char_name))
         cmds.delete('{}_C_COG_BIND_guide'.format(char_name))
-        auto_rig_ui._nested_dict_instance.update_limb(limb_name='COG', parent=parent_name, list=['COG'], suffix='jnt')
+        auto_rig_ui._nested_dict_instance.update_limb(char_name = char_name, limb_name='COG', parent=parent_name, list=['COG'], suffix='jnt')
 
     ##### update dictionary #####
 

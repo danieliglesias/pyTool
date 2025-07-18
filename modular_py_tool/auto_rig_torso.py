@@ -83,7 +83,7 @@ def controller_torso_guide(char_name = None,parent_name = None, spine_num = None
             pos2 = ui_autorig._nested_dict_instance.data['torso']['{}_C_spine02_guide'.format(char_name)]['position']
             cmds.xform(sphere_name_spine02, t= pos2)
         else:
-            ui_autorig._nested_dict_instance.update_limb(limb_name='torso',
+            ui_autorig._nested_dict_instance.update_limb(char_name = char_name,limb_name='torso',
                                                          parent=parent_name,
                                                          list=['chest','spine'], suffix='guide')
 
@@ -97,7 +97,7 @@ def controller_torso_jnt(char_name = None,parent_name = None,rebuild = False, sp
         value = 1 / (position - 1)
         #for i in range(position,0,-1):
         for i in range(1,position):
-            world_pos = utili.get_position_on_curve('{}_C_torso_curve_guide'.format(char_name), (i * value))
+            world_pos = utili.get_position_on_curve('{}_C_torso_curve'.format(char_name), (i * value))
             cmds.select(clear=True)
 
 
@@ -113,13 +113,13 @@ def controller_torso_jnt(char_name = None,parent_name = None,rebuild = False, sp
         cmds.delete('{}_C_chest_BIND_guide'.format(char_name))
         cmds.delete('{}_C_spine01_guide'.format(char_name))
         cmds.delete('{}_C_spine02_guide'.format(char_name))
-        cmds.delete('{}_C_torso_curve_guide'.format(char_name))
+        cmds.delete('{}_C_torso_curve'.format(char_name))
         #cmds.joint("rootJoint", edit=True, orientJoint="xyz", secondaryAxisOrient="yup", children=True)
         #cmds.joint(jnt_list[0], edit=True, zso=True, oj='xyz', secondaryAxisOrient='yup',children=True)
         #cmds.joint(jnt_list[-1], edit=True, oj='none', children=True, zso=True)
 
         ### update dictionary
-        ui_autorig._nested_dict_instance.update_limb(limb_name='torso',
+        ui_autorig._nested_dict_instance.update_limb(char_name = char_name, limb_name='torso',
                                                      parent=parent_name,
                                                      list=['chest', 'spine'], suffix='jnt')
 

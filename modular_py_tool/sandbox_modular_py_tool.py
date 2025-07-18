@@ -23,22 +23,7 @@ importlib.reload(leg)
 
 auto_rig_ui.modular_ui()
 
-limb_name = 'lleg01'
-
-joint_list = [['{}_upperleg_guide'.format(limb_name[1]),0,0],
-                  ['{}_lowerleg_guide'.format(limb_name[1]),2,0],
-                  ['{}_ankle_guide'.format(limb_name[1]),10,0],
-                  ['{}_ball_guide'.format(limb_name[1]),0,10],
-                  ['{}_toe_guide'.format(limb_name[1]),0,9]]
-
-for index, item in enumerate(joint_list):
-    print(item[1])
-    
-    
-
-for i in range(1):
-    print(i)
-
+print('lleg'[1:])
 
 
 auto_rig_ui._nested_dict_instance.update_limb( limb_name = 'torso', list = ['spine','chest'],suffix = 'jnt')
@@ -48,22 +33,10 @@ auto_rig_ui._nested_dict_instance.update_limb( limb_name = 'torso', list = ['spi
 auto_rig_ui._nested_dict_instance.show_dictionary()
 
 
-auto_rig_ui._nested_dict_instance.data['torso'] = {}
-
-component =auto_rig_ui._nested_dict_instance.data['torso']
-
-
-auto_rig_ui._nested_dict_instance.create_joints_from_limb()
-
-
 print(auto_rig_ui._nested_dict_instance.data['COG']['general']['type'])
 
 
-result = utili.check_existing_joints(auto_rig_ui._nested_dict_instance.data)
 
-print( result)
-
-self.data.keys()
 
 
     

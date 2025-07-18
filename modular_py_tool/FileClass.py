@@ -8,10 +8,12 @@ import modular_py_tool.Utilities as utili
 import modular_py_tool.auto_rig_hip as hip
 import modular_py_tool.auto_rig_fundation as fundation
 import modular_py_tool.auto_rig_torso as torso
+import modular_py_tool.auto_rig_leg as leg
 import importlib
 importlib.reload(utili)
 importlib.reload(hip)
 importlib.reload(ui_autorig)
+importlib.reload(leg)
 
 class NestedDictionary:
     def __init__(self):
@@ -89,12 +91,12 @@ class NestedDictionary:
                 print('  - {}'.format(joint))
         else:
             # now we go limb by limb rebuilding
+            char_name = self.data['general']['char_name']
             for limb in self.data.keys():
                 if limb == 'general':
                     #set file and character name
                     file_name = self.data[limb]['file']
                     ui_autorig.cmds.textField('filename', edit=True, text=file_name)
-                    char_name = self.data[limb]['char_name']
                     ui_autorig.cmds.textField('charactername', edit=True, text=char_name)
 
                     #set distant measure tool
@@ -108,22 +110,23 @@ class NestedDictionary:
                     if limb == 'fundation':
                         print('inside fundation rebuild')
                         type_rig = self.data[limb]['general']['parent']
-                        char_name = self.data['general']['char_name']
-                        fundation.type_rig_option_menu_change(type_rig = type_rig,char_name = char_name)
+                        if type_rig:
+                            cmds.optionMenu('type_rig_option_menu', edit=True, value=type_rig)
+                            fundation.type_rig_option_menu_change(type_rig = type_rig,char_name = char_name)
 
 
 
 
                     if limb == 'COG':
                         if type_rebuild == 'jnt':
-                            hip.controller_hip_jnt(rebuild=True)
+                            hip.controller_hip_jnt(rebuild=True,char_name = char_name)
                         if type_rebuild == 'guide':
-                            hip.controller_hip_guide(rebuild=True)
+                            hip.controller_hip_guide(rebuild=True, char_name = char_name)
                         # check for joint or guide type
                         # for now fundation is just for games
                     if limb == 'torso':
                         if type_rebuild == 'jnt':
-                            torso.controller_torso_jnt(rebuild=True)
+                            torso.controller_torso_jnt(rebuild=True,char_name = char_name)
                         if type_rebuild == 'guide':
                             torso_guides = self.data.get("torso", {})
 
@@ -131,16 +134,25 @@ class NestedDictionary:
                             chest_joints = [k for k in torso_guides if "chest" in k.lower()]
 
                             if chest_joints:
-                                torso.controller_chest_guide(rebuild=True)
+                                torso.controller_chest_guide(rebuild=True,char_name = char_name)
 
                             if spine_joints:
-                                torso.controller_torso_guide(rebuild=True)
+                                torso.controller_torso_guide(rebuild=True,char_name = char_name)
 
 
                         # check for joint or guide type
-                    if limb.startswith('leg') and limb[3:].isdigit():
-                        print('inside leg rebuild')
 
+                    if "lleg" in limb or "rleg" in limb:
+                        kinematic_mode = self.data[limb]['general']['kinematic_mode']
+                        limb_type = self.data[limb]['general']['limb_type']
+                        limb_end = self.data[limb]['general']['limb_end']
+                        if type_rebuild == 'jnt':
+                            leg.controller_leg_jnt(limb_name=limb, char_name=char_name, rebuild=True,
+                                                     kinematic_mode=kinematic_mode,
+                                                     limb_end=limb_end, leg_type=limb_type)
+                        if type_rebuild == 'guide':
+                            leg.controller_leg_guide(limb_name = limb, char_name = char_name, rebuild=True, kinematic_mode = kinematic_mode,
+                                                     limb_end = limb_end , leg_type = limb_type )
 
 
 
@@ -148,7 +160,7 @@ class NestedDictionary:
 
         ###lets update general variables
         self.data['general']['file'] = "updated_file.json"
-        self.data['general']['char_name'] = "new_character_name"
+        self.data['general']['char_name'] = char_name
         self.data['general']['dist_loc1'] = cmds.xform('heightLocA', t=True, ws=True, q=True)
         self.data['general']['dist_loc2'] = cmds.xform('heightLocB', t=True, ws=True, q=True)
 
@@ -181,7 +193,9 @@ class NestedDictionary:
     def update_limb(self,char_name = None, limb_name = None,parent = None, list = None , suffix = None,priority = None,
                     kinematic_mode = None,limb_type = None,limb_end = None):
 
-        guides = utili.find_named_objects(name_patterns=list, suffix=suffix)
+        guides = utili.find_named_objects(char_name = char_name, name_patterns=list, suffix=suffix)
+
+        print(guides)
 
         #for comp in components.split('_')[1]:
         self.data[limb_name] = {}

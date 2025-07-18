@@ -1,4 +1,6 @@
 import maya.cmds as cmds
+from maya.app.renderSetup.lightEditor.model.typeManager import rebuild
+
 import modular_py_tool.Utilities as utili
 import modular_py_tool.UiAutoRig as ui_autorig
 
@@ -8,14 +10,18 @@ importlib.reload(ui_autorig)
 
 def controller_leg_guide(char_name = None,rebuild = False,limb_name = None,leg_type = None, limb_connection = None, kinematic_mode = None, limb_end = None):
 
-    if kinematic_mode[0] == True:
-        kinematic = 'ikfk'
+    if rebuild:
+        kinematic = kinematic_mode
+        limb_end_leg = limb_end
     else:
-        kinematic = 'fk'
-    if limb_end[0] == True:
-        limb_end_leg = True
-    else:
-        limb_end_leg = False
+        if kinematic_mode[0] == True:
+            kinematic = 'ikfk'
+        else:
+            kinematic = 'fk'
+        if limb_end[0] == True:
+            limb_end_leg = True
+        else:
+            limb_end_leg = False
 
     print('Here we enter the controller guide //// {}'.format(limb_name))
     print('leg type:  {}'.format(leg_type))
@@ -42,8 +48,8 @@ def controller_leg_guide(char_name = None,rebuild = False,limb_name = None,leg_t
         cmds.sets(shape, edit=True, forceElement=shading_group)
 
         if rebuild == True:
-            final_position = ui_autorig._nested_dict_instance.data[limb_name]['general']['position']
-            cmds.move( final_position ,sphere_name)
+            final_position = ui_autorig._nested_dict_instance.data[limb_name][item[0]]['position']
+            cmds.move( final_position[0],final_position[1],final_position[2] ,sphere_name)
         else:
             final_position = [(cmds.getAttr('heightDistance.distance') / 25.0),
                               (cmds.getAttr('heightDistance.distance') / 2.0)/ item[1] if item[1] != 0 else (cmds.getAttr('heightDistance.distance') / 2.0),
@@ -69,7 +75,7 @@ def controller_leg_guide(char_name = None,rebuild = False,limb_name = None,leg_t
 
         ### UPDATE LIMB
         # kinematic_mode = kinematic, limb_type = None, limb_end = limb_end_leg
-    ui_autorig._nested_dict_instance.update_limb(limb_name=limb_name,
+    ui_autorig._nested_dict_instance.update_limb(char_name = char_name,limb_name=limb_name,
                                                  parent=limb_connection,
                                                  list=['{}_upperleg{}'.format(limb_name[1],limb_name[-2:]),
                                                        '{}_lowerleg{}'.format(limb_name[1],limb_name[-2:]),
@@ -78,10 +84,48 @@ def controller_leg_guide(char_name = None,rebuild = False,limb_name = None,leg_t
                                                        '{}_toe{}'.format(limb_name[1],limb_name[-2:])], suffix='guide',
                                                  kinematic_mode = kinematic, limb_end = limb_end_leg,limb_type = leg_type)
 
-def controller_leg_jnt(char_name = None,limb_name = None,leg_type = None, limb_connection = None, ikfk = None, leg = None):
+def controller_leg_jnt(char_name = None,rebuild = False,limb_name = None,leg_type = None, limb_connection = None, kinematic_mode = None, limb_end = None):
+    if rebuild:
+        kinematic = kinematic_mode
+        limb_end_leg = limb_end
+    else:
+        if kinematic_mode[0] == True:
+            kinematic = 'ikfk'
+        else:
+            kinematic = 'fk'
+        if limb_end[0] == True:
+            limb_end_leg = True
+        else:
+            limb_end_leg = False
 
-    print('Here we enter the controller jnt //// {}'.format(limb_name))
-    print('leg type:  {}'.format(leg_type))
-    print('limb conection:  {}'.format(limb_connection))
-    print('ikfk value? {}'.format(ikfk))
-    print('Include leg? {}'.format(leg))
+    joint_list = ['{}_{}_upperleg{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]),
+                  '{}_{}_lowerleg{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]),
+                  '{}_{}_ankle{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]),
+                  '{}_{}_ball{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]),
+                  '{}_{}_toe{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:])]
+
+
+    if rebuild == False:
+        for i, item in enumerate(joint_list):
+            world_pos = cmds.xform(item, t=True, ws=True, q=True)
+            cmds.select(clear=True)
+            if i == 0:
+                jnt = cmds.joint(p=world_pos, name='{}_jnt'.format(item[0:-6]))
+            else:
+                jnt = cmds.joint(p=world_pos, name='{}_jnt'.format(item[0:-6]))
+                cmds.parent(jnt, '{}_jnt'.format(joint_list[i - 1][0:-6]))
+
+        ui_autorig._nested_dict_instance.update_limb(char_name=char_name, limb_name=limb_name,
+                                                     parent=limb_connection,
+                                                     list=['{}_upperleg{}'.format(limb_name[1], limb_name[-2:]),
+                                                           '{}_lowerleg{}'.format(limb_name[1], limb_name[-2:]),
+                                                           '{}_ankle{}'.format(limb_name[1], limb_name[-2:]),
+                                                           '{}_ball{}'.format(limb_name[1], limb_name[-2:]),
+                                                           '{}_toe{}'.format(limb_name[1], limb_name[-2:])],
+                                                     suffix='jnt',
+                                                     kinematic_mode=kinematic, limb_end=limb_end_leg,
+                                                     limb_type=leg_type)
+    else:
+
+        ui_autorig._nested_dict_instance.create_joints_from_limb(limb_name=limb_name)
+
