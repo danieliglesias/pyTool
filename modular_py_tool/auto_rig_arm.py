@@ -71,7 +71,7 @@ def controller_arm_guide(char_name = None,rebuild = False,limb_name = None,leg_t
 
 
     if limb_end_arm == True:
-        
+        controller_hand_build()    
     
 
     
