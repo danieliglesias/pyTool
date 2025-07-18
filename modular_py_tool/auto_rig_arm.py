@@ -42,15 +42,19 @@ def controller_arm_guide(char_name = None,rebuild = False,limb_name = None,leg_t
         shader, shading_group = utili.create_shader_guide()
         shape = cmds.listRelatives(sphere_name, shapes=True, fullPath=True)[0]
         cmds.sets(shape, edit=True, forceElement=shading_group)
-
-        final_position = [(cmds.getAttr('heightDistance.distance') / 25.0),
-                          cmds.getAttr('heightDistance.distance') / 1.27,
-                          cmds.getAttr('heightDistance.distance')/item[1] if item[1] != 0 else 0]
-
-        cmds.move(final_position[0],
-                  final_position[1],
-                  final_position[2],
-                  sphere_name)
+        
+        if rebuild == True:
+            final_position = ui_autorig._nested_dict_instance.data[limb_name][item[0]]['position']
+            cmds.move( final_position[0],final_position[1],final_position[2] ,sphere_name)
+        else:    
+            final_position = [(cmds.getAttr('heightDistance.distance') / 25.0),
+                              cmds.getAttr('heightDistance.distance') / 1.27,
+                              cmds.getAttr('heightDistance.distance')/item[1] if item[1] != 0 else 0]
+    
+            cmds.move(final_position[0],
+                      final_position[1],
+                      final_position[2],
+                      sphere_name)
 
         # Create annotation
         annotate = cmds.annotate(item[0], tx='{}'.format("_".join(item[0].split("_")[1:])),
