@@ -8,7 +8,8 @@ import importlib
 importlib.reload(utili)
 importlib.reload(ui_autorig)
 
-def controller_arm_guide(char_name = None,rebuild = False,limb_name = None,leg_type = None, limb_connection = None, kinematic_mode = None, limb_end = None):
+def controller_arm_guide(char_name = None,rebuild = False,limb_name = None,leg_type = None, limb_connection = None, kinematic_mode = None, limb_end = None,
+                        limb_end_digit = None, limb_end_metacarpal = None):
     if rebuild:
         kinematic = kinematic_mode
         limb_end_arm = limb_end
@@ -84,7 +85,8 @@ def controller_arm_guide(char_name = None,rebuild = False,limb_name = None,leg_t
                                                        '{}_hand{}'.format(limb_name[1], limb_name[-2:])], suffix='guide',
                                                  kinematic_mode=kinematic, limb_end=limb_end_leg, limb_type=leg_type)
 
-def controller_hand_jnt(char_name = None,rebuild = False,limb_name = None,leg_type = None, limb_connection = None, kinematic_mode = None, limb_end = None):
+def controller_hand_jnt(char_name = None,rebuild = False,limb_name = None,leg_type = None, limb_connection = None, kinematic_mode = None, limb_end = None,
+                       limb_end_digit = None, limb_end_metacarpal = None):
       if rebuild:
         kinematic = kinematic_mode
         limb_end_leg = limb_end
