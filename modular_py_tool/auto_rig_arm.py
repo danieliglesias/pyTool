@@ -72,7 +72,8 @@ def controller_arm_guide(char_name = None,rebuild = False,limb_name = None,leg_t
 
 
     if limb_end_arm == True:
-        controller_hand_build()    
+        controller_hand_build(char_name = char_name, limb_end = limb_end,
+                        limb_end_digit = limb_end_digit, limb_end_metacarpal = limb_end_metacarpal)    
     
 
     
@@ -128,5 +129,6 @@ def controller_hand_jnt(char_name = None,rebuild = False,limb_name = None,leg_ty
 
         ui_autorig._nested_dict_instance.create_joints_from_limb(limb_name=limb_name)
     
-def controller_hand_build():
+def controller_hand_build(char_name = None, limb_end = None,
+                        limb_end_digit = None, limb_end_metacarpal = None):
     return 0
