@@ -77,6 +77,47 @@ def controller_arm_guide(char_name = None,rebuild = False,limb_name = None,leg_t
                                                        '{}_hand{}'.format(limb_name[1], limb_name[-2:])], suffix='guide',
                                                  kinematic_mode=kinematic, limb_end=limb_end_leg, limb_type=leg_type)
 
+def controller_hand_jnt(char_name = None,rebuild = False,limb_name = None,leg_type = None, limb_connection = None, kinematic_mode = None, limb_end = None):
+      if rebuild:
+        kinematic = kinematic_mode
+        limb_end_leg = limb_end
+    else:
+        if kinematic_mode[0] == True:
+            kinematic = 'ikfk'
+        else:
+            kinematic = 'fk'
+        if limb_end[0] == True:
+            limb_end_leg = True
+        else:
+            limb_end_leg = False
 
+    joint_list_arm = [['{}_{}_clav{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), 60, 0],
+                  ['{}_{}_upperarm{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), 10, 0],
+                  ['{}_{}_lowerarm{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), 4, 0],
+                  ['{}_{}_wrist{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), 2.7, 0],
+                  ['{}_{}_hand{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), 2.5, 0]]
+
+    if rebuild == False:
+        for i, item in enumerate(joint_list):
+            world_pos = cmds.xform(item, t=True, ws=True, q=True)
+            cmds.select(clear=True)
+            if i == 0:
+                jnt = cmds.joint(p=world_pos, name='{}_jnt'.format(item[0:-6]))
+            else:
+                jnt = cmds.joint(p=world_pos, name='{}_jnt'.format(item[0:-6]))
+                cmds.parent(jnt, '{}_jnt'.format(joint_list[i - 1][0:-6]))
+
+        ui_autorig._nested_dict_instance.update_limb(char_name=char_name, limb_name=limb_name,
+                                                 parent=limb_connection,
+                                                 list=['{}_clav{}'.format(limb_name[1], limb_name[-2:]),
+                                                       '{}_upperarm{}'.format(limb_name[1], limb_name[-2:]),
+                                                       '{}_lowerarm{}'.format(limb_name[1], limb_name[-2:]),
+                                                       '{}_wrist{}'.format(limb_name[1], limb_name[-2:]),
+                                                       '{}_hand{}'.format(limb_name[1], limb_name[-2:])], suffix='jnt',
+                                                 kinematic_mode=kinematic, limb_end=limb_end_leg, limb_type=leg_type)
+    else:
+
+        ui_autorig._nested_dict_instance.create_joints_from_limb(limb_name=limb_name)
+    
 def controller_hand_build():
     return 0
