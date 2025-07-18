@@ -11,16 +11,16 @@ importlib.reload(ui_autorig)
 def controller_arm_guide(char_name = None,rebuild = False,limb_name = None,leg_type = None, limb_connection = None, kinematic_mode = None, limb_end = None):
     if rebuild:
         kinematic = kinematic_mode
-        limb_end_leg = limb_end
+        limb_end_arm = limb_end
     else:
         if kinematic_mode[0] == True:
             kinematic = 'ikfk'
         else:
             kinematic = 'fk'
         if limb_end[0] == True:
-            limb_end_leg = True
+            limb_end_arm = True
         else:
-            limb_end_leg = False
+            limb_end_arm = False
 
     ### [0] name, [1] Y offset, [2] Z offset
     joint_list_arm = [['{}_{}_clav{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), 60, 0],
@@ -28,7 +28,7 @@ def controller_arm_guide(char_name = None,rebuild = False,limb_name = None,leg_t
                   ['{}_{}_lowerarm{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), 4, 0],
                   ['{}_{}_wrist{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), 2.7, 0],
                   ['{}_{}_hand{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), 2.5, 0]]
-
+    
     joint_list_finger = [['{}_{}_thumb{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), 0, 0],
                       ['{}_{}_index{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), 2, 0],
                       ['{}_{}_middle{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), 10, 0],
@@ -68,6 +68,13 @@ def controller_arm_guide(char_name = None,rebuild = False,limb_name = None,leg_t
         cmds.setAttr(annotate + '.overrideEnabled', 1)
         cmds.setAttr(annotate + '.overrideColor', 6)
 
+
+
+    if limb_end_arm == True:
+        
+    
+
+    
     ui_autorig._nested_dict_instance.update_limb(char_name=char_name, limb_name=limb_name,
                                                  parent=limb_connection,
                                                  list=['{}_clav{}'.format(limb_name[1], limb_name[-2:]),
