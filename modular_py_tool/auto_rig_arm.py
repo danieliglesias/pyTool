@@ -30,11 +30,7 @@ def controller_arm_guide(char_name = None,rebuild = False,limb_name = None,leg_t
                   ['{}_{}_wrist{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), 2.7, 0],
                   ['{}_{}_hand{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), 2.5, 0]]
     
-    joint_list_finger = [['{}_{}_thumb{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), 0, 0],
-                      ['{}_{}_index{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), 2, 0],
-                      ['{}_{}_middle{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), 10, 0],
-                      ['{}_{}_ring{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), 100, 10],
-                      ['{}_{}_pinky{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), 100, 6]]
+    
 
     final_position = None
 
@@ -131,4 +127,22 @@ def controller_hand_jnt(char_name = None,rebuild = False,limb_name = None,leg_ty
     
 def controller_hand_build(char_name = None, limb_end = None,
                         limb_end_digit = None, limb_end_metacarpal = None):
+
+  joint_list_finger = [['{}_{}_thumb{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), -2, 0],
+                      ['{}_{}_index{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), -1, 0],
+                      ['{}_{}_middle{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), 0, 0],
+                      ['{}_{}_ring{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), 1, 0],
+                      ['{}_{}_pinky{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), 2, 0]]  
+
+  #lets get the postition of the wrist
+  if limb_end_metacarpal == False:
+
+    else:
+        joint_list_finger = [['{}_{}_thumb{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), -2, 0],
+                      ['{}_{}_index{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), -1, 0],
+                      ['{}_{}_middle{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), 0, 0],
+                      ['{}_{}_ring{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), 1, 0],
+                      ['{}_{}_pinky{}_guide'.format(char_name, limb_name[1].upper(), limb_name[-2:]), 2, 0]]   
+
+                          
     return 0
