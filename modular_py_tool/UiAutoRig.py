@@ -99,12 +99,12 @@ def arm_ui(limb_name = None,):
 
 
         cmds.button(label='{}'.format('Generate guide'), height=25, parent=data_row_larm_a,
-                    command=lambda x: leg.controller_leg_guide(char_name = cmds.textField('charactername', query=True, text=True),limb_name = limb_name, leg_type = cmds.optionMenu('optionmenu_{}'.format(limb_name),q=True, v=True),limb_connection =  cmds.textField('name_limb_connection_{}'.format(limb_name), query=True, text=True) ,
+                    command=lambda x: leg.controller_arm_guide(char_name = cmds.textField('charactername', query=True, text=True),limb_name = limb_name, leg_type = cmds.optionMenu('optionmenu_{}'.format(limb_name),q=True, v=True),limb_connection =  cmds.textField('name_limb_connection_{}'.format(limb_name), query=True, text=True) ,
                                                                kinematic_mode = cmds.checkBoxGrp('leg_ik_fk_flag_{}'.format(limb_name), query=True, valueArray2=True), limb_end = cmds.checkBoxGrp('leg_foot_flag_{}'.format(limb_name), query=True, valueArray2=True) ))
         cmds.button(label='{}'.format('Update'), height=25, parent=data_row_larm_a)
 
         cmds.button(label='{}'.format('Generate Jnt from guide'), height=25, parent=data_row_larm_a,
-                    command=lambda x: leg.controller_leg_jnt(char_name = cmds.textField('charactername', query=True, text=True),limb_name = limb_name, leg_type = cmds.optionMenu('optionmenu_{}'.format(limb_name),q=True, v=True),limb_connection =  cmds.textField('name_limb_connection_{}'.format(limb_name), query=True, text=True) ,
+                    command=lambda x: leg.controller_arm_jnt(char_name = cmds.textField('charactername', query=True, text=True),limb_name = limb_name, leg_type = cmds.optionMenu('optionmenu_{}'.format(limb_name),q=True, v=True),limb_connection =  cmds.textField('name_limb_connection_{}'.format(limb_name), query=True, text=True) ,
                                                              kinematic_mode = cmds.checkBoxGrp('leg_ik_fk_flag_{}'.format(limb_name), query=True, valueArray2=True), limb_end = cmds.checkBoxGrp('leg_foot_flag_{}'.format(limb_name), query=True, valueArray2=True) ))
         cmds.button(label='{}'.format('Update'), height=25, parent=data_row_larm_a)
 
