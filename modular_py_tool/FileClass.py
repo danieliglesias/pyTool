@@ -207,6 +207,9 @@ class NestedDictionary:
             'kinematic_mode': kinematic_mode, ### IK FK controller
             'limb_type': limb_type, ### this could be a humand feet or a horse or dog leg etc
             'limb_end': limb_end ### Do we include feet or hands?
+            'limb_end_metacarpal': None, ### this could be None/simple/advance
+            'limb_end_digit_number': 5 ### default 5/could be less too
+                        
         }
         ###join or guide list
 
