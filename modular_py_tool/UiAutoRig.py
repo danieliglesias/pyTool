@@ -57,11 +57,15 @@ def arm_ui(limb_name = None,):
         cmds.menuItem(label="Ungualigrade(horses)")
         cmds.menuItem(label="Invertebrate(Spider)")
 
-        cmds.checkBoxGrp('leg_ik_fk_flag_{}'.format(limb_name), numberOfCheckBoxes=2, label='IK/FK',
+        cmds.checkBoxGrp('arm_ik_fk_flag_{}'.format(limb_name), numberOfCheckBoxes=2, label='IK/FK',
                          labelArray2=['BOTH', 'FK'], parent='selected_grid',value1=True, value2=False)
 
-        cmds.checkBoxGrp('leg_foot_flag_{}'.format(limb_name), numberOfCheckBoxes=2, label='Foot?',
+        cmds.checkBoxGrp('arm_hand_flag_{}'.format(limb_name), numberOfCheckBoxes=2, label='Foot?',
                          labelArray2=['Yes', 'No'], parent='selected_grid',value1=True, value2=False)
+        cmds.checkBoxGrp('arm_hand_digit_{}'.format(limb_name), numberOfCheckBoxes=3, label='Foot?',
+                         labelArray3=['5', '3','2'], parent='selected_grid',value1=True, value2=False)
+        cmds.checkBoxGrp('arm_hand_metacarpal_{}'.format(limb_name), numberOfCheckBoxes=2, label='Foot?',
+                         labelArray2=['no', 'basic'], parent='selected_grid',value1=True, value2=False)
 
         data_row_lleg = cmds.rowColumnLayout(numberOfColumns=2,
                                             columnWidth=[(1, 100), (2, 400)],
