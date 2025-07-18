@@ -329,10 +329,12 @@ def build_data_frame(window, main_layout):
     cmds.optionMenu(larm_option_menu, e=True, cc=lambda *args: limb_option_menu_change(
         option_menu='larm', selected_value=cmds.optionMenu(larm_option_menu, q=True, v=True)))
 
-    option_menu = cmds.optionMenu(label='rarm', parent=data_row_general_seg_03)
+    rarm_option_menu = cmds.optionMenu('rarm', label='rarm', parent=data_row_general_seg_03)
     cmds.menuItem(label="1")
     cmds.menuItem(label="2")
     cmds.menuItem(label="3")
+    cmds.optionMenu(rarm_option_menu, e=True, cc=lambda *args: limb_option_menu_change(
+        option_menu='rarm', selected_value=cmds.optionMenu(larm_option_menu, q=True, v=True)))
 
     lleg_option_menu = cmds.optionMenu( 'lleg',label='lleg ', parent=data_row_general_seg_03)
     cmds.menuItem(label="1")
