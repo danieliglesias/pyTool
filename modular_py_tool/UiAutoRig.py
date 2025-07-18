@@ -51,7 +51,7 @@ def arm_ui(limb_name = None,):
 
     if constructor_limb_selected('lleg') == False:
 
-        type_foot_option_menu = cmds.optionMenu('optionmenu_{}'.format(limb_name), label='Preset leg', parent='selected_grid')
+        type_arm_option_menu = cmds.optionMenu('optionmenu_{}'.format(limb_name), label='Preset leg', parent='selected_grid')
         cmds.menuItem(label="human")
         cmds.menuItem(label="Digitigrade(Dog)")
         cmds.menuItem(label="Ungualigrade(horses)")
@@ -76,9 +76,10 @@ def arm_ui(limb_name = None,):
 
 
         cmds.text(align='center', height=30, label='name limb connection', parent=data_row_lleg)
-        leg_cog_data = _nested_dict_instance.data.get('COG', {})
-        leg_cog_keys = [key for key in leg_cog_data if key != 'general']
-        default_parent = leg_cog_keys[0] if leg_cog_keys else 'None'
+        
+        arm_cog_data = _nested_dict_instance.data.get('COG', {})
+        arm_cog_keys = [key for key in arm_cog_data if key != 'general']
+        default_parent = arm_cog_keys[0] if arm_cog_keys else 'None'
         hip_position = cmds.textField('name_limb_connection_{}'.format(limb_name) ,height=30, text=default_parent, parent=data_row_lleg) ### chest01 default connection to the body
 
         cmds.text(align='center', height=30, label='limb_name', parent=data_row_lleg)
