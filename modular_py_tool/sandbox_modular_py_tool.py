@@ -12,6 +12,7 @@ import json
 import math
 import sys
 
+
 importlib.reload(auto_rig_ui)    
 importlib.reload(utili)    
 importlib.reload(FileClass)
@@ -21,7 +22,32 @@ importlib.reload(leg)
 
 
 
+
+
+
 auto_rig_ui.modular_ui()
+
+
+
+rotate_orders = ['xyz', 'yzx', 'zxy', 'xzy', 'yxz', 'zyx']
+value_ori = cmds.getAttr('{}.rotateOrder'.format('max_R_upperleg01_jnt'))
+bone_ori = rotate_orders[value_ori]
+
+
+print(bone_ori)
+
+component = auto_rig_ui._nested_dict_instance.data.get('lleg01')
+
+for joint_key, info in component.items():
+    cmds.select(clear=True)
+    if joint_key == 'general':
+        continue
+
+    bone_name = info.get('bone_name')
+    position = info.get('position')
+    print(bone_name)
+    
+
 
 print('lleg'[1:])
 

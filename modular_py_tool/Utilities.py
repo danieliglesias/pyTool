@@ -351,3 +351,47 @@ def check_existing_joints(data):
                 existing_joints.append(bone_name)
 
     return existing_joints
+
+def create_guide_sphere(item, final_position):
+    print('#### inside create_guide_sphere')
+    # Get or create the shader once
+    shader, shading_group = create_shader_guide()
+
+    # Create sphere
+    sphere_name = cmds.sphere(name=item, r=1)[0]
+    shape = cmds.listRelatives(sphere_name, shapes=True, fullPath=True)[0]
+
+    cmds.move(final_position[0],
+              final_position[1],
+              final_position[2],
+              sphere_name)
+
+
+    # Assign shader
+    cmds.sets(shape, edit=True, forceElement=shading_group)
+
+    # Create annotation
+    label_text = "_".join(item.split("_")[1:])
+    #y_offset = final_position[1] if rebuild else final_position[1] + final_position[1] / 30
+
+    annotate = cmds.annotate(item, tx=label_text, p=(final_position[0], final_position[1]+ final_position[1]/30, final_position[2]))
+    annotate_transform = cmds.listRelatives(annotate, parent=True)[0]
+    cmds.parent(annotate_transform, item)
+
+    # Set annotation color
+    cmds.setAttr(annotate + '.overrideEnabled', 1)
+    cmds.setAttr(annotate + '.overrideColor', 6)
+
+    return sphere_name  # Optional: return if you need reference
+
+def switch_side_prefix(limb_name):
+    if limb_name.startswith('l'):
+        return 'r' + limb_name[1:]
+    elif limb_name.startswith('r'):
+        return 'l' + limb_name[1:]
+    elif limb_name.startswith('L'):
+        return 'R' + limb_name[1:]
+    elif limb_name.startswith('R'):
+        return 'L' + limb_name[1:]
+    else:
+        return limb_name  # No change if doesn't start with l or r

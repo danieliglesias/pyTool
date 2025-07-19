@@ -9,6 +9,7 @@ import modular_py_tool.FileClass as FileClass
 import modular_py_tool.auto_rig_hip as hip
 import modular_py_tool.auto_rig_torso as torso
 import modular_py_tool.auto_rig_leg as leg
+import modular_py_tool.auto_rig_arm as arm
 
 import importlib
 importlib.reload(fundation)
@@ -17,6 +18,7 @@ importlib.reload(FileClass)
 importlib.reload(hip)
 importlib.reload(leg)
 importlib.reload(torso)
+importlib.reload(arm)
 
 
 
@@ -87,10 +89,10 @@ def arm_ui(limb_name = None,):
 
 
 
-        data_row_larm_a = cmds.rowColumnLayout(numberOfColumns=2,
-                                                columnWidth=[(1, 400), (2, 100)],
-                                                columnOffset=[(1, 'both', 5), (2, 'both', 5)],
-                                                columnAlign=[(1, 'center'), (2, 'center')],
+        data_row_larm_a = cmds.rowColumnLayout(numberOfColumns=3,
+                                                columnWidth=[(1, 300), (2, 100), (3, 100)],
+                                                columnOffset=[(1, 'both', 5), (2, 'both', 5), (2, 'both', 5)],
+                                                columnAlign=[(1, 'center'), (2, 'center'), (2, 'center')],
                                                 parent='selected_grid', rowSpacing=[1, 5])
 
 
@@ -100,23 +102,25 @@ def arm_ui(limb_name = None,):
 
         cmds.button(label='{}'.format('Generate guide'), height=25, parent=data_row_larm_a,
                     command=lambda x: arm.controller_arm_guide(char_name = cmds.textField('charactername', query=True, text=True),limb_name = limb_name, 
-                                                               arm_type = cmds.optionMenu('optionmenu_{}'.format(limb_name),q=True, v=True),
+                                                               #leg_type = cmds.optionMenu('optionmenu_{}'.format(limb_name),q=True, v=True),
                                                                limb_connection =  cmds.textField('name_limb_connection_{}'.format(limb_name), query=True, text=True) ,
                                                                kinematic_mode = cmds.checkBoxGrp('arm_ik_fk_flag_{}'.format(limb_name), query=True, valueArray2=True), 
-                                                               limb_end = cmds.checkBoxGrp('arm_foot_flag_{}'.format(limb_name), query=True, valueArray2=True),
+                                                               limb_end = cmds.checkBoxGrp('arm_hand_flag_{}'.format(limb_name), query=True, valueArray2=True),
                                                                limb_end_digit = cmds.checkBoxGrp('arm_hand_digit_{}'.format(limb_name), query=True, valueArray2=True),
                                                                limb_end_metacarpal = cmds.checkBoxGrp('arm_hand_metacarpal_{}'.format(limb_name), query=True, valueArray2=True)))
         cmds.button(label='{}'.format('Update'), height=25, parent=data_row_larm_a)
+        cmds.button(label='{}'.format('Mirror'), height=25, parent=data_row_larm_a)
 
         cmds.button(label='{}'.format('Generate Jnt from guide'), height=25, parent=data_row_larm_a,
                     command=lambda x: arm.controller_arm_jnt(char_name = cmds.textField('charactername', query=True, text=True),limb_name = limb_name, 
-                                                             leg_type = cmds.optionMenu('optionmenu_{}'.format(limb_name),q=True, v=True),
+                                                             #leg_type = cmds.optionMenu('optionmenu_{}'.format(limb_name),q=True, v=True),
                                                              limb_connection =  cmds.textField('name_limb_connection_{}'.format(limb_name), query=True, text=True) ,
                                                              kinematic_mode = cmds.checkBoxGrp('arm_ik_fk_flag_{}'.format(limb_name), query=True, valueArray2=True), 
                                                              limb_end = cmds.checkBoxGrp('arm_foot_flag_{}'.format(limb_name), query=True, valueArray2=True),
                                                              limb_end_digit = cmds.checkBoxGrp('arm_hand_digit_{}'.format(limb_name), query=True, valueArray2=True),
                                                              limb_end_metacarpal = cmds.checkBoxGrp('arm_hand_metacarpal_{}'.format(limb_name), query=True, valueArray2=True)))
         cmds.button(label='{}'.format('Update'), height=25, parent=data_row_larm_a)
+        cmds.button(label='{}'.format('Mirror'), height=25, parent=data_row_larm_a)
 
 
 
@@ -149,17 +153,17 @@ def leg_ui(limb_name = None,):
         leg_cog_data = _nested_dict_instance.data.get('COG', {})
         leg_cog_keys = [key for key in leg_cog_data if key != 'general']
         default_parent = leg_cog_keys[0] if leg_cog_keys else 'None'
-        hip_position = cmds.textField('name_limb_connection_{}'.format(limb_name) ,height=30, text=default_parent, parent=data_row_lleg) ### chest01 default connection to the body
+        cmds.textField('name_limb_connection_{}'.format(limb_name) ,height=30, text=default_parent, parent=data_row_lleg) ### chest01 default connection to the body
 
         cmds.text(align='center', height=30, label='limb_name', parent=data_row_lleg)
-        hip_position = cmds.textField(height=30, text='{}'.format(limb_name), parent=data_row_lleg, enable = False)
+        cmds.textField('name_limb_{}'.format(limb_name), height=30, text='{}'.format(limb_name), parent=data_row_lleg, enable = False)
 
 
 
-        data_row_lleg_a = cmds.rowColumnLayout(numberOfColumns=2,
-                                                columnWidth=[(1, 400), (2, 100)],
-                                                columnOffset=[(1, 'both', 5), (2, 'both', 5)],
-                                                columnAlign=[(1, 'center'), (2, 'center')],
+        data_row_lleg_a = cmds.rowColumnLayout(numberOfColumns=3,
+                                                columnWidth=[(1, 300), (2, 100),(3, 100)],
+                                                columnOffset=[(1, 'both', 5), (2, 'both', 5), (3, 'both', 5)],
+                                                columnAlign=[(1, 'center'), (2, 'center'), (3, 'center')],
                                                 parent='selected_grid', rowSpacing=[1, 5])
 
 
@@ -170,12 +174,36 @@ def leg_ui(limb_name = None,):
         cmds.button(label='{}'.format('Generate guide'), height=25, parent=data_row_lleg_a,
                     command=lambda x: leg.controller_leg_guide(char_name = cmds.textField('charactername', query=True, text=True),limb_name = limb_name, leg_type = cmds.optionMenu('optionmenu_{}'.format(limb_name),q=True, v=True),limb_connection =  cmds.textField('name_limb_connection_{}'.format(limb_name), query=True, text=True) ,
                                                                kinematic_mode = cmds.checkBoxGrp('leg_ik_fk_flag_{}'.format(limb_name), query=True, valueArray2=True), limb_end = cmds.checkBoxGrp('leg_foot_flag_{}'.format(limb_name), query=True, valueArray2=True) ))
-        cmds.button(label='{}'.format('Update'), height=25, parent=data_row_lleg_a)
+
+
+
+        cmds.button(label='{}'.format('Update'), height=25, parent=data_row_lleg_a,
+                    command=lambda x: _nested_dict_instance.update_limb(char_name = cmds.textField('charactername', query=True, text=True),
+                                                                        limb_name = cmds.textField('name_limb_{}'.format(limb_name), query=True, text=True),
+                                                                        parent = cmds.textField('name_limb_connection_{}'.format(limb_name), query=True, text=True),
+                                                                        list=['{}_upperleg{}'.format(limb_name[0],limb_name[-2:]),
+                                                                              '{}_lowerleg{}'.format(limb_name[0],limb_name[-2:]),
+                                                                              '{}_ankle{}'.format(limb_name[0],limb_name[-2:]),
+                                                                              '{}_ball{}'.format(limb_name[0],limb_name[-2:]),
+                                                                              '{}_toe{}'.format(limb_name[0],limb_name[-2:])],
+                                                                        suffix = 'guide',
+                                                                        kinematic_mode = cmds.checkBoxGrp('leg_ik_fk_flag_{}'.format(limb_name), query=True,
+                                                                                         valueArray2=True),
+                                                                        limb_end = cmds.checkBoxGrp('leg_foot_flag_{}'.format(limb_name), query=True,
+                                                                                         valueArray2=True)
+                                                                        ))
+        cmds.button(label='{}'.format('Mirror'), height=25, parent=data_row_lleg_a,
+                    command = lambda x: leg.controller_leg_guide_mirror(char_name=cmds.textField('charactername', query=True, text=True),limb_name=limb_name))
+
 
         cmds.button(label='{}'.format('Generate Jnt from guide'), height=25, parent=data_row_lleg_a,
                     command=lambda x: leg.controller_leg_jnt(char_name = cmds.textField('charactername', query=True, text=True),limb_name = limb_name, leg_type = cmds.optionMenu('optionmenu_{}'.format(limb_name),q=True, v=True),limb_connection =  cmds.textField('name_limb_connection_{}'.format(limb_name), query=True, text=True) ,
                                                              kinematic_mode = cmds.checkBoxGrp('leg_ik_fk_flag_{}'.format(limb_name), query=True, valueArray2=True), limb_end = cmds.checkBoxGrp('leg_foot_flag_{}'.format(limb_name), query=True, valueArray2=True) ))
+
         cmds.button(label='{}'.format('Update'), height=25, parent=data_row_lleg_a)
+        cmds.button(label='{}'.format('Mirror'), height=25, parent=data_row_lleg_a)
+
+
 
 
 
